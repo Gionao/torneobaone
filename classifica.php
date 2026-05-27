@@ -158,15 +158,7 @@ $cannonieri = $pdo->query(
 </section>
 <?php endif; ?>
 
-<!-- FOOTER -->
-<footer class="site-footer">
-  <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="footer-logo">
-  <p>&copy; <?= date('Y') ?> <?= htmlspecialchars(SITE_NAME) ?></p>
-  <p class="footer-small">
-    <a href="<?= SITE_URL ?>">Home</a> &middot;
-    <a href="<?= SITE_URL ?>/admin/login.php">Admin</a>
-  </p>
-</footer>
+<?php include 'shared/footer.php'; ?>
 
 <style>
 .standings-wrap { margin-bottom: 1rem; }

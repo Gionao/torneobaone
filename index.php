@@ -43,21 +43,21 @@ $data_torneo = '2026-07-05 21:00:00';
 </head>
 <body>
 
-<!-- ═══════════════════════════════ NAVBAR ═══════════════════════════════ -->
-<nav class="navbar" id="navbar">
+<!-- NAVBAR -->
+<nav class="navbar">
   <div class="nav-container">
-    <a href="index.php" class="nav-brand">
-      <img src="assets/img/logo_torneo.png" alt="Logo" class="nav-logo">
-      <span>Torneo Baone <em>2026</em></span>
+    <a href="<?= SITE_URL ?>" class="nav-brand">
+      <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="nav-logo">
+      <span>Torneo <em>Baone</em> 2026</span>
     </a>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <button class="nav-toggle" id="navToggle" aria-label="Apri menu">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="navLinks">
-      <li><a href="index.php" class="active">Home</a></li>
-      <li><a href="calendario.php">Calendario</a></li>
-      <li><a href="classifica.php">Classifica</a></li>
-      <li><a href="regolamento.php">Regolamento</a></li>
+      <li><a href="<?= SITE_URL ?>" class="active">Home</a></li>
+      <li><a href="<?= SITE_URL ?>/calendario.php">Calendario</a></li>
+      <li><a href="<?= SITE_URL ?>/classifica.php">Classifica</a></li>
+      <li><a href="<?= SITE_URL ?>/iscrizione.php">Iscrizione</a></li>
     </ul>
   </div>
 </nav>
@@ -202,17 +202,7 @@ $data_torneo = '2026-07-05 21:00:00';
   </div>
 </section>
 
-<!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
-<footer class="site-footer">
-  <div class="container">
-    <img src="assets/img/logo_torneo.png" alt="Logo" class="footer-logo">
-    <p>&copy; <?= date('Y') ?> Torneo Calcio a 5 Baone &mdash; Patronato San Lorenzo</p>
-    <p class="footer-small">
-      <a href="regolamento.php">Regolamento</a> &bull;
-      <a href="admin/login.php">Admin</a>
-    </p>
-  </div>
-</footer>
+<?php include __DIR__ . '/shared/footer.php' ?>
 
 <script src="assets/js/main.js"></script>
 </body>

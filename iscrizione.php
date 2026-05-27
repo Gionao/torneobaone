@@ -169,16 +169,7 @@ require_once __DIR__ . '/includes/config.php';
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="site-footer">
-  <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="footer-logo">
-  <p>&copy; <?= date('Y') ?> <?= htmlspecialchars(SITE_NAME) ?></p>
-  <p class="footer-small">
-    <a href="<?= SITE_URL ?>">Home</a> &middot;
-    <a href="<?= SITE_URL ?>/calendario.php">Calendario</a> &middot;
-    <a href="<?= SITE_URL ?>/classifica.php">Classifica</a>
-  </p>
-</footer>
+<?php include 'shared/footer.php'; ?>
 
 <style>
 /* Hero */

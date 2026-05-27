@@ -269,11 +269,7 @@ if ($hasScore) {
 </section>
 <?php endif; ?>
 
-<!-- FOOTER -->
-<footer class="site-footer">
-  <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="footer-logo">
-  <p>&copy; <?= date('Y') ?> <?= htmlspecialchars(SITE_NAME) ?></p>
-</footer>
+<?php include 'shared/footer.php'; ?>
 
 <style>
 /* Breadcrumb */
