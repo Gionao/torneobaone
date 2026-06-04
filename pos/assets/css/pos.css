@@ -1,0 +1,776 @@
+/* pos/assets/css/pos.css — Stili modulo POS (affiancato a style.css / admin.css) */
+
+body.pos-body {
+  background: #080f17;
+  min-height: 100vh;
+}
+
+.pos-main {
+  padding: 1.5rem 1.2rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.pos-page-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.25rem;
+}
+
+/* ── Layout operatore ───────────────────────────────────── */
+.pos-operator-grid {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .pos-operator-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pos-panel {
+  background: var(--navy-mid);
+  border: 1px solid rgba(201, 168, 76, .12);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.pos-panel h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(201, 168, 76, .12);
+}
+
+/* Prodotti per categoria */
+.pos-category-block {
+  margin-bottom: 1.25rem;
+}
+
+.pos-category-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .85rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+
+.pos-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: .6rem;
+}
+
+.pos-product-card {
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(201, 168, 76, .15);
+  border-radius: 8px;
+  padding: .75rem .6rem;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pos-product-card:hover {
+  border-color: var(--gold);
+  background: rgba(201, 168, 76, .08);
+  transform: translateY(-2px);
+}
+
+.pos-product-card .name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .9rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: .35rem;
+}
+
+.pos-product-card .price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: .05em;
+}
+
+/* Carrello */
+.pos-cart-list {
+  list-style: none;
+  margin-bottom: 1rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.pos-cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: .5rem;
+  padding: .6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+  font-size: .88rem;
+}
+
+.pos-cart-item.coupon-free .item-name::after {
+  content: ' COUPON';
+  font-size: .65rem;
+  color: var(--green);
+  margin-left: .35rem;
+}
+
+.pos-cart-item .mods {
+  font-size: .75rem;
+  color: var(--muted);
+  margin-top: .2rem;
+}
+
+.pos-cart-item .item-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+.pos-cart-item .btn-remove {
+  background: none;
+  border: none;
+  color: var(--red);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 .2rem;
+}
+
+.pos-cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .75rem 0;
+  border-top: 2px solid rgba(201, 168, 76, .2);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.pos-coupon-row {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.pos-coupon-row input {
+  flex: 1;
+  min-width: 140px;
+  padding: .55rem .75rem;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(201, 168, 76, .18);
+  border-radius: 6px;
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: .9rem;
+}
+
+.pos-coupon-row input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.pos-confirm-row {
+  margin-top: 1rem;
+}
+
+.pos-order-success {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.pos-order-success .order-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: .06em;
+}
+
+/* Coda ordini operatore */
+.pos-queue-section {
+  margin-bottom: 1rem;
+}
+
+.pos-queue-section h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+
+.pos-order-card {
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid rgba(201, 168, 76, .12);
+  border-radius: 8px;
+  padding: .75rem;
+  margin-bottom: .6rem;
+}
+
+.pos-order-card .order-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .4rem;
+}
+
+.pos-order-card .order-num-sm {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: .05em;
+}
+
+.pos-order-card .order-time {
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+.pos-order-card .order-items-list {
+  font-size: .82rem;
+  color: var(--white);
+  margin-bottom: .5rem;
+  line-height: 1.4;
+}
+
+.pos-order-card .order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+
+.pos-badge-coupon {
+  display: inline-block;
+  padding: .12rem .45rem;
+  border-radius: 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: rgba(76, 175, 125, .15);
+  color: #6ddfab;
+  margin-left: .35rem;
+}
+
+/* Badge stato ordine */
+.status-badge {
+  display: inline-block;
+  padding: .15rem .5rem;
+  border-radius: 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.status-badge.pending   { background: rgba(201, 168, 76, .15); color: var(--gold); }
+.status-badge.preparing { background: rgba(76, 143, 201, .15);  color: #7bb8e8; }
+.status-badge.ready     { background: rgba(76, 175, 125, .15);  color: #6ddfab; }
+.status-badge.delivered { background: rgba(255, 255, 255, .08); color: var(--muted); }
+.status-badge.cancelled { background: rgba(217, 79, 79, .15);   color: #f08080; }
+
+/* Modale personalizzazione */
+.pos-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, .7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.pos-modal {
+  background: var(--navy-mid);
+  border: 1px solid rgba(201, 168, 76, .2);
+  border-radius: var(--radius);
+  width: min(100%, 420px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.pos-modal h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.pos-modal .modal-section {
+  margin-bottom: 1rem;
+}
+
+.pos-modal .modal-section h4 {
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+
+.pos-check-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .35rem 0;
+  font-size: .88rem;
+  cursor: pointer;
+}
+
+.pos-check-row input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--gold);
+}
+
+.pos-modal-actions {
+  display: flex;
+  gap: .6rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.pos-hidden { display: none !important; }
+
+/* ── Display cucina / bar ─────────────────────────────────── */
+.pos-display-body {
+  background: #080f17;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.pos-display-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.pos-kds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.pos-kds-card {
+  background: var(--navy-mid);
+  border: 2px solid rgba(201, 168, 76, .2);
+  border-radius: var(--radius);
+  padding: 1rem;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.pos-kds-card.all-ready {
+  background: #0a1520;
+  border-color: rgba(76, 175, 125, .35);
+  opacity: .85;
+}
+
+.pos-kds-card .kds-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: .05em;
+  line-height: 1;
+}
+
+.pos-kds-card .kds-time {
+  font-size: .8rem;
+  color: var(--muted);
+  margin-bottom: .75rem;
+}
+
+.pos-kds-item {
+  padding: .6rem 0;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+}
+
+.pos-kds-item:first-of-type {
+  border-top: none;
+}
+
+.pos-kds-item .item-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.pos-mod-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-top: .35rem;
+}
+
+.pos-mod-tag {
+  font-size: .72rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: .15rem .45rem;
+  border-radius: 4px;
+}
+
+.pos-mod-tag.removed { background: rgba(217, 79, 79, .15); color: #f08080; }
+.pos-mod-tag.added   { background: rgba(76, 175, 125, .15); color: #6ddfab; }
+
+.pos-kds-item .item-ready-btn {
+  margin-top: .5rem;
+}
+
+.pos-kds-item.item-ready .item-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+/* ── Admin POS tabs ─────────────────────────────────────── */
+.pos-admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pos-admin-tabs a {
+  padding: .5rem 1rem;
+  border: 1px solid rgba(201, 168, 76, .25);
+  border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .9rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: var(--transition);
+}
+
+.pos-admin-tabs a:hover,
+.pos-admin-tabs a.active {
+  background: rgba(201, 168, 76, .12);
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.pos-ingredient-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, .2);
+  border-radius: 8px;
+  border: 1px solid rgba(201, 168, 76, .1);
+}
+
+.pos-ingredient-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: .5rem;
+  align-items: center;
+  padding: .4rem 0;
+  font-size: .85rem;
+}
+
+@media (max-width: 640px) {
+  .pos-ingredient-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Storico ordini — riga espandibile */
+.pos-history-row {
+  cursor: pointer;
+}
+
+.pos-history-row:hover {
+  background: rgba(201, 168, 76, .04);
+}
+
+.pos-history-detail {
+  display: none;
+  background: rgba(0, 0, 0, .25);
+}
+
+.pos-history-detail.open {
+  display: table-row;
+}
+
+.pos-history-detail td {
+  padding: 1rem !important;
+  font-size: .85rem;
+}
+
+.pos-history-footer td {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  color: var(--gold);
+  border-top: 2px solid rgba(201, 168, 76, .2);
+}
+
+.coupon-badge-used {
+  background: rgba(255, 255, 255, .08);
+  color: var(--muted);
+}
+
+.coupon-badge-free {
+  background: rgba(76, 175, 125, .15);
+  color: #6ddfab;
+}
+
+/* ── Navbar POS ─────────────────────────────────────────── */
+.pos-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13, 27, 42, .98);
+  border-bottom: 2px solid var(--gold-dim);
+  padding: 0 1.2rem;
+}
+
+.pos-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 58px;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+.pos-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.pos-nav-brand em { color: var(--gold); font-style: normal; }
+.pos-nav-logo { width: 30px; height: 30px; object-fit: contain; }
+
+.pos-nav-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .1rem;
+}
+
+.pos-nav-links a {
+  padding: .4rem .65rem;
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.pos-nav-links a:hover,
+.pos-nav-links a.active {
+  color: var(--gold);
+  background: rgba(201, 168, 76, .08);
+}
+
+.pos-nav-user {
+  padding: .4rem .65rem;
+  color: var(--white);
+  font-size: .82rem;
+}
+
+.pos-nav-logout {
+  color: var(--red) !important;
+  border: 1px solid rgba(217, 79, 79, .3);
+  margin-left: .25rem;
+}
+
+.pos-nav-logout:hover {
+  background: rgba(217, 79, 79, .12) !important;
+  color: #f08080 !important;
+}
+
+.pos-nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .4rem;
+}
+
+.pos-nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--white);
+}
+
+@media (max-width: 900px) {
+  .pos-nav-toggle { display: flex; }
+  .pos-nav-links {
+    display: none;
+    position: absolute;
+    top: 58px;
+    left: 0;
+    right: 0;
+    background: rgba(13, 27, 42, .98);
+    border-bottom: 2px solid var(--gold-dim);
+    padding: .75rem 1rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pos-nav-links.open { display: flex; }
+  .pos-navbar { position: relative; }
+}
+
+/* ── Login POS ──────────────────────────────────────────── */
+.pos-login-body {
+  background: #080f17;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.pos-login-wrap {
+  width: min(100%, 400px);
+  text-align: center;
+}
+
+.pos-login-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  margin: 0 auto 1rem;
+}
+
+.pos-login-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.pos-login-sub {
+  color: var(--muted);
+  font-size: .88rem;
+  margin: .35rem 0 1.5rem;
+}
+
+.pos-login-card {
+  background: var(--navy-mid);
+  border: 1px solid rgba(201, 168, 76, .12);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: left;
+}
+
+.pos-login-btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: .5rem;
+}
+
+.pos-password-wrap {
+  position: relative;
+}
+
+.pos-password-wrap input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.pos-password-toggle {
+  position: absolute;
+  right: .5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: .7;
+}
+
+.pos-login-footer {
+  margin-top: 2rem;
+  font-size: .78rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+/* ── Display cucina/bar — logout ────────────────────────── */
+.pos-display-logout {
+  position: fixed;
+  top: .75rem;
+  right: .75rem;
+  z-index: 50;
+  padding: .35rem .75rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid rgba(217, 79, 79, .35);
+  border-radius: 4px;
+  background: rgba(13, 27, 42, .9);
+  transition: var(--transition);
+}
+
+.pos-display-logout:hover {
+  background: rgba(217, 79, 79, .15);
+  color: #f08080;
+}
