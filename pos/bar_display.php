@@ -3,6 +3,8 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/auth_check.php';
+require_once __DIR__ . '/includes/role_check.php';
+require_role(['admin', 'bar']);
 $department = 'bar';
 $displayTitle = 'Bar';
 ?>

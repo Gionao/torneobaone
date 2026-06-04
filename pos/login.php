@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (isset($_SESSION['pos_admin_id'])) {
-    header('Location: ' . POS_URL . '/operator_panel.php');
+    header('Location: ' . POS_URL . '/index.php');
     exit;
 }
 
@@ -22,15 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === '' || $password === '') {
         $errore = 'Credenziali non valide';
     } else {
-        $stmt = $pdo->prepare('SELECT id, username, password_hash FROM admin WHERE username = ? LIMIT 1');
+        $stmt = $pdo->prepare('
+            SELECT id, username, password_hash, role, station_name
+            FROM admin WHERE username = ? LIMIT 1
+        ');
         $stmt->execute([$username]);
         $row = $stmt->fetch();
 
         if ($row && password_verify($password, $row['password_hash'])) {
             session_regenerate_id(true);
-            $_SESSION['pos_admin_id']   = (int) $row['id'];
-            $_SESSION['pos_admin_user'] = $row['username'];
-            header('Location: ' . POS_URL . '/operator_panel.php');
+            $_SESSION['pos_admin_id']      = (int) $row['id'];
+            $_SESSION['pos_admin_user']    = $row['username'];
+            $_SESSION['pos_admin_role']    = $row['role'] ?? 'operatore';
+            $_SESSION['pos_admin_station'] = $row['station_name'];
+            header('Location: ' . POS_URL . '/index.php');
             exit;
         }
         $errore = 'Credenziali non valide';

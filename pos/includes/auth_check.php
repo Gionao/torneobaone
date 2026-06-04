@@ -21,3 +21,16 @@ if (!isset($_SESSION['pos_admin_id'])) {
     header('Location: ' . SITE_URL . '/pos/login.php');
     exit;
 }
+
+// Compatibilità sessioni create prima dell'introduzione dei ruoli
+if (empty($_SESSION['pos_admin_role'])) {
+    require_once __DIR__ . '/db.php';
+    $stmt = $pdo->prepare('SELECT id, username, role, station_name FROM admin WHERE id = ? LIMIT 1');
+    $stmt->execute([(int) $_SESSION['pos_admin_id']]);
+    $row = $stmt->fetch();
+    if ($row) {
+        $_SESSION['pos_admin_user']    = $row['username'];
+        $_SESSION['pos_admin_role']    = $row['role'] ?? 'operatore';
+        $_SESSION['pos_admin_station'] = $row['station_name'];
+    }
+}

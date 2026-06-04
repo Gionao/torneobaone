@@ -774,3 +774,102 @@ body.pos-body {
   background: rgba(217, 79, 79, .15);
   color: #f08080;
 }
+
+/* ── Form meta ordine (nome / coperti) ───────────────────── */
+.pos-order-meta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(201, 168, 76, .12);
+}
+
+.pos-order-meta .form-group { margin: 0; }
+.pos-order-meta label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pos-order-meta input {
+  width: 100%;
+  padding: .55rem .75rem;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(201, 168, 76, .18);
+  border-radius: 6px;
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+}
+.pos-order-meta input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+@media (max-width: 520px) {
+  .pos-order-meta { grid-template-columns: 1fr; }
+}
+
+.order-customer {
+  font-size: .88rem;
+  color: var(--white);
+  margin-bottom: .35rem;
+}
+
+.pos-badge-station {
+  display: inline-block;
+  padding: .12rem .45rem;
+  border-radius: 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  background: rgba(76, 143, 201, .15);
+  color: #7bb8e8;
+  margin-left: .35rem;
+  vertical-align: middle;
+}
+
+/* ── Badge ruolo ─────────────────────────────────────────── */
+.role-badge {
+  display: inline-block;
+  padding: .12rem .45rem;
+  border-radius: 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.role-badge--admin     { background: rgba(201, 168, 76, .15); color: var(--gold); }
+.role-badge--operatore { background: rgba(76, 143, 201, .15);  color: #7bb8e8; }
+.role-badge--bar       { background: rgba(148, 76, 201, .15);  color: #c07be8; }
+.role-badge--cucina    { background: rgba(76, 175, 125, .15);  color: #6ddfab; }
+
+.pos-nav-user-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .15rem;
+  padding: .25rem .5rem;
+  margin-left: .5rem;
+}
+
+.pos-nav-station {
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+.pos-stats-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 2rem 0 1rem;
+}

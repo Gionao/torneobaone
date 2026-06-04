@@ -4,6 +4,8 @@ declare(strict_types=1);
 define('POS_API', true);
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_check.php';
+require_once __DIR__ . '/../includes/role_check.php';
+require_role(['admin', 'operatore']);
 
 try {
     $stmt = $pdo->query("

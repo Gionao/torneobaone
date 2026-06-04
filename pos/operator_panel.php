@@ -3,8 +3,11 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/auth_check.php';
+require_once __DIR__ . '/includes/role_check.php';
+require_role(['admin', 'operatore']);
 $pageTitle = 'POS — Bancone';
 $posNavActive = 'operator';
+$showStationInQueue = ($_SESSION['pos_admin_role'] ?? '') === 'admin';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -28,6 +31,17 @@ $posNavActive = 'operator';
     <section class="pos-panel" id="panelNewOrder">
       <div id="orderFormView">
       <h2>Nuovo ordine</h2>
+      <div class="pos-order-meta">
+        <div class="form-group">
+          <label for="customerName">Nome / tavolo</label>
+          <input type="text" id="customerName" maxlength="100" required
+                 placeholder="es. Mario, Tavolo 5">
+        </div>
+        <div class="form-group">
+          <label for="orderCovers">Coperti</label>
+          <input type="number" id="orderCovers" min="1" max="20" value="1" required>
+        </div>
+      </div>
       <div id="productsArea"><p class="empty-msg">Caricamento menu…</p></div>
 
       <h2 style="margin-top:1.25rem;">Carrello</h2>
@@ -85,6 +99,9 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
   const orderDoneView  = document.getElementById('orderDoneView');
   const assignedNum    = document.getElementById('assignedOrderNum');
   const queueArea      = document.getElementById('queueArea');
+  const customerName   = document.getElementById('customerName');
+  const orderCovers    = document.getElementById('orderCovers');
+  const SHOW_STATION   = <?= json_encode($showStationInQueue) ?>;
 
   function euro(n) {
     return '€ ' + Number(n).toFixed(2).replace('.', ',');
@@ -283,9 +300,17 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
 
   document.getElementById('btnConfirmOrder').onclick = async () => {
     if (!cart.length) return;
+    const cName = customerName.value.trim();
+    const covers = parseInt(orderCovers.value, 10) || 1;
+    if (!cName) {
+      couponAlert.innerHTML = '<div class="alert alert-error">Inserisci nome cliente o tavolo.</div>';
+      return;
+    }
     btnConfirm.disabled = true;
     try {
       const payload = {
+        customer_name: cName,
+        covers: covers,
         items: cart.map(it => ({
           product_id: it.product_id,
           quantity: it.quantity,
@@ -308,6 +333,8 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
       cart = [];
       activeCoupon = null;
       document.getElementById('couponCode').value = '';
+      customerName.value = '';
+      orderCovers.value = '1';
       couponAlert.innerHTML = '';
       loadQueue();
     } catch (e) {
@@ -345,11 +372,16 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
       groups[st].forEach(o => {
         const time = new Date(o.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
         const itemsTxt = o.items.map(i => i.quantity + '× ' + i.product_name).join(', ');
+        const custLine = '<div class="order-customer"><strong>' + escapeHtml(o.customer_name || '—') +
+          '</strong> · ' + (o.covers || 1) + ' coperti</div>';
+        const stationBadge = (SHOW_STATION && o.station_name)
+          ? '<span class="pos-badge-station">' + escapeHtml(o.station_name) + '</span>' : '';
         html += '<div class="pos-order-card" data-order-id="' + o.id + '"><div class="order-head">' +
           '<span class="order-num-sm">#' + o.daily_number +
           (o.has_coupon ? '<span class="pos-badge-coupon">Coupon</span>' : '') +
+          stationBadge +
           '</span><span class="status-badge ' + o.status + '">' + o.status + '</span></div>' +
-          '<div class="order-time">' + time + '</div>' +
+          '<div class="order-time">' + time + '</div>' + custLine +
           '<div class="order-items-list">' + escapeHtml(itemsTxt) + '</div>' +
           '<div class="order-actions">';
         const flow = statusFlow[o.status];

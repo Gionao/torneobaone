@@ -4,6 +4,8 @@ declare(strict_types=1);
 define('POS_API', true);
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_check.php';
+require_once __DIR__ . '/../includes/role_check.php';
+require_role(['admin', 'operatore', 'bar', 'cucina']);
 
 $department = $_GET['department'] ?? null;
 if ($department !== null && !in_array($department, ['kitchen', 'bar'], true)) {
@@ -12,7 +14,8 @@ if ($department !== null && !in_array($department, ['kitchen', 'bar'], true)) {
 
 try {
     $sql = "
-        SELECT DISTINCT o.id, o.daily_number, o.status, o.created_at
+        SELECT DISTINCT o.id, o.daily_number, o.customer_name, o.covers,
+               o.station_name, o.status, o.created_at
         FROM pos_orders o
         INNER JOIN pos_order_items oi ON oi.order_id = o.id
         INNER JOIN pos_products p ON p.id = oi.product_id
@@ -107,12 +110,15 @@ try {
         }
 
         $result[] = [
-            'id'           => $orderId,
-            'daily_number' => (int) $order['daily_number'],
-            'status'       => $order['status'],
-            'created_at'   => $order['created_at'],
-            'has_coupon'   => $hasCoupon,
-            'items'        => $formattedItems,
+            'id'            => $orderId,
+            'daily_number'  => (int) $order['daily_number'],
+            'customer_name' => $order['customer_name'] ?? '',
+            'covers'        => (int) ($order['covers'] ?? 1),
+            'station_name'  => $order['station_name'],
+            'status'        => $order['status'],
+            'created_at'    => $order['created_at'],
+            'has_coupon'    => $hasCoupon,
+            'items'         => $formattedItems,
         ];
     }
 

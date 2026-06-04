@@ -4,19 +4,32 @@ declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_check.php';
-$posNavActive = 'history';
+require_once __DIR__ . '/../includes/role_check.php';
+require_role(['admin', 'operatore']);
 
-$statusFilter = $_GET['status'] ?? '';
-$dateFrom     = $_GET['date_from'] ?? '';
-$dateTo       = $_GET['date_to'] ?? '';
+$posNavActive = 'history';
+$isAdmin      = ($_SESSION['pos_admin_role'] ?? '') === 'admin';
+$currentAdmin = (int) $_SESSION['pos_admin_id'];
+
+$statusFilter  = $_GET['status'] ?? '';
+$dateFrom      = $_GET['date_from'] ?? '';
+$dateTo        = $_GET['date_to'] ?? '';
+$stationFilter = $_GET['station'] ?? '';
 
 $allowedStatus = ['', 'pending', 'preparing', 'ready', 'delivered', 'cancelled'];
 if (!in_array($statusFilter, $allowedStatus, true)) {
     $statusFilter = '';
 }
 
+$stations = $pdo->query("
+    SELECT DISTINCT station_name FROM pos_orders
+    WHERE station_name IS NOT NULL AND station_name != ''
+    ORDER BY station_name
+")->fetchAll(PDO::FETCH_COLUMN);
+
 $sql = "
-    SELECT o.id, o.daily_number, o.status, o.created_at,
+    SELECT o.id, o.daily_number, o.customer_name, o.covers, o.station_name,
+           o.status, o.created_at,
            COALESCE(SUM(
                (oi.unit_price * oi.quantity)
                + COALESCE((
@@ -32,6 +45,11 @@ $sql = "
 ";
 $params = [];
 
+if (!$isAdmin) {
+    $sql .= ' AND o.admin_id = ?';
+    $params[] = $currentAdmin;
+}
+
 if ($statusFilter !== '') {
     $sql .= ' AND o.status = ?';
     $params[] = $statusFilter;
@@ -43,6 +61,10 @@ if ($dateFrom !== '') {
 if ($dateTo !== '') {
     $sql .= ' AND DATE(o.created_at) <= ?';
     $params[] = $dateTo;
+}
+if ($isAdmin && $stationFilter !== '') {
+    $sql .= ' AND o.station_name = ?';
+    $params[] = $stationFilter;
 }
 
 $sql .= ' GROUP BY o.id ORDER BY o.created_at DESC LIMIT 300';
@@ -61,7 +83,7 @@ foreach ($orders as $o) {
 }
 
 $itemStmt = $pdo->prepare("
-    SELECT oi.*, p.name AS product_name, c.name AS coupon_code
+    SELECT oi.*, p.name AS product_name, c.code AS coupon_code
     FROM pos_order_items oi
     INNER JOIN pos_products p ON p.id = oi.product_id
     LEFT JOIN pos_coupons c ON c.id = oi.coupon_id
@@ -95,10 +117,10 @@ $pageTitle = 'Storico ordini POS';
 
 <div class="admin-page-header">
   <h1>Storico ordini</h1>
-  <p>Consultazione ordini passati con dettaglio righe</p>
+  <p><?= $isAdmin ? 'Tutti gli ordini del torneo' : 'I tuoi ordini da questa cassa' ?></p>
 </div>
 
-<form method="get" class="admin-form" style="max-width:100%;margin-bottom:1.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;align-items:end;">
+<form method="get" class="admin-form" style="max-width:100%;margin-bottom:1.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;align-items:end;">
   <div class="form-group" style="margin:0">
     <label>Stato</label>
     <select name="status">
@@ -108,6 +130,17 @@ $pageTitle = 'Storico ordini POS';
       <?php endforeach; ?>
     </select>
   </div>
+  <?php if ($isAdmin): ?>
+  <div class="form-group" style="margin:0">
+    <label>Cassa</label>
+    <select name="station">
+      <option value="">Tutte</option>
+      <?php foreach ($stations as $st): ?>
+      <option value="<?= htmlspecialchars($st, ENT_QUOTES) ?>" <?= $stationFilter === $st ? 'selected' : '' ?>><?= htmlspecialchars($st) ?></option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+  <?php endif; ?>
   <div class="form-group" style="margin:0">
     <label>Da data</label>
     <input type="date" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>">
@@ -127,6 +160,9 @@ $pageTitle = 'Storico ordini POS';
     <thead>
       <tr>
         <th>#</th>
+        <th>Nome</th>
+        <th>Cop.</th>
+        <?php if ($isAdmin): ?><th>Cassa</th><?php endif; ?>
         <th>Data/ora</th>
         <th>Stato</th>
         <th>Totale</th>
@@ -135,21 +171,27 @@ $pageTitle = 'Storico ordini POS';
     </thead>
     <tbody>
       <?php if (empty($orders)): ?>
-      <tr><td colspan="5" class="empty-msg">Nessun ordine trovato.</td></tr>
+      <tr><td colspan="<?= $isAdmin ? 8 : 7 ?>" class="empty-msg">Nessun ordine trovato.</td></tr>
       <?php else: foreach ($orders as $o):
         $orderId = (int) $o['id'];
         $itemStmt->execute([$orderId]);
         $items = $itemStmt->fetchAll();
+        $colspan = $isAdmin ? 8 : 7;
       ?>
       <tr class="pos-history-row" data-order-id="<?= $orderId ?>">
         <td><strong>#<?= (int) $o['daily_number'] ?></strong></td>
+        <td><?= htmlspecialchars($o['customer_name'] ?: '—') ?></td>
+        <td><?= (int) $o['covers'] ?></td>
+        <?php if ($isAdmin): ?>
+        <td style="color:var(--muted);font-size:.85rem"><?= htmlspecialchars($o['station_name'] ?? '—') ?></td>
+        <?php endif; ?>
         <td><?= htmlspecialchars($o['created_at']) ?></td>
         <td><span class="status-badge <?= htmlspecialchars($o['status']) ?>"><?= htmlspecialchars($o['status']) ?></span></td>
         <td>€ <?= number_format((float) $o['order_total'], 2, ',', '.') ?></td>
         <td><?= (int) $o['coupon_count'] > 0 ? (int) $o['coupon_count'] : '—' ?></td>
       </tr>
       <tr class="pos-history-detail" id="detail-<?= $orderId ?>">
-        <td colspan="5">
+        <td colspan="<?= $colspan ?>">
           <ul style="list-style:none;margin:0;padding:0;">
             <?php foreach ($items as $it):
               $modStmt->execute([(int) $it['id']]);
@@ -182,8 +224,8 @@ $pageTitle = 'Storico ordini POS';
     <?php if (!empty($orders)): ?>
     <tfoot>
       <tr class="pos-history-footer">
-        <td colspan="3"><strong>Totali (ordini non annullati nel filtro)</strong></td>
-        <td><strong>€ <?= number_format($totalRevenue, 2, ',', '.') ?></strong></td>
+        <td colspan="<?= $isAdmin ? 5 : 4 ?>"><strong>Totali (ordini non annullati nel filtro)</strong></td>
+        <td colspan="2"><strong>€ <?= number_format($totalRevenue, 2, ',', '.') ?></strong></td>
         <td><strong><?= $totalCoupons ?> riscattati</strong></td>
       </tr>
     </tfoot>
@@ -198,8 +240,7 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
 });
 document.querySelectorAll('.pos-history-row').forEach(row => {
   row.addEventListener('click', () => {
-    const id = row.dataset.orderId;
-    const detail = document.getElementById('detail-' + id);
+    const detail = document.getElementById('detail-' + row.dataset.orderId);
     if (detail) detail.classList.toggle('open');
   });
 });
