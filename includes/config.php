@@ -13,8 +13,8 @@ if (ENV === 'local') {
     // ── XAMPP ──────────────────────────────────────────────
     define('DB_HOST',    'localhost');
     define('DB_NAME',    'torneobaone');   // Crea questo DB in phpMyAdmin locale
-    define('DB_USER',    'root');           // Utente XAMPP di default
-    define('DB_PASS',    '');               // Password XAMPP di default (vuota)
+    define('DB_USER',    'admin');           // Utente XAMPP di default
+    define('DB_PASS',    'admin');               // Password XAMPP di default (vuota)
     define('DB_CHARSET', 'utf8mb4');
 
     define('SITE_NAME',  'Torneo Calcio a 5 - Baone 2026 [LOCAL]');
@@ -25,13 +25,13 @@ if (ENV === 'local') {
 
     // ── Altervista (produzione) ────────────────────────────
     define('DB_HOST',    'localhost');
-    define('DB_NAME',    'my_torneobaone');           // = nome account Altervista
-    define('DB_USER',    'torneobaone');
-    define('DB_PASS',    'Altervista@torneobaone.2026');
+    define('DB_NAME',    'my_nomeutente');           // = nome account Altervista
+    define('DB_USER',    'my_nomeutente');
+    define('DB_PASS',    'LA_TUA_PASSWORD_DB');
     define('DB_CHARSET', 'utf8mb4');
 
     define('SITE_NAME',  'Torneo Calcio a 5 - Baone 2026');
-    define('SITE_URL',   'https://torneobaone.altervista.org');
+    define('SITE_URL',   'https://TUONOMEUTENTE.altervista.org');
     define('DEBUG_MODE', false);
 
 }

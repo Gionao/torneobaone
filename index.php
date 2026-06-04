@@ -37,7 +37,6 @@ $data_torneo = '2026-07-05 21:00:00';
   <title><?= SITE_NAME ?></title>
 
   <link rel="icon" type="image/png" href="assets/img/logo_torneo.png">
-  <link rel="icon" type="image/x-icon" href="assets/img/logo_torneo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
@@ -71,7 +70,7 @@ $data_torneo = '2026-07-05 21:00:00';
     <h1 class="hero-title animate-fade">
       TORNEO<br><span class="gold">CALCIO A 5</span><br>BAONE
     </h1>
-    <p class="hero-sub animate-fade delay-1">Campetto di Baone &bull; Estate 2026</p>
+    <p class="hero-sub animate-fade delay-1">Patronato San Lorenzo &bull; Estate 2026</p>
 
     <!-- COUNTDOWN -->
     <div class="countdown animate-fade delay-2" id="countdown"
@@ -171,12 +170,12 @@ $data_torneo = '2026-07-05 21:00:00';
         <h3>Playoff & Finali</h3>
         <p>Le prime 7 accedono ai playoff. Semifinali, finale 3°/4° e finale 1°/2°.</p>
       </div>
-      <!--<div class="info-card">
+      <div class="info-card">
         <div class="info-icon">🍔</div>
         <h3>2 Coupon</h3>
         <p>Ogni giocatore ha 2 coupon gratuiti per lo stand panini al Patronato San Lorenzo.</p>
       </div>
-    </div>-->
+    </div>
   </div>
 </section>
 
