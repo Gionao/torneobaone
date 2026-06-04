@@ -9,7 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/config.php';
 
 // !! Inserisci qui il link al tuo Google Form !!
-define('GOOGLE_FORM_URL', 'https://forms.gle/XXXXXXXXXXXXXXXX');
+define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
 ?>
 <!DOCTYPE html>
 <html lang="it">
