@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 define('POS_API', true);
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/role_check.php';
 require_role(['admin', 'operatore']);
@@ -22,15 +23,48 @@ $customerName = trim((string) ($input['customer_name'] ?? ''));
 $covers       = (int) ($input['covers'] ?? 1);
 
 if ($customerName === '') {
-    pos_json(false, null, 'Nome cliente / tavolo obbligatorio.');
+    pos_json(false, null, 'Nome cliente obbligatorio.');
 }
 if ($covers < 1 || $covers > 20) {
     pos_json(false, null, 'Coperti non validi (1–20).');
 }
 
-$customerName = substr($customerName, 0, 100);
-$adminId      = (int) $_SESSION['pos_admin_id'];
-$stationName  = $_SESSION['pos_admin_station'] ?? null;
+$customerName    = substr($customerName, 0, 100);
+$destinationType = (string) ($input['destination_type'] ?? 'tavolo');
+$allowedDest     = ['tavolo', 'asporto', 'campetto'];
+
+if (!in_array($destinationType, $allowedDest, true)) {
+    pos_json(false, null, 'Destinazione non valida.');
+}
+
+$tableNumber = null;
+if (isset($input['table_number']) && $input['table_number'] !== '' && $input['table_number'] !== null) {
+    $tableNumber = (int) $input['table_number'];
+}
+
+if (CAMPETTO_MODE === 'threshold') {
+    if ($destinationType === 'asporto') {
+        $tableNumber = null;
+    } elseif (in_array($destinationType, ['tavolo', 'campetto'], true)) {
+        if ($tableNumber === null || $tableNumber < 1 || $tableNumber > MAX_TABLE_NUMBER) {
+            pos_json(false, null, 'Numero tavolo obbligatorio.');
+        }
+        $destinationType = $tableNumber >= CAMPETTO_THRESHOLD ? 'campetto' : 'tavolo';
+    } else {
+        pos_json(false, null, 'Destinazione non valida per la modalità soglia campetto.');
+    }
+} else {
+    if ($destinationType === 'tavolo') {
+        if ($tableNumber === null || $tableNumber < 1 || $tableNumber > MAX_TABLE_NUMBER) {
+            pos_json(false, null, 'Numero tavolo obbligatorio.');
+        }
+    } else {
+        $tableNumber = null;
+    }
+}
+
+$adminId     = (int) $_SESSION['pos_admin_id'];
+$stationName = $_SESSION['pos_admin_station'] ?? null;
 if ($stationName !== null) {
     $stationName = substr((string) $stationName, 0, 80);
 }
@@ -52,14 +86,23 @@ try {
 
     $orderStmt = $pdo->prepare("
         INSERT INTO pos_orders
-            (daily_number, customer_name, covers, admin_id, station_name, status, total_amount, created_at)
-        VALUES (?, ?, ?, ?, ?, 'pending', 0, NOW())
+            (daily_number, customer_name, covers, destination_type, table_number,
+             admin_id, station_name, status, total_amount, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 0, NOW())
     ");
-    $orderStmt->execute([$dailyNumber, $customerName, $covers, $adminId, $stationName]);
+    $orderStmt->execute([
+        $dailyNumber,
+        $customerName,
+        $covers,
+        $destinationType,
+        $tableNumber,
+        $adminId,
+        $stationName,
+    ]);
     $orderId = (int) $pdo->lastInsertId();
 
     $productStmt = $pdo->prepare('SELECT id, price, is_active FROM pos_products WHERE id = ? LIMIT 1');
-    $itemStmt = $pdo->prepare("
+    $itemStmt    = $pdo->prepare("
         INSERT INTO pos_order_items
             (order_id, product_id, quantity, unit_price, discount_applied, coupon_id, status)
         VALUES (?, ?, ?, ?, ?, ?, 'pending')
@@ -81,10 +124,20 @@ try {
 
     foreach ($items as $item) {
         $productId = (int) ($item['product_id'] ?? 0);
-        $quantity  = max(1, (int) ($item['quantity'] ?? 1));
+        $quantity  = (int) ($item['quantity'] ?? 1);
         $couponId  = isset($item['coupon_id']) && $item['coupon_id'] !== null
             ? (int) $item['coupon_id']
             : null;
+
+        if ($quantity < 1) {
+            throw new RuntimeException('Quantità non valida.');
+        }
+        if ($quantity > 20) {
+            throw new RuntimeException('Quantità massima 20 per articolo.');
+        }
+        if ($couponId !== null && $quantity !== 1) {
+            throw new RuntimeException('Con coupon la quantità deve essere 1.');
+        }
 
         $productStmt->execute([$productId]);
         $product = $productStmt->fetch();
@@ -123,7 +176,8 @@ try {
             $usedCouponIds[] = $couponId;
         }
 
-        $orderTotal += ($unitPrice + $lineExtra) * $quantity - ($discount * $quantity);
+        $lineTotal   = ($unitPrice + $lineExtra) * $quantity - $discount;
+        $orderTotal += $lineTotal;
 
         $itemStmt->execute([$orderId, $productId, $quantity, $unitPrice, $discount, $couponId]);
         $orderItemId = (int) $pdo->lastInsertId();

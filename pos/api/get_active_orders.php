@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 define('POS_API', true);
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/role_check.php';
 require_role(['admin', 'operatore', 'bar', 'cucina']);
@@ -15,6 +16,7 @@ if ($department !== null && !in_array($department, ['kitchen', 'bar'], true)) {
 try {
     $sql = "
         SELECT DISTINCT o.id, o.daily_number, o.customer_name, o.covers,
+               o.destination_type, o.table_number,
                o.station_name, o.status, o.created_at
         FROM pos_orders o
         INNER JOIN pos_order_items oi ON oi.order_id = o.id
@@ -109,16 +111,23 @@ try {
             ];
         }
 
+        $destType = $order['destination_type'] ?? 'tavolo';
+        $tblNum   = $order['table_number'] !== null ? (int) $order['table_number'] : null;
+
         $result[] = [
-            'id'            => $orderId,
-            'daily_number'  => (int) $order['daily_number'],
-            'customer_name' => $order['customer_name'] ?? '',
-            'covers'        => (int) ($order['covers'] ?? 1),
-            'station_name'  => $order['station_name'],
-            'status'        => $order['status'],
-            'created_at'    => $order['created_at'],
-            'has_coupon'    => $hasCoupon,
-            'items'         => $formattedItems,
+            'id'               => $orderId,
+            'daily_number'     => (int) $order['daily_number'],
+            'customer_name'    => $order['customer_name'] ?? '',
+            'covers'           => (int) ($order['covers'] ?? 1),
+            'destination_type' => $destType,
+            'table_number'     => $tblNum,
+            'destination_badge'=> pos_destination_badge_text($destType, $tblNum),
+            'destination_class'=> pos_destination_badge_class($destType),
+            'station_name'     => $order['station_name'],
+            'status'           => $order['status'],
+            'created_at'       => $order['created_at'],
+            'has_coupon'       => $hasCoupon,
+            'items'            => $formattedItems,
         ];
     }
 
