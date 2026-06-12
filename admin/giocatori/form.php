@@ -20,8 +20,10 @@ if ($id) {
     if (!$giocatore) { header('Location: index.php'); exit; }
 }
 
-$squadre = $pdo->query('SELECT id, nome FROM squadre ORDER BY nome')->fetchAll();
+$squadre = $pdo->query('SELECT id, nome, capitano_giocatore_id FROM squadre ORDER BY nome')->fetchAll();
 $errors  = [];
+
+$ruoliDisponibili = ['Giocatore', 'Portiere', 'Capitano'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_verify()) { $errors[] = 'CSRF non valido.'; goto render; }
@@ -30,24 +32,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome          = trim($_POST['nome']     ?? '');
     $cognome       = trim($_POST['cognome']  ?? '');
     $numero_maglia = filter_input(INPUT_POST, 'numero_maglia',  FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 99]]) ?: null;
-    $e_portiere    = isset($_POST['e_portiere']) ? 1 : 0;
+    $ruolo         = $_POST['ruolo'] ?? 'Giocatore';
+
+    if (!in_array($ruolo, $ruoliDisponibili, true)) $ruolo = 'Giocatore';
 
     if (!$id_squadra) $errors[] = 'Seleziona la squadra.';
     if ($nome === '')    $errors[] = 'Il nome è obbligatorio.';
     if ($cognome === '') $errors[] = 'Il cognome è obbligatorio.';
 
-    if (empty($errors)) {
-        if ($id) {
-            $pdo->prepare("
-                UPDATE giocatori SET id_squadra=?, nome=?, cognome=?, numero_maglia=?, e_portiere=?
-                WHERE id=?
-            ")->execute([$id_squadra, $nome, $cognome, $numero_maglia, $e_portiere, $id]);
-        } else {
-            $pdo->prepare("
-                INSERT INTO giocatori (id_squadra, nome, cognome, numero_maglia, e_portiere)
-                VALUES (?,?,?,?,?)
-            ")->execute([$id_squadra, $nome, $cognome, $numero_maglia, $e_portiere]);
+    // Non permettere di togliere il ruolo "Capitano" a chi è attualmente
+    // impostato come capitano della squadra: ogni squadra deve avere sempre
+    // un capitano. Va gestito dalla pagina "Squadra".
+    if ($id && $giocatore && $ruolo !== 'Capitano') {
+        $isCurrentCaptain = $pdo->prepare("SELECT 1 FROM squadre WHERE capitano_giocatore_id = ?");
+        $isCurrentCaptain->execute([$id]);
+        if ($isCurrentCaptain->fetch()) {
+            $errors[] = 'Questo giocatore è il capitano della squadra: per cambiare il capitano usa la pagina "Squadra".';
         }
+    }
+
+    $e_portiere = ($ruolo === 'Portiere') ? 1 : 0;
+
+    if (empty($errors)) {
+        try {
+            $pdo->beginTransaction();
+
+            if ($id) {
+                $pdo->prepare("
+                    UPDATE giocatori SET id_squadra=?, nome=?, cognome=?, numero_maglia=?, ruolo=?, e_portiere=?
+                    WHERE id=?
+                ")->execute([$id_squadra, $nome, $cognome, $numero_maglia, $ruolo, $e_portiere, $id]);
+                $playerId = $id;
+            } else {
+                $pdo->prepare("
+                    INSERT INTO giocatori (id_squadra, nome, cognome, numero_maglia, ruolo, e_portiere)
+                    VALUES (?,?,?,?,?,?)
+                ")->execute([$id_squadra, $nome, $cognome, $numero_maglia, $ruolo, $e_portiere]);
+                $playerId = (int)$pdo->lastInsertId();
+            }
+
+            if ($ruolo === 'Capitano') {
+                // Eventuale precedente capitano della squadra perde il ruolo
+                $prev = $pdo->prepare("SELECT capitano_giocatore_id FROM squadre WHERE id = ?");
+                $prev->execute([$id_squadra]);
+                $prevCapId = $prev->fetchColumn();
+
+                if ($prevCapId && (int)$prevCapId !== (int)$playerId) {
+                    $pdo->prepare("UPDATE giocatori SET ruolo='Giocatore', e_portiere=0 WHERE id=? AND ruolo='Capitano'")
+                        ->execute([$prevCapId]);
+                }
+
+                $pdo->prepare("UPDATE squadre SET capitano_giocatore_id = ?, capitano = ? WHERE id = ?")
+                    ->execute([$playerId, trim($nome . ' ' . $cognome), $id_squadra]);
+            } elseif ($id) {
+                // Se il giocatore modificato era il capitano e cambia squadra
+                // (caso limite: cambio squadra di un capitano), rimuove il link
+                $pdo->prepare("UPDATE squadre SET capitano_giocatore_id = NULL, capitano = NULL WHERE capitano_giocatore_id = ? AND id <> ?")
+                    ->execute([$playerId, $id_squadra]);
+            }
+
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            $errors[] = 'Errore durante il salvataggio: ' . $e->getMessage();
+            goto render;
+        }
+
         $_SESSION['flash'] = ['type' => 'success', 'text' => $id ? 'Giocatore aggiornato.' : 'Giocatore aggiunto.'];
         $backSquadra = $_POST['id_squadra'] ?? '';
         header('Location: index.php' . ($backSquadra ? '?squadra='.$backSquadra : ''));
@@ -58,6 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 render:
 $pageTitle = $id ? 'Modifica Giocatore' : 'Nuovo Giocatore';
 require_once __DIR__ . '/../_header.php';
+
+$selRuolo = $giocatore['ruolo'] ?? ($_POST['ruolo'] ?? 'Giocatore');
 ?>
 
 <div class="admin-page-header">
@@ -110,14 +162,24 @@ require_once __DIR__ . '/../_header.php';
              value="<?= htmlspecialchars((string)($giocatore['numero_maglia'] ?? ($_POST['numero_maglia'] ?? ''))) ?>">
     </div>
 
-    <div class="form-group" style="display:flex;align-items:center;padding-top:1.5rem;">
-      <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;text-transform:none;font-size:.9rem;">
-        <input type="checkbox" name="e_portiere" value="1"
-               <?= ($giocatore['e_portiere'] ?? 0) ? 'checked' : '' ?>>
-        🧤 È portiere
-      </label>
+    <div class="form-group">
+      <label for="ruolo">Ruolo *</label>
+      <select id="ruolo" name="ruolo" required>
+        <?php foreach ($ruoliDisponibili as $r): ?>
+          <option value="<?= $r ?>" <?= $selRuolo === $r ? 'selected' : '' ?>>
+            <?= $r === 'Portiere' ? '🧤 ' : ($r === 'Capitano' ? '👑 ' : '') ?><?= $r ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
     </div>
   </div>
+
+  <?php if ($selRuolo === 'Capitano' || ($giocatore['ruolo'] ?? null) === 'Capitano'): ?>
+  <p style="color:var(--muted);font-size:.85rem;">
+    👑 Impostando questo giocatore come Capitano, diventerà automaticamente il capitano
+    della squadra selezionata (l'eventuale capitano precedente tornerà "Giocatore").
+  </p>
+  <?php endif; ?>
 
   <div class="form-actions">
     <button type="submit" class="btn btn-gold">

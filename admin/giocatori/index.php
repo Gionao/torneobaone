@@ -81,7 +81,7 @@ require_once __DIR__ . '/../_header.php';
         <th>Cognome</th>
         <th>Nome</th>
         <th>Squadra</th>
-        <th>Portiere</th>
+        <th>Ruolo</th>
         <th>Azioni</th>
       </tr>
     </thead>
@@ -95,7 +95,13 @@ require_once __DIR__ . '/../_header.php';
           <span class="team-color-dot" style="background:<?= htmlspecialchars($g['colore_squadra']) ?>"></span>
           <?= htmlspecialchars($g['nome_squadra']) ?>
         </td>
-        <td><?= $g['e_portiere'] ? '🧤' : '' ?></td>
+        <td>
+          <?php
+            $ruolo = $g['ruolo'] ?? 'Giocatore';
+            $icon  = $ruolo === 'Portiere' ? '🧤 ' : ($ruolo === 'Capitano' ? '👑 ' : '');
+          ?>
+          <?= $icon . htmlspecialchars($ruolo) ?>
+        </td>
         <td>
           <div class="actions">
             <a href="form.php?id=<?= $g['id'] ?>" class="btn btn-sm btn-outline">Modifica</a>

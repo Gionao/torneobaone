@@ -6,15 +6,15 @@
 //  Cambia ENV per switchare tra i due ambienti
 // ============================================================
 
-define('ENV', 'production');   // <-- 'local' per XAMPP | 'production' per Altervista
+define('ENV', 'local');   // <-- 'local' per XAMPP | 'production' per Altervista
 
 if (ENV === 'local') {
 
     // ── XAMPP ──────────────────────────────────────────────
     define('DB_HOST',    'localhost');
     define('DB_NAME',    'torneobaone');   // Crea questo DB in phpMyAdmin locale
-    define('DB_USER',    'admin');           // Utente XAMPP di default
-    define('DB_PASS',    'admin');               // Password XAMPP di default (vuota)
+    define('DB_USER',    'root');           // Utente XAMPP di default
+    define('DB_PASS',    '');               // Password XAMPP di default (vuota)
     define('DB_CHARSET', 'utf8mb4');
 
     define('SITE_NAME',  'Torneo Calcio a 5 - Baone 2026 [LOCAL]');

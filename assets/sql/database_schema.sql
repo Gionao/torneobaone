@@ -52,9 +52,11 @@ CREATE TABLE IF NOT EXISTS `squadre` (
   `nome`        VARCHAR(80)       NOT NULL,
   `colore`      VARCHAR(7)        NOT NULL DEFAULT '#1a3a5c',  -- hex per badge UI
   `logo_url`    VARCHAR(255)      NULL DEFAULT NULL,
-  `capitano`    VARCHAR(100)      NULL DEFAULT NULL,
+  `capitano`    VARCHAR(100)      NULL DEFAULT NULL,           -- nome completo capitano (cache per liste/visualizzazioni)
+  `capitano_giocatore_id` INT UNSIGNED NULL DEFAULT NULL,       -- FK al record giocatore (ruolo='Capitano') in rosa
   `created_at`  TIMESTAMP         NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `fk_squadra_capitano` (`capitano_giocatore_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -67,13 +69,20 @@ CREATE TABLE IF NOT EXISTS `giocatori` (
   `nome`         VARCHAR(100)      NOT NULL,
   `cognome`      VARCHAR(100)      NOT NULL,
   `numero_maglia` TINYINT UNSIGNED NULL DEFAULT NULL,
-  `e_portiere`   TINYINT(1)        NOT NULL DEFAULT 0,
+  `ruolo`        ENUM('Giocatore','Portiere','Capitano') NOT NULL DEFAULT 'Giocatore',
+  `e_portiere`   TINYINT(1)        NOT NULL DEFAULT 0,   -- mantenuto per retro-compatibilità, sincronizzato con ruolo='Portiere'
   PRIMARY KEY (`id`),
   KEY `fk_gioc_squadra` (`id_squadra`),
   CONSTRAINT `fk_gioc_squadra`
     FOREIGN KEY (`id_squadra`) REFERENCES `squadre` (`id`)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+ALTER TABLE `squadre`
+  ADD CONSTRAINT `fk_squadra_capitano`
+    FOREIGN KEY (`capitano_giocatore_id`) REFERENCES `giocatori` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE;
 
 
 -- ------------------------------------------------------------

@@ -11,12 +11,30 @@ require_once __DIR__ . '/includes/db.php';
 
 // Fetch classifica completa dalla view
 $pdo  = db();
-$rows = $pdo->query('SELECT * FROM v_classifica')->fetchAll();
+
+try {
+    $rows = $pdo->query('SELECT * FROM v_classifica')->fetchAll();
+} catch (Throwable $e) {
+    if (DEBUG_MODE) error_log('Errore classifica: ' . $e->getMessage());
+    $rows = [];
+}
 
 // Fetch capocannonieri (top 10)
-$cannonieri = $pdo->query(
-    'SELECT * FROM v_capocannonieri LIMIT 10'
-)->fetchAll();
+try {
+    $cannonieri = $pdo->query(
+        'SELECT * FROM v_capocannonieri LIMIT 10'
+    )->fetchAll();
+} catch (Throwable $e) {
+    if (DEBUG_MODE) error_log('Errore capocannonieri: ' . $e->getMessage());
+    $cannonieri = [];
+}
+
+// Messaggio mostrato quando non ci sono ancora dati sufficienti
+$msgClassificaVuota = [
+    'Partite non ancora giocate',
+    'Non ci sono abbastanza dati per stilare una classifica',
+    'Classifica in arrivo',
+][array_rand([0, 1, 2])];
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -58,7 +76,7 @@ $cannonieri = $pdo->query(
     </p>
 
     <?php if (empty($rows)): ?>
-      <p class="empty-msg centered">Nessuna squadra in classifica ancora. Torna dopo la prima giornata!</p>
+      <p class="empty-msg centered"><?= htmlspecialchars($msgClassificaVuota) ?></p>
     <?php else: ?>
 
     <div class="standings-wrap">
