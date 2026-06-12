@@ -4,7 +4,6 @@ require_once dirname(__DIR__) . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/auth_check.php';
 require_once __DIR__ . '/includes/role_check.php';
-require_once __DIR__ . '/includes/config.php';
 require_role(['admin', 'operatore']);
 $pageTitle = 'POS — Bancone';
 $posNavActive = 'operator';
@@ -34,29 +33,13 @@ $showStationInQueue = ($_SESSION['pos_admin_role'] ?? '') === 'admin';
       <h2>Nuovo ordine</h2>
       <div class="pos-order-meta">
         <div class="form-group">
-          <label for="customerName">Nome cliente</label>
+          <label for="customerName">Nome / tavolo</label>
           <input type="text" id="customerName" maxlength="100" required
-                 placeholder="es. Mario Rossi">
+                 placeholder="es. Mario, Tavolo 5">
         </div>
         <div class="form-group">
           <label for="orderCovers">Coperti</label>
           <input type="number" id="orderCovers" min="1" max="20" value="1" required>
-        </div>
-      </div>
-      <div class="pos-destination-section">
-        <div class="pos-destination-label">Destinazione</div>
-        <div class="pos-dest-toggle" id="destToggle">
-          <button type="button" class="pos-dest-btn active" data-dest="tavolo">Tavolo</button>
-          <button type="button" class="pos-dest-btn" data-dest="asporto">Asporto</button>
-          <?php if (CAMPETTO_MODE === 'separate'): ?>
-          <button type="button" class="pos-dest-btn" data-dest="campetto">Campetto</button>
-          <?php endif; ?>
-        </div>
-        <div class="pos-table-wrap" id="tableNumberWrap">
-          <label for="tableNumber">N° tavolo</label>
-          <input type="number" id="tableNumber" min="1" max="<?= (int) MAX_TABLE_NUMBER ?>"
-                 placeholder="es. 12">
-          <span class="pos-campetto-hint pos-hidden" id="campettoHint">📍 AREA CAMPETTO</span>
         </div>
       </div>
       <div id="productsArea"><p class="empty-msg">Caricamento menu…</p></div>
@@ -95,11 +78,6 @@ $showStationInQueue = ($_SESSION['pos_admin_role'] ?? '') === 'admin';
 <div id="modalRoot"></div>
 
 <script>
-const CAMPETTO_MODE = <?= json_encode(CAMPETTO_MODE) ?>;
-const CAMPETTO_THRESHOLD = <?= (int) CAMPETTO_THRESHOLD ?>;
-const MAX_TABLE_NUMBER = <?= (int) MAX_TABLE_NUMBER ?>;
-</script>
-<script>
 document.getElementById('posNavToggle')?.addEventListener('click', () => {
   document.getElementById('posNavLinks')?.classList.toggle('open');
 });
@@ -111,109 +89,22 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
   let cart = [];
   let activeCoupon = null;
   let queuePolling = false;
-  let activeDest = 'tavolo';
 
-  const productsArea    = document.getElementById('productsArea');
-  const cartList        = document.getElementById('cartList');
-  const cartTotal       = document.getElementById('cartTotal');
-  const couponAlert     = document.getElementById('couponAlert');
-  const btnConfirm      = document.getElementById('btnConfirmOrder');
-  const orderFormView   = document.getElementById('orderFormView');
-  const orderDoneView   = document.getElementById('orderDoneView');
-  const assignedNum     = document.getElementById('assignedOrderNum');
-  const queueArea       = document.getElementById('queueArea');
-  const customerName    = document.getElementById('customerName');
-  const orderCovers     = document.getElementById('orderCovers');
-  const tableNumberWrap = document.getElementById('tableNumberWrap');
-  const tableNumber     = document.getElementById('tableNumber');
-  const campettoHint    = document.getElementById('campettoHint');
-  const destToggle      = document.getElementById('destToggle');
-  const SHOW_STATION    = <?= json_encode($showStationInQueue) ?>;
+  const productsArea   = document.getElementById('productsArea');
+  const cartList       = document.getElementById('cartList');
+  const cartTotal      = document.getElementById('cartTotal');
+  const couponAlert    = document.getElementById('couponAlert');
+  const btnConfirm     = document.getElementById('btnConfirmOrder');
+  const orderFormView  = document.getElementById('orderFormView');
+  const orderDoneView  = document.getElementById('orderDoneView');
+  const assignedNum    = document.getElementById('assignedOrderNum');
+  const queueArea      = document.getElementById('queueArea');
+  const customerName   = document.getElementById('customerName');
+  const orderCovers    = document.getElementById('orderCovers');
+  const SHOW_STATION   = <?= json_encode($showStationInQueue) ?>;
 
   function euro(n) {
     return '€ ' + Number(n).toFixed(2).replace('.', ',');
-  }
-
-  function updateTableWrapVisibility() {
-    const show = activeDest === 'tavolo';
-    tableNumberWrap.classList.toggle('collapsed', !show);
-    if (!show) {
-      campettoHint.classList.add('pos-hidden');
-    } else {
-      updateCampettoHint();
-    }
-  }
-
-  function updateCampettoHint() {
-    if (CAMPETTO_MODE !== 'threshold' || activeDest !== 'tavolo') {
-      campettoHint.classList.add('pos-hidden');
-      return;
-    }
-    const n = parseInt(tableNumber.value, 10);
-    campettoHint.classList.toggle('pos-hidden', !(n >= CAMPETTO_THRESHOLD));
-  }
-
-  destToggle.querySelectorAll('.pos-dest-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeDest = btn.dataset.dest;
-      destToggle.querySelectorAll('.pos-dest-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      updateTableWrapVisibility();
-    });
-  });
-
-  tableNumber.addEventListener('input', updateCampettoHint);
-  updateTableWrapVisibility();
-
-  function resolveDestinationPayload() {
-    let destType = activeDest;
-    let tableNum = null;
-    if (destType === 'tavolo') {
-      tableNum = parseInt(tableNumber.value, 10);
-      if (CAMPETTO_MODE === 'threshold' && tableNum >= CAMPETTO_THRESHOLD) {
-        destType = 'campetto';
-      }
-    }
-    return { destination_type: destType, table_number: tableNum };
-  }
-
-  function validateOrderMeta() {
-    const cName = customerName.value.trim();
-    if (!cName) return 'Inserisci il nome cliente.';
-    if (activeDest === 'tavolo') {
-      const n = parseInt(tableNumber.value, 10);
-      if (!n || n < 1 || n > MAX_TABLE_NUMBER) {
-        return 'Inserisci un numero tavolo valido (1–' + MAX_TABLE_NUMBER + ').';
-      }
-    }
-    return null;
-  }
-
-  function resetOrderForm() {
-    customerName.value = '';
-    orderCovers.value = '1';
-    tableNumber.value = '';
-    activeDest = 'tavolo';
-    destToggle.querySelectorAll('.pos-dest-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.dest === 'tavolo');
-    });
-    updateTableWrapVisibility();
-  }
-
-  function updateQuantity(cartIndex, delta) {
-    const item = cart[cartIndex];
-    if (!item) return;
-    if (delta > 0 && item.coupon_id) return;
-    const next = item.quantity + delta;
-    if (next <= 0) {
-      if (item.coupon_id) activeCoupon = null;
-      cart.splice(cartIndex, 1);
-    } else {
-      if (item.coupon_id && next > 1) return;
-      if (next > 20) return;
-      item.quantity = next;
-    }
-    renderCart();
   }
 
   async function apiFetch(url, options) {
@@ -354,27 +245,13 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
           escapeHtml(ing) + (m.extra_price > 0 ? ' (' + euro(m.extra_price) + ')' : '') + '</div>';
       });
       const cls = item.coupon_id ? 'pos-cart-item coupon-free' : 'pos-cart-item';
-      const incDisabled = item.coupon_id ? ' disabled title="Il coupon copre solo 1 unità"' : '';
-      const incBtn = item.quantity >= 20 ? ' disabled' : '';
-      return '<li class="' + cls + '">' +
-        '<div class="pos-cart-qty">' +
-        '<button type="button" class="pos-qty-btn" data-idx="' + idx + '" data-delta="-1" aria-label="Meno">−</button>' +
-        '<span class="pos-qty-num">' + item.quantity + '</span>' +
-        '<button type="button" class="pos-qty-btn" data-idx="' + idx + '" data-delta="1"' + incDisabled + incBtn + ' aria-label="Più">+</button>' +
-        '</div>' +
-        '<div class="pos-cart-body"><div class="item-name">' + escapeHtml(item.product_name) +
-        '</div>' + modsHtml + '</div>' +
-        '<div class="pos-cart-right"><span class="item-price">' +
-        (item.coupon_id ? 'GRATIS' : euro(lt)) + '</span>' +
-        '<button type="button" class="btn-remove" data-idx="' + idx + '" aria-label="Rimuovi">🗑</button></div></li>';
+      return '<li class="' + cls + '"><div><div class="item-name">' + escapeHtml(item.product_name) +
+        '</div>' + modsHtml + '</div><div><span class="item-price">' +
+        (item.coupon_id ? 'GRATIS' : euro(lt)) + '</span> ' +
+        '<button type="button" class="btn-remove" data-idx="' + idx + '" aria-label="Rimuovi">×</button></div></li>';
     }).join('');
     cartTotal.textContent = euro(total);
     btnConfirm.disabled = false;
-    cartList.querySelectorAll('.pos-qty-btn').forEach(btn => {
-      btn.onclick = () => {
-        updateQuantity(parseInt(btn.dataset.idx, 10), parseInt(btn.dataset.delta, 10));
-      };
-    });
     cartList.querySelectorAll('.btn-remove').forEach(btn => {
       btn.onclick = () => {
         const i = parseInt(btn.dataset.idx, 10);
@@ -423,20 +300,17 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
 
   document.getElementById('btnConfirmOrder').onclick = async () => {
     if (!cart.length) return;
-    const metaErr = validateOrderMeta();
-    if (metaErr) {
-      couponAlert.innerHTML = '<div class="alert alert-error">' + escapeHtml(metaErr) + '</div>';
+    const cName = customerName.value.trim();
+    const covers = parseInt(orderCovers.value, 10) || 1;
+    if (!cName) {
+      couponAlert.innerHTML = '<div class="alert alert-error">Inserisci nome cliente o tavolo.</div>';
       return;
     }
-    const covers = parseInt(orderCovers.value, 10) || 1;
-    const dest = resolveDestinationPayload();
     btnConfirm.disabled = true;
     try {
       const payload = {
-        customer_name: customerName.value.trim(),
+        customer_name: cName,
         covers: covers,
-        destination_type: dest.destination_type,
-        table_number: dest.table_number,
         items: cart.map(it => ({
           product_id: it.product_id,
           quantity: it.quantity,
@@ -459,7 +333,8 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
       cart = [];
       activeCoupon = null;
       document.getElementById('couponCode').value = '';
-      resetOrderForm();
+      customerName.value = '';
+      orderCovers.value = '1';
       couponAlert.innerHTML = '';
       loadQueue();
     } catch (e) {
@@ -497,8 +372,6 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
       groups[st].forEach(o => {
         const time = new Date(o.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
         const itemsTxt = o.items.map(i => i.quantity + '× ' + i.product_name).join(', ');
-        const destBadge = '<div class="' + escapeHtml(o.destination_class || 'pos-badge-dest-tavolo') + '">' +
-          escapeHtml(o.destination_badge || '') + '</div>';
         const custLine = '<div class="order-customer"><strong>' + escapeHtml(o.customer_name || '—') +
           '</strong> · ' + (o.covers || 1) + ' coperti</div>';
         const stationBadge = (SHOW_STATION && o.station_name)
@@ -508,7 +381,6 @@ document.getElementById('posNavToggle')?.addEventListener('click', () => {
           (o.has_coupon ? '<span class="pos-badge-coupon">Coupon</span>' : '') +
           stationBadge +
           '</span><span class="status-badge ' + o.status + '">' + o.status + '</span></div>' +
-          destBadge +
           '<div class="order-time">' + time + '</div>' + custLine +
           '<div class="order-items-list">' + escapeHtml(itemsTxt) + '</div>' +
           '<div class="order-actions">';

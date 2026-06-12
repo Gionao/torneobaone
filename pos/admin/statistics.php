@@ -5,7 +5,6 @@ require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/role_check.php';
-require_once __DIR__ . '/../includes/config.php';
 require_role(['admin']);
 
 $posNavActive = 'stats';
@@ -102,30 +101,6 @@ $hourlyStmt = $pdo->prepare("
 $hourlyStmt->execute([$selectedDate]);
 $hourly = $hourlyStmt->fetchAll();
 
-$destStatsStmt = $pdo->prepare("
-    SELECT destination_type,
-           COUNT(*) AS num_orders,
-           COALESCE(SUM(covers), 0) AS total_covers,
-           COALESCE(SUM(total_amount), 0) AS revenue
-    FROM pos_orders
-    WHERE DATE(created_at) = ? AND status != 'cancelled'
-    GROUP BY destination_type
-    ORDER BY FIELD(destination_type, 'tavolo', 'asporto', 'campetto')
-");
-$destStatsStmt->execute([$selectedDate]);
-$byDestination = $destStatsStmt->fetchAll();
-
-$destCounts = ['tavolo' => 0, 'asporto' => 0, 'campetto' => 0];
-foreach ($byDestination as $d) {
-    $destCounts[$d['destination_type']] = (int) $d['num_orders'];
-}
-
-$destLabels = [
-    'tavolo'   => 'Tavolo',
-    'asporto'  => 'Asporto',
-    'campetto' => 'Campetto',
-];
-
 $pageTitle = 'Statistiche POS';
 ?>
 <!DOCTYPE html>
@@ -181,18 +156,6 @@ $pageTitle = 'Statistiche POS';
     <div class="stat-num"><?= (int) ($summary['total_covers'] ?? 0) ?></div>
     <div class="stat-lbl">Coperti serviti</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-num"><?= $destCounts['tavolo'] ?></div>
-    <div class="stat-lbl">Ordini tavolo</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num"><?= $destCounts['asporto'] ?></div>
-    <div class="stat-lbl">Ordini asporto</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num"><?= $destCounts['campetto'] ?></div>
-    <div class="stat-lbl">Ordini campetto</div>
-  </div>
 </div>
 
 <h2 class="pos-stats-section-title">Per cassa</h2>
@@ -245,36 +208,6 @@ $pageTitle = 'Statistiche POS';
         <td><?= htmlspecialchars($p['department']) ?></td>
         <td><?= (int) $p['qty_sold'] ?></td>
         <td>€ <?= number_format((float) $p['revenue'], 2, ',', '.') ?></td>
-      </tr>
-      <?php endforeach; endif; ?>
-    </tbody>
-  </table>
-</div>
-
-<h2 class="pos-stats-section-title">Destinazioni</h2>
-<div class="admin-table-wrap" style="margin-bottom:2rem;">
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>Destinazione</th>
-        <th>N° ordini</th>
-        <th>Coperti totali</th>
-        <th>Incasso</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php if (empty($byDestination)): ?>
-      <tr><td colspan="4" class="empty-msg">Nessun dato per questa data.</td></tr>
-      <?php else: foreach ($byDestination as $d): ?>
-      <tr>
-        <td>
-          <span class="<?= htmlspecialchars(pos_destination_badge_class($d['destination_type'])) ?>">
-            <?= htmlspecialchars($destLabels[$d['destination_type']] ?? $d['destination_type']) ?>
-          </span>
-        </td>
-        <td><?= (int) $d['num_orders'] ?></td>
-        <td><?= (int) $d['total_covers'] ?></td>
-        <td>€ <?= number_format((float) $d['revenue'], 2, ',', '.') ?></td>
       </tr>
       <?php endforeach; endif; ?>
     </tbody>

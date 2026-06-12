@@ -9,7 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/config.php';
 
 // !! Inserisci qui il link al tuo Google Form !!
-define('GOOGLE_FORM_URL', 'https://forms.gle/XXXXXXXXXXXXXXXX');
+define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -73,12 +73,16 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/XXXXXXXXXXXXXXXX');
           <div class="badge-lbl">Squadre<br>al torneo</div>
         </div>
         <div class="badge-inner">
-          <div class="badge-num">€200</div>
-          <div class="badge-lbl">Quota<br>d'iscrizione</div>
+          <div class="badge-num">€180</div>
+          <div class="badge-lbl">Contributo<br>d'iscrizione</div>
         </div>
         <div class="badge-inner">
           <div class="badge-num">8–10</div>
           <div class="badge-lbl">Giocatori<br>per squadra</div>
+        </div>
+        <div class="badge-inner">
+          <div class="badge-num">18-23</div>
+          <div class="badge-lbl">Orari<br>delle partite</div>
         </div>
       </div>
     </div>
@@ -115,7 +119,7 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/XXXXXXXXXXXXXXXX');
         <div class="step-flow-num">3</div>
         <div class="step-flow-icon">📄</div>
         <h4>Moduli e Pagamento</h4>
-        <p>Compilazione e invio dei <strong>moduli ufficiali</strong> e pagamento della quota di iscrizione (€ 200 a squadra).</p>
+        <p>Compilazione e invio dei <strong>moduli ufficiali</strong> e pagamento del contributo di iscrizione (€ 180 a squadra).</p>
       </div>
 
       <div class="step-flow-arrow">›</div>
@@ -157,9 +161,8 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/XXXXXXXXXXXXXXXX');
         <div class="doc-icon">📋</div>
         <div class="doc-body">
           <h3>Regolamento Ufficiale</h3>
-          <p>Formato, gironi, playoff, fair play e premi. Leggilo prima di iscriverti.</p>
         </div>
-        <a href="<?= SITE_URL ?>/assets/docs/regolamento.pdf" download class="btn btn-gold btn-sm">
+        <a href="<?= SITE_URL ?>/shared/documentazione/torneoBaone2026-regolamento.pdf" download class="btn btn-gold btn-sm">
           ⬇ Scarica PDF
         </a>
       </div>
@@ -167,10 +170,19 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/XXXXXXXXXXXXXXXX');
       <div class="doc-card">
         <div class="doc-icon">📝</div>
         <div class="doc-body">
-          <h3>Modulo di Iscrizione</h3>
-          <p>Ti verrà inviato dagli organizzatori dopo il contatto. Puoi scaricarlo in anticipo.</p>
+          <h3>Liberatoria</h3>
         </div>
-        <a href="<?= SITE_URL ?>/assets/docs/modulo_iscrizione.pdf" download class="btn btn-gold btn-sm">
+        <a href="<?= SITE_URL ?>/shared/documentazione/torneoBaone2026-libertoria.pdf" download class="btn btn-gold btn-sm">
+          ⬇ Scarica PDF
+        </a>
+      </div>
+      
+      <div class="doc-card">
+        <div class="doc-icon">📋</div>
+        <div class="doc-body">
+          <h3>Informativa privacy</p>
+        </div>
+        <a href="<?= SITE_URL ?>/shared/documentazione/torneoBaone2026-privacy.pdf" download class="btn btn-gold btn-sm">
           ⬇ Scarica PDF
         </a>
       </div>

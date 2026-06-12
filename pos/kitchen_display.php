@@ -60,13 +60,8 @@ $displayTitle = 'Cucina';
           (ready ? '' : '<button type="button" class="btn btn-sm btn-gold item-ready-btn" data-item-id="' + item.id + '">Segna ready</button>') +
           '</div>';
       }).join('');
-      const destBadge = o.destination_badge
-        ? '<div class="' + escapeHtml(o.destination_class || 'pos-badge-dest-tavolo') + '">' +
-          escapeHtml(o.destination_badge) + '</div>'
-        : '';
       return '<article class="pos-kds-card' + (allReady ? ' all-ready' : '') + '">' +
         '<div class="kds-num">#' + o.daily_number + '</div>' +
-        destBadge +
         '<div class="kds-time">' + time + '</div>' + itemsHtml + '</article>';
     }).join('');
 
