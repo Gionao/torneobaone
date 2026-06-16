@@ -12,32 +12,32 @@ ON DUPLICATE KEY UPDATE `nome`=VALUES(`nome`), `colore`=VALUES(`colore`), `capit
 
 
 -- 2. GIOCATORI
-INSERT INTO `giocatori` (`id`, `id_squadra`, `nome`, `cognome`, `numero_maglia`, `e_portiere`) VALUES
+INSERT INTO `giocatori` (`id`, `id_squadra`, `nome`, `cognome`, `numero_maglia`, `ruolo`) VALUES
 -- Stella Rossa Baone
-(1, 1, 'Gianluigi', 'Donnaroma', 1, 1),
-(2, 1, 'Marco', 'Rossi', 10, 0),
-(3, 1, 'Giovanni', 'Ferrari', 7, 0),
-(4, 1, 'Antonio', 'Russo', 9, 0),
-(5, 1, 'Matteo', 'Romano', 4, 0),
+(1, 1, 'Gianluigi', 'Donnaroma', 1, 'Portiere'),
+(2, 1, 'Marco', 'Rossi', 10, 'Capitano'),
+(3, 1, 'Giovanni', 'Ferrari', 7, 'Giocatore'),
+(4, 1, 'Antonio', 'Russo', 9, 'Giocatore'),
+(5, 1, 'Matteo', 'Romano', 4, 'Giocatore'),
 -- FC Real Calaone
-(6, 2, 'Angelo', 'Peruzzi', 12, 1),
-(7, 2, 'Luca', 'Bianchi', 8, 0),
-(8, 2, 'Davide', 'Gallo', 11, 0),
-(9, 2, 'Simone', 'Costa', 5, 0),
-(10, 2, 'Federico', 'Leo', 23, 0),
+(6, 2, 'Angelo', 'Peruzzi', 12, 'Portiere'),
+(7, 2, 'Luca', 'Bianchi', 8, 'Capitano'),
+(8, 2, 'Davide', 'Gallo', 11, 'Giocatore'),
+(9, 2, 'Simone', 'Costa', 5, 'Giocatore'),
+(10, 2, 'Federico', 'Leo', 23, 'Giocatore'),
 -- Atletico Rivadolmo
-(11, 3, 'Francesco', 'Toldo', 99, 1),
-(12, 3, 'Alessandro', 'Verdi', 20, 0),
-(13, 3, 'Roberto', 'Baggio', 10, 0),
-(14, 3, 'Andrea', 'Pirlo', 21, 0),
-(15, 3, 'Filippo', 'Inzaghi', 9, 0),
+(11, 3, 'Francesco', 'Toldo', 99, 'Portiere'),
+(12, 3, 'Alessandro', 'Verdi', 20, 'Capitano'),
+(13, 3, 'Roberto', 'Baggio', 10, 'Giocatore'),
+(14, 3, 'Andrea', 'Pirlo', 21, 'Giocatore'),
+(15, 3, 'Filippo', 'Inzaghi', 9, 'Giocatore'),
 -- Valle San Giorgio C5
-(16, 4, 'Sebastiano', 'Rossi', 22, 1),
-(17, 4, 'Francesco', 'Neri', 6, 0),
-(18, 4, 'Christian', 'Vieri', 32, 0),
-(19, 4, 'Fabio', 'Cannavaro', 5, 0),
-(20, 4, 'Gennaro', 'Gattuso', 8, 0)
-ON DUPLICATE KEY UPDATE `nome`=VALUES(`nome`), `cognome`=VALUES(`cognome`), `numero_maglia`=VALUES(`numero_maglia`), `e_portiere`=VALUES(`e_portiere`);
+(16, 4, 'Sebastiano', 'Rossi', 22, 'Portiere'),
+(17, 4, 'Francesco', 'Neri', 6, 'Capitano'),
+(18, 4, 'Christian', 'Vieri', 32, 'Giocatore'),
+(19, 4, 'Fabio', 'Cannavaro', 5, 'Giocatore'),
+(20, 4, 'Gennaro', 'Gattuso', 8, 'Giocatore')
+ON DUPLICATE KEY UPDATE `nome`=VALUES(`nome`), `cognome`=VALUES(`cognome`), `numero_maglia`=VALUES(`numero_maglia`), `ruolo`=VALUES(`ruolo`);
 
 
 -- 3. PARTITE

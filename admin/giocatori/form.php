@@ -40,9 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($nome === '')    $errors[] = 'Il nome è obbligatorio.';
     if ($cognome === '') $errors[] = 'Il cognome è obbligatorio.';
 
-    // Non permettere di togliere il ruolo "Capitano" a chi è attualmente
-    // impostato come capitano della squadra: ogni squadra deve avere sempre
-    // un capitano. Va gestito dalla pagina "Squadra".
     if ($id && $giocatore && $ruolo !== 'Capitano') {
         $isCurrentCaptain = $pdo->prepare("SELECT 1 FROM squadre WHERE capitano_giocatore_id = ?");
         $isCurrentCaptain->execute([$id]);
@@ -51,42 +48,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $e_portiere = ($ruolo === 'Portiere') ? 1 : 0;
-
     if (empty($errors)) {
         try {
             $pdo->beginTransaction();
 
             if ($id) {
                 $pdo->prepare("
-                    UPDATE giocatori SET id_squadra=?, nome=?, cognome=?, numero_maglia=?, ruolo=?, e_portiere=?
+                    UPDATE giocatori SET id_squadra=?, nome=?, cognome=?, numero_maglia=?, ruolo=?
                     WHERE id=?
-                ")->execute([$id_squadra, $nome, $cognome, $numero_maglia, $ruolo, $e_portiere, $id]);
+                ")->execute([$id_squadra, $nome, $cognome, $numero_maglia, $ruolo, $id]);
                 $playerId = $id;
             } else {
                 $pdo->prepare("
-                    INSERT INTO giocatori (id_squadra, nome, cognome, numero_maglia, ruolo, e_portiere)
-                    VALUES (?,?,?,?,?,?)
-                ")->execute([$id_squadra, $nome, $cognome, $numero_maglia, $ruolo, $e_portiere]);
+                    INSERT INTO giocatori (id_squadra, nome, cognome, numero_maglia, ruolo)
+                    VALUES (?,?,?,?,?)
+                ")->execute([$id_squadra, $nome, $cognome, $numero_maglia, $ruolo]);
                 $playerId = (int)$pdo->lastInsertId();
             }
 
             if ($ruolo === 'Capitano') {
-                // Eventuale precedente capitano della squadra perde il ruolo
                 $prev = $pdo->prepare("SELECT capitano_giocatore_id FROM squadre WHERE id = ?");
                 $prev->execute([$id_squadra]);
                 $prevCapId = $prev->fetchColumn();
 
                 if ($prevCapId && (int)$prevCapId !== (int)$playerId) {
-                    $pdo->prepare("UPDATE giocatori SET ruolo='Giocatore', e_portiere=0 WHERE id=? AND ruolo='Capitano'")
+                    $pdo->prepare("UPDATE giocatori SET ruolo='Giocatore' WHERE id=? AND ruolo='Capitano'")
                         ->execute([$prevCapId]);
                 }
 
                 $pdo->prepare("UPDATE squadre SET capitano_giocatore_id = ?, capitano = ? WHERE id = ?")
                     ->execute([$playerId, trim($nome . ' ' . $cognome), $id_squadra]);
             } elseif ($id) {
-                // Se il giocatore modificato era il capitano e cambia squadra
-                // (caso limite: cambio squadra di un capitano), rimuove il link
                 $pdo->prepare("UPDATE squadre SET capitano_giocatore_id = NULL, capitano = NULL WHERE capitano_giocatore_id = ? AND id <> ?")
                     ->execute([$playerId, $id_squadra]);
             }

@@ -26,6 +26,16 @@ ALTER TABLE `squadre`
 --    e collega la squadra. Il nome viene splittato in modo grossolano:
 --    prima parola = nome, resto = cognome. Verifica/correggi manualmente
 --    dopo l'esecuzione se necessario.
+
+-- Imposta ruolo Capitano su giocatori già in rosa che coincidono col nome
+UPDATE `giocatori` g
+JOIN `squadre` s ON s.id = g.id_squadra
+SET g.ruolo = 'Capitano'
+WHERE s.capitano IS NOT NULL
+  AND s.capitano <> ''
+  AND TRIM(CONCAT(g.nome, ' ', g.cognome)) = TRIM(s.capitano)
+  AND g.ruolo <> 'Portiere';
+
 INSERT INTO `giocatori` (`id_squadra`, `nome`, `cognome`, `ruolo`)
 SELECT
   s.id,
@@ -38,6 +48,11 @@ WHERE s.capitano IS NOT NULL
   AND s.capitano_giocatore_id IS NULL
   AND NOT EXISTS (
     SELECT 1 FROM `giocatori` g WHERE g.id_squadra = s.id AND g.ruolo = 'Capitano'
+  )
+  AND NOT EXISTS (
+    SELECT 1 FROM `giocatori` g
+    WHERE g.id_squadra = s.id
+      AND TRIM(CONCAT(g.nome, ' ', g.cognome)) = TRIM(s.capitano)
   );
 
 -- Se il cognome risulta vuoto (capitano con un solo nome), usa '-' come placeholder
@@ -48,3 +63,6 @@ UPDATE `squadre` s
 JOIN `giocatori` g ON g.id_squadra = s.id AND g.ruolo = 'Capitano'
 SET s.capitano_giocatore_id = g.id
 WHERE s.capitano_giocatore_id IS NULL;
+
+-- 5. Rimuove il flag obsoleto e_portiere (se presente)
+ALTER TABLE `giocatori` DROP COLUMN `e_portiere`;

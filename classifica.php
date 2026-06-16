@@ -12,18 +12,33 @@ require_once __DIR__ . '/includes/db.php';
 // Fetch classifica completa dalla view
 $pdo  = db();
 
+// Query diretta (senza VIEW — Altervista non supporta CREATE VIEW)
 try {
-    $rows = $pdo->query('SELECT * FROM v_classifica')->fetchAll();
+    $rows = $pdo->query("
+        SELECT c.*, s.nome AS nome_squadra, s.colore AS colore_squadra, s.logo_url
+        FROM classifica c
+        JOIN squadre s ON s.id = c.id_squadra
+        ORDER BY c.punti DESC, c.diff_reti DESC, c.gol_fatti DESC,
+                 c.gol_subiti ASC, c.ammonizioni ASC, c.espulsioni ASC, s.nome ASC
+    ")->fetchAll();
 } catch (Throwable $e) {
     if (DEBUG_MODE) error_log('Errore classifica: ' . $e->getMessage());
     $rows = [];
 }
 
-// Fetch capocannonieri (top 10)
+// Capocannonieri top 10 — query diretta
 try {
-    $cannonieri = $pdo->query(
-        'SELECT * FROM v_capocannonieri LIMIT 10'
-    )->fetchAll();
+    $cannonieri = $pdo->query("
+        SELECT COALESCE(CONCAT(g.nome, ' ', g.cognome), e.nome_libero) AS giocatore,
+               s.nome AS squadra, s.colore AS colore_squadra, COUNT(*) AS gol
+        FROM eventi_partita e
+        LEFT JOIN giocatori g ON g.id = e.id_giocatore
+        JOIN  squadre       s ON s.id = e.id_squadra
+        WHERE e.tipo = 'gol'
+        GROUP BY e.id_giocatore, e.nome_libero, e.id_squadra
+        ORDER BY gol DESC
+        LIMIT 10
+    ")->fetchAll();
 } catch (Throwable $e) {
     if (DEBUG_MODE) error_log('Errore capocannonieri: ' . $e->getMessage());
     $cannonieri = [];

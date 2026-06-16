@@ -45,6 +45,7 @@ require_once __DIR__ . '/../_header.php';
   <table class="admin-table">
     <thead>
       <tr>
+        <th>Logo</th>
         <th>Colore</th>
         <th>Nome Squadra</th>
         <th>Capitano</th>
@@ -55,7 +56,23 @@ require_once __DIR__ . '/../_header.php';
     </thead>
     <tbody>
       <?php foreach ($squadre as $s): ?>
+      <?php
+        $logoSrc = '';
+        if (!empty($s['logo_url'])) {
+            $logoSrc = preg_match('#^https?://#', $s['logo_url'])
+                ? $s['logo_url']
+                : SITE_URL . '/' . ltrim($s['logo_url'], '/');
+        }
+      ?>
       <tr>
+        <td>
+          <?php if ($logoSrc): ?>
+            <img src="<?= htmlspecialchars($logoSrc) ?>" alt=""
+                 class="admin-team-logo">
+          <?php else: ?>
+            <span style="color:var(--muted);font-size:.75rem;">—</span>
+          <?php endif; ?>
+        </td>
         <td>
           <span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:<?= htmlspecialchars($s['colore']) ?>;border:1px solid rgba(255,255,255,.15);"></span>
         </td>
@@ -78,5 +95,9 @@ require_once __DIR__ . '/../_header.php';
   </table>
 </div>
 <?php endif; ?>
+
+<style>
+.admin-team-logo { width:28px; height:28px; object-fit:contain; border-radius:4px; vertical-align:middle; }
+</style>
 
 <?php require_once __DIR__ . '/../_footer.php'; ?>

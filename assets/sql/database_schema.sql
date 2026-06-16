@@ -70,7 +70,6 @@ CREATE TABLE IF NOT EXISTS `giocatori` (
   `cognome`      VARCHAR(100)      NOT NULL,
   `numero_maglia` TINYINT UNSIGNED NULL DEFAULT NULL,
   `ruolo`        ENUM('Giocatore','Portiere','Capitano') NOT NULL DEFAULT 'Giocatore',
-  `e_portiere`   TINYINT(1)        NOT NULL DEFAULT 0,   -- mantenuto per retro-compatibilità, sincronizzato con ruolo='Portiere'
   PRIMARY KEY (`id`),
   KEY `fk_gioc_squadra` (`id_squadra`),
   CONSTRAINT `fk_gioc_squadra`
