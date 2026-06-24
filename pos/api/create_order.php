@@ -1,4 +1,7 @@
 <?php
+// pos/api/create_order.php — Creazione ordine v2
+// Modifiche: table_number + is_takeaway + cover_fee/takeaway_fee,
+//            item_note per riga, coupon fixed/percent.
 declare(strict_types=1);
 
 define('POS_API', true);
@@ -11,92 +14,103 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     pos_json(false, null, 'Metodo non consentito.');
 }
 
-$raw = file_get_contents('php://input');
+$raw   = file_get_contents('php://input');
 $input = json_decode($raw ?: '', true);
 
 if (!is_array($input) || empty($input['items']) || !is_array($input['items'])) {
     pos_json(false, null, 'Payload ordine non valido.');
 }
 
-$customerName = trim((string) ($input['customer_name'] ?? ''));
-$covers       = (int) ($input['covers'] ?? 1);
+// ── Campi ordine ─────────────────────────────────────────────
+$customerName = substr(trim((string) ($input['customer_name'] ?? '')), 0, 100);
+$tableNumber  = isset($input['table_number']) ? substr(trim((string) $input['table_number']), 0, 20) : null;
+$isTakeaway   = !empty($input['is_takeaway']);
+$covers       = $isTakeaway ? 0 : max(0, (int) ($input['covers'] ?? 1));
 
 if ($customerName === '') {
-    pos_json(false, null, 'Nome cliente / tavolo obbligatorio.');
-}
-if ($covers < 1 || $covers > 20) {
-    pos_json(false, null, 'Coperti non validi (1–20).');
+    pos_json(false, null, 'Nome cliente obbligatorio.');
 }
 
-$customerName = substr($customerName, 0, 100);
-$adminId      = (int) $_SESSION['pos_admin_id'];
-$stationName  = $_SESSION['pos_admin_station'] ?? null;
-if ($stationName !== null) {
-    $stationName = substr((string) $stationName, 0, 80);
+// ── Leggi tariffe dalle impostazioni ─────────────────────────
+$settingsStmt = $pdo->query("SELECT `key`, `value` FROM pos_settings WHERE `key` IN ('cover_fee','takeaway_fee')");
+$settings = [];
+foreach ($settingsStmt->fetchAll() as $row) {
+    $settings[$row['key']] = (float) $row['value'];
 }
+$coverFeeUnit   = $settings['cover_fee']    ?? 1.50;
+$takeawayFeeVal = $settings['takeaway_fee'] ?? 1.00;
+
+$appliedCoverFee   = $isTakeaway ? 0.0 : round($coverFeeUnit * $covers, 2);
+$appliedTakeawayFee = $isTakeaway ? $takeawayFeeVal : 0.0;
+
+$adminId     = (int) $_SESSION['pos_admin_id'];
+$stationName = isset($_SESSION['pos_admin_station'])
+    ? substr((string) $_SESSION['pos_admin_station'], 0, 80)
+    : null;
 
 $items = $input['items'];
 
 try {
     $pdo->beginTransaction();
 
-    $numStmt = $pdo->query("
-        SELECT COALESCE(MAX(daily_number), 0) + 1 AS next_num
-        FROM pos_orders
-        WHERE DATE(created_at) = CURDATE()
-    ");
-    $dailyNumber = (int) $numStmt->fetchColumn();
-    if ($dailyNumber < 1) {
-        $dailyNumber = 1;
-    }
+    // Numero progressivo giornaliero
+    $numStmt     = $pdo->query("SELECT COALESCE(MAX(daily_number), 0) + 1 AS next_num FROM pos_orders WHERE DATE(created_at) = CURDATE()");
+    $dailyNumber = max(1, (int) $numStmt->fetchColumn());
 
+    // Inserisci testata ordine
     $orderStmt = $pdo->prepare("
         INSERT INTO pos_orders
-            (daily_number, customer_name, covers, admin_id, station_name, status, total_amount, created_at)
-        VALUES (?, ?, ?, ?, ?, 'pending', 0, NOW())
+            (daily_number, customer_name, table_number, is_takeaway, covers,
+             cover_fee, takeaway_fee, admin_id, station_name, status, total_amount, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, NOW())
     ");
-    $orderStmt->execute([$dailyNumber, $customerName, $covers, $adminId, $stationName]);
+    $orderStmt->execute([
+        $dailyNumber, $customerName, $tableNumber ?: null,
+        $isTakeaway ? 1 : 0, $covers,
+        $appliedCoverFee, $appliedTakeawayFee,
+        $adminId, $stationName,
+    ]);
     $orderId = (int) $pdo->lastInsertId();
 
+    // Statement riutilizzabili
     $productStmt = $pdo->prepare('SELECT id, price, is_active FROM pos_products WHERE id = ? LIMIT 1');
+    $couponStmt  = $pdo->prepare('SELECT id, discount_type, discount_value, is_used FROM pos_coupons WHERE id = ? LIMIT 1');
+    $couponMarkStmt = $pdo->prepare('UPDATE pos_coupons SET is_used = 1, used_at = NOW() WHERE id = ? AND is_used = 0');
+
     $itemStmt = $pdo->prepare("
         INSERT INTO pos_order_items
-            (order_id, product_id, quantity, unit_price, discount_applied, coupon_id, status)
-        VALUES (?, ?, ?, ?, ?, ?, 'pending')
+            (order_id, product_id, quantity, item_note, unit_price, discount_applied, coupon_id, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
     ");
     $modStmt = $pdo->prepare("
         INSERT INTO pos_order_item_modifications
             (order_item_id, ingredient_id, action, extra_price)
         VALUES (?, ?, ?, ?)
     ");
-    $couponMarkStmt = $pdo->prepare('
-        UPDATE pos_coupons SET is_used = 1, used_at = NOW() WHERE id = ? AND is_used = 0
-    ');
-    $couponCheckStmt = $pdo->prepare('
-        SELECT id, product_type_restriction, is_used FROM pos_coupons WHERE id = ? LIMIT 1
-    ');
 
     $usedCouponIds = [];
-    $orderTotal    = 0.0;
+    $orderTotal    = $appliedCoverFee + $appliedTakeawayFee;
 
     foreach ($items as $item) {
         $productId = (int) ($item['product_id'] ?? 0);
         $quantity  = max(1, (int) ($item['quantity'] ?? 1));
+        $itemNote  = isset($item['item_note']) ? substr(trim((string) $item['item_note']), 0, 255) : null;
         $couponId  = isset($item['coupon_id']) && $item['coupon_id'] !== null
             ? (int) $item['coupon_id']
             : null;
 
+        // Verifica prodotto
         $productStmt->execute([$productId]);
         $product = $productStmt->fetch();
-
         if (!$product || (int) $product['is_active'] !== 1) {
             throw new RuntimeException('Prodotto non valido o non attivo.');
         }
 
         $unitPrice = (float) $product['price'];
         $discount  = 0.0;
-        $lineExtra = 0.0;
 
+        // Extra dagli ingredienti aggiunti
+        $lineExtra = 0.0;
         $mods = $item['modifications'] ?? [];
         if (is_array($mods)) {
             foreach ($mods as $mod) {
@@ -106,28 +120,40 @@ try {
             }
         }
 
+        // Applica coupon (fixed o percent)
         if ($couponId !== null) {
             if (in_array($couponId, $usedCouponIds, true)) {
                 throw new RuntimeException('Coupon già applicato in questo ordine.');
             }
-            $couponCheckStmt->execute([$couponId]);
-            $coupon = $couponCheckStmt->fetch();
+            $couponStmt->execute([$couponId]);
+            $coupon = $couponStmt->fetch();
             if (!$coupon || (int) $coupon['is_used'] === 1) {
-                throw new RuntimeException('Coupon non valido.');
+                throw new RuntimeException('Coupon non valido o già utilizzato.');
             }
-            $discount = $unitPrice;
+
+            $discountValue = (float) $coupon['discount_value'];
+            if ($coupon['discount_type'] === 'percent') {
+                // Percentuale sul prezzo unitario (senza extra)
+                $discount = round($unitPrice * $discountValue / 100, 2);
+            } else {
+                // Fisso: massimo il prezzo del prodotto
+                $discount = min($discountValue, $unitPrice);
+            }
+
             $couponMarkStmt->execute([$couponId]);
             if ($couponMarkStmt->rowCount() === 0) {
-                throw new RuntimeException('Coupon già utilizzato.');
+                throw new RuntimeException('Coupon già utilizzato da un altro operatore.');
             }
             $usedCouponIds[] = $couponId;
         }
 
-        $orderTotal += ($unitPrice + $lineExtra) * $quantity - ($discount * $quantity);
+        $lineCost    = ($unitPrice + $lineExtra) * $quantity - ($discount * $quantity);
+        $orderTotal += $lineCost;
 
-        $itemStmt->execute([$orderId, $productId, $quantity, $unitPrice, $discount, $couponId]);
+        $itemStmt->execute([$orderId, $productId, $quantity, $itemNote ?: null, $unitPrice, $discount, $couponId]);
         $orderItemId = (int) $pdo->lastInsertId();
 
+        // Modifiche ingredienti
         if (is_array($mods)) {
             foreach ($mods as $mod) {
                 $ingredientId = (int) ($mod['ingredient_id'] ?? 0);
@@ -140,6 +166,7 @@ try {
         }
     }
 
+    // Aggiorna totale ordine
     $pdo->prepare('UPDATE pos_orders SET total_amount = ? WHERE id = ?')
         ->execute([round($orderTotal, 2), $orderId]);
 
@@ -148,7 +175,9 @@ try {
     pos_json(true, [
         'order_id'     => $orderId,
         'daily_number' => $dailyNumber,
+        'total'        => round($orderTotal, 2),
     ]);
+
 } catch (Throwable $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();

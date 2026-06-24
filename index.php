@@ -180,6 +180,22 @@ $data_torneo = '2026-07-05 21:00:00';
   </div>
 </section>
 
+<!-- ════════════════════════ TRACCIA ORDINE ════════════════════════ 
+<section class="section track-order-section">
+  <div class="container centered">
+    <h2 class="section-title">🍔 Traccia il tuo Ordine</h2>
+    <p class="social-sub">
+      Hai ordinato allo stand gastronomico? Controlla in tempo reale lo stato del tuo ordine.
+    </p>
+
+    <div class="track-order-actions">
+      <a href="pos/stato-ordine.php" class="btn btn-gold btn-large">
+        📋 Controlla Ordine
+      </a>
+    </div>
+  </div>
+</section>-->
+
 <!-- ═══════════════════════════════ SOCIAL ═══════════════════════════════ -->
 <section class="section social-section">
   <div class="container centered">
