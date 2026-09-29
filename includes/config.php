@@ -18,7 +18,7 @@ if (ENV === 'local') {
     define('DB_CHARSET', 'utf8mb4');
 
     define('SITE_NAME',  'Torneo Calcio a 5 - Baone 2026 [LOCAL]');
-    define('SITE_URL',   'http://localpi/sito_torneo_2027');   // cartella in htdocs
+    define('SITE_URL',   'http://localpi/sito_torneo');   // cartella in htdocs
     define('DEBUG_MODE', true);
 
 } else {
