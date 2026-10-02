@@ -84,7 +84,7 @@ if ($hasScore) {
   <title><?= htmlspecialchars($partita['nome_casa']) ?> vs <?= htmlspecialchars($partita['nome_osp']) ?> — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-2">
 </head>
 <body>
 
@@ -95,10 +95,11 @@ if ($hasScore) {
       <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="nav-logo">
       <span>Torneo <em>Baone</em> 2026</span>
     </a>
-    <button class="nav-toggle" id="navToggle" aria-label="Apri menu">
+    <input type="checkbox" class="nav-menu-check" id="matchNavMenuToggle" aria-label="Apri o chiudi il menu" aria-controls="matchNavLinks">
+    <label class="nav-toggle" for="matchNavMenuToggle" aria-hidden="true">
       <span></span><span></span><span></span>
-    </button>
-    <ul class="nav-links" id="navLinks">
+    </label>
+    <ul class="nav-links" id="matchNavLinks">
       <li><a href="<?= SITE_URL ?>">Home</a></li>
       <li><a href="<?= SITE_URL ?>/calendario.php" class="active">Calendario</a></li>
       <li><a href="<?= SITE_URL ?>/classifica.php">Classifica</a></li>
@@ -335,12 +336,6 @@ if ($hasScore) {
   .msb-center { order:-1; }
 }
 </style>
-
-<script>
-const toggle = document.getElementById('navToggle');
-const links  = document.getElementById('navLinks');
-toggle?.addEventListener('click', () => links.classList.toggle('open'));
-</script>
 
 </body>
 </html>

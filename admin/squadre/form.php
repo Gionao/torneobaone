@@ -83,7 +83,7 @@ require_once __DIR__ . '/../_header.php';
     <div class="form-note" style="padding:.75rem .9rem;border:1px solid rgba(201,168,76,.25);border-radius:8px;background:rgba(255,255,255,.02);color:var(--muted);">
       <?= htmlspecialchars($capitanoLabel) ?>
     </div>
-    <small style="display:block;margin-top:.45rem;color:var(--muted);">Il capitano ufficiale è determinato dal profilo account in <strong>capitani</strong>; il campo legacy è mantenuto solo per compatibilità.</small>
+    <small style="display:block;margin-top:.45rem;color:var(--muted);">Il capitano ufficiale è collegato al profilo account in <strong>capitani</strong>.</small>
   </div>
 
   <div class="form-group">

@@ -1,5 +1,7 @@
 -- =============================================================
 -- MIGRAZIONE FINALE: unificazione capitano legacy / account capitano
+-- STORICA/DEPRECATA: non rieseguire sullo schema attuale.
+-- La pulizia canonica e' in migration_relazioni_capitano_squadra.sql.
 -- Obiettivo: introdurre la fonte di verità canonica senza perdere i dati storici
 -- =============================================================
 -- Regola di business finale:

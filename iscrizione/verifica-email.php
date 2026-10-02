@@ -5,11 +5,13 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/token_helper.php';
 require_once __DIR__ . '/../includes/iscrizione_helper.php';
+require_once __DIR__ . '/../includes/mailer.php';
 
 $pdo = db();
 $token = trim((string) ($_GET['token'] ?? ''));
 $errors = [];
 $success = '';
+$warning = '';
 
 if ($token === '') {
     $errors[] = 'Token mancante.';
@@ -19,10 +21,44 @@ if ($token === '') {
         $errors[] = 'Token non valido o scaduto.';
     } else {
         $idGiocatore = (int) ($row['id_giocatore'] ?? 0);
-        $pdo->prepare('UPDATE capitani SET email_verificata_at = NOW() WHERE id = ?')->execute([ (int) ($row['id_capitano'] ?? 0) ]);
-        $pdo->prepare('UPDATE giocatori SET stato_iscrizione = "in_attesa_genitore" WHERE id = ? AND data_nascita IS NOT NULL AND data_nascita <> "0000-00-00"')->execute([$idGiocatore]);
+        if (!empty($row['id_capitano'])) {
+            $pdo->prepare('UPDATE capitani SET email_verificata_at = NOW() WHERE id = ?')->execute([(int) $row['id_capitano']]);
+        }
         consume_token($pdo, $token);
-        $success = 'Email verificata con successo.';
+        if ($idGiocatore > 0) {
+            avanza_stato_giocatore($pdo, $idGiocatore);
+            $parentStmt = $pdo->prepare('SELECT p.id, p.nome, p.cognome, p.email, g.nome AS nome_giocatore, g.cognome AS cognome_giocatore FROM genitori p JOIN giocatori g ON g.id = p.id_giocatore WHERE p.id_giocatore = ? LIMIT 1');
+            $parentStmt->execute([$idGiocatore]);
+            $parent = $parentStmt->fetch();
+
+            if ($parent) {
+                invalidate_previous_tokens($pdo, 'consenso_genitore', null, (int) $parent['id']);
+                $parentToken = create_verification_token($pdo, 'consenso_genitore', null, $idGiocatore, (int) $parent['id'], 72);
+                $parentSent = false;
+                if ($parentToken) {
+                    $parentLink = build_site_link('/iscrizione/conferma-genitore.php', $parentToken);
+                    $parentBody = build_email_template(
+                        'Conferma iscrizione minorenne',
+                        "Buongiorno {$parent['nome']} {$parent['cognome']},\n\ncompleta l'iscrizione di {$parent['nome_giocatore']} {$parent['cognome_giocatore']} al torneo.",
+                        'Completa iscrizione',
+                        $parentLink,
+                        'Il link scade tra 72 ore.'
+                    );
+                    $parentSent = send_email((string) $parent['email'], 'Conferma iscrizione minorenne', $parentBody);
+                }
+
+                if ($parentSent) {
+                    $success = 'Email verificata. Il giocatore è in attesa del genitore: abbiamo inviato al genitore il link per approvare l’iscrizione.';
+                } else {
+                    $success = 'Email verificata. Il giocatore è in attesa del genitore.';
+                    $warning = 'Non è stato possibile inviare il link al genitore. Il capitano può riprovare dalla pagina Giocatori.';
+                }
+            } else {
+                $success = 'Email verificata con successo.';
+            }
+        } else {
+            $success = 'Email verificata con successo.';
+        }
     }
 }
 ?>
@@ -46,6 +82,7 @@ if ($token === '') {
       </div>
       <?php if ($errors): foreach ($errors as $err): ?><div class="alert alert-error"><?= htmlspecialchars($err) ?></div><?php endforeach; endif; ?>
       <?php if ($success): ?><div class="alert alert-success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
+      <?php if ($warning): ?><div class="alert alert-error"><?= htmlspecialchars($warning) ?></div><?php endif; ?>
       <div class="inline-actions" style="justify-content:center;">
         <a href="<?= SITE_URL ?>" class="btn btn-gold">Torna al sito</a>
       </div>

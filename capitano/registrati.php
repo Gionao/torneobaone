@@ -7,14 +7,6 @@ require_once __DIR__ . '/../includes/auth_capitano.php';
 require_once __DIR__ . '/../includes/token_helper.php';
 require_once __DIR__ . '/../includes/mailer.php';
 
-function table_has_column(PDO $pdo, string $table, string $column): bool
-{
-    $stmt = $pdo->prepare('SHOW COLUMNS FROM `' . str_replace('`', '', $table) . '`');
-    $stmt->execute();
-    $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    return in_array($column, $columns, true);
-}
-
 capitano_session_start_secure();
 
 if (is_capitano_logged()) {
@@ -31,18 +23,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $nome = trim((string) ($_POST['nome'] ?? ''));
         $cognome = trim((string) ($_POST['cognome'] ?? ''));
+        $dataNascita = trim((string) ($_POST['data_nascita'] ?? ''));
+        $indirizzo = trim((string) ($_POST['indirizzo'] ?? ''));
         $email = trim(strtolower((string) ($_POST['email'] ?? '')));
         $telefono = trim((string) ($_POST['telefono'] ?? ''));
-        $password = (string) ($_POST['password'] ?? '');;
+        $password = (string) ($_POST['password'] ?? '');
         $nomeSquadra = trim((string) ($_POST['nome_squadra'] ?? ''));
+        $coloreSquadra = trim((string) ($_POST['colore_squadra'] ?? '#1a3a5c'));
         $logoUrl = trim((string) ($_POST['logo_url'] ?? ''));
         $numeroPrevisto = (int) ($_POST['numero_giocatori_previsto'] ?? 0);
         $accettaRegolamento = !empty($_POST['accetta_regolamento']);
         $accettaPrivacy = !empty($_POST['accetta_privacy']);
         $accettaFoto = !empty($_POST['accetta_foto']);
 
-        if ($nome === '' || $cognome === '' || $email === '' || $password === '' || $nomeSquadra === '') {
-            $errors[] = 'Compila tutti i campi obbligatori.';
+        if ($nomeSquadra === '' || $numeroPrevisto < 1 || $numeroPrevisto > 9) {
+          $errors[] = 'Inserisci il nome della squadra e un numero di giocatori previsti compreso tra 1 e 9.';
+        }
+        if ($nome === '' || $cognome === '' || $dataNascita === '' || $indirizzo === '' || $email === '' || $password === '') {
+            $errors[] = 'Compila tutti i dati del capitano.';
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'Email non valida.';
@@ -52,6 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (!$accettaRegolamento || !$accettaPrivacy) {
             $errors[] = 'Devi accettare regolamento e privacy.';
+        }
+        if ($dataNascita !== '' && strtotime($dataNascita) === false) {
+            $errors[] = 'Data di nascita non valida.';
         }
 
         if (!$errors) {
@@ -66,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$errors) {
             $pdo = db();
             $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-            $stmt = $pdo->prepare('INSERT INTO capitani (nome, cognome, email, telefono, password_hash) VALUES (?, ?, ?, ?, ?)');
-            $stmt->execute([$nome, $cognome, $email, $telefono ?: null, $hash]);
+            $stmt = $pdo->prepare('INSERT INTO capitani (nome, cognome, email, telefono, data_nascita, indirizzo, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            $stmt->execute([$nome, $cognome, $email, $telefono ?: null, $dataNascita ?: null, $indirizzo ?: null, $hash]);
             $idCapitano = (int) $pdo->lastInsertId();
 
             $torneoId = null;
@@ -91,7 +92,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (table_has_column($pdo, 'squadre', 'colore')) {
                 $squadraColumns[] = 'colore';
-                $squadraValues[] = '#1a3a5c';
+                $squadraValues[] = $coloreSquadra !== '' ? $coloreSquadra : '#1a3a5c';
+            }
+
+            if (table_has_column($pdo, 'squadre', 'attiva')) {
+                $squadraColumns[] = 'attiva';
+                $squadraValues[] = 0;
             }
 
             if (table_has_column($pdo, 'squadre', 'logo_url')) {
@@ -102,11 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (table_has_column($pdo, 'squadre', 'id_capitano')) {
                 $squadraColumns[] = 'id_capitano';
                 $squadraValues[] = $idCapitano;
-            }
-
-            if (table_has_column($pdo, 'squadre', 'capitano')) {
-                $squadraColumns[] = 'capitano';
-                $squadraValues[] = trim($nome . ' ' . $cognome);
             }
 
             if (table_has_column($pdo, 'squadre', 'numero_giocatori_previsto')) {
@@ -168,9 +169,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            $_SESSION['capitano_id'] = $idCapitano;
-            $_SESSION['capitano_auth'] = bin2hex(random_bytes(32));
-            header('Location: ' . SITE_URL . '/capitano/dashboard.php?nuova_squadra=1');
+            $tokenVerify = create_verification_token($pdo, 'email_verifica', $idCapitano, null, null, 72);
+            if ($tokenVerify) {
+                $verificationLink = build_site_link('/capitano/verifica-email.php', $tokenVerify);
+                $body = build_email_template(
+                    'Verifica il tuo account',
+                    "Ciao {$nome} {$cognome},\n\nAbbiamo creato il tuo account per il Torneo di Baone. Per completare la registrazione e poter accedere all'area capitano, verifica il tuo indirizzo email cliccando sul pulsante qui sotto.",
+                    'Verifica il tuo account',
+                    $verificationLink,
+                    'Il link scade tra 72 ore.',
+                    'Se non hai richiesto questa registrazione, puoi ignorare questa email.'
+                );
+                $sent = send_email($email, 'Verifica il tuo account', $body);
+                $_SESSION['capitano_pending_verification'] = true;
+                $_SESSION['capitano_pending_email'] = $email;
+                $_SESSION['capitano_notice'] = $sent
+                    ? 'Registrazione completata. Controlla la tua email e verifica il tuo account per accedere.'
+                    : 'Registrazione completata. Non è stato possibile inviare la mail di verifica, ma puoi richiederla nuovamente dal login.';
+            } else {
+                $_SESSION['capitano_notice'] = 'Registrazione completata, ma non è stato possibile creare il link di verifica. Riprova più tardi.';
+            }
+
+            header('Location: ' . SITE_URL . '/capitano/login.php?verifica=sent');
             exit;
         }
     }
@@ -209,54 +229,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <form method="post" class="admin-form" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(capitano_csrf_token()) ?>">
-    <div class="grid2">
-      <div class="form-group">
-        <label>Nome</label>
-        <input type="text" name="nome" value="<?= htmlspecialchars($_POST['nome'] ?? '') ?>" required>
-      </div>
-      <div class="form-group">
-        <label>Cognome</label>
-        <input type="text" name="cognome" value="<?= htmlspecialchars($_POST['cognome'] ?? '') ?>" required>
-      </div>
-    </div>
 
-    <div class="grid2">
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+    <fieldset style="border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <legend style="padding: 0 .5rem; color: var(--gold); font-weight: 700;">Step 1 - Registrazione squadra</legend>
+      <div class="grid2">
+        <div class="form-group">
+          <label>Nome squadra</label>
+          <input type="text" name="nome_squadra" value="<?= htmlspecialchars($_POST['nome_squadra'] ?? '') ?>" required>
+        </div>
+        <div class="form-group">
+          <label>Colore squadra</label>
+          <input type="color" name="colore_squadra" value="<?= htmlspecialchars($_POST['colore_squadra'] ?? '#1a3a5c') ?>" style="min-height:44px; width:100%; padding:0.2rem;">
+        </div>
       </div>
-      <div class="form-group">
-        <label>Telefono</label>
-        <input type="text" name="telefono" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
+
+      <div class="grid2">
+        <div class="form-group">
+          <label>Numero giocatori previsti (escluso il capitano)</label>
+          <input type="number" name="numero_giocatori_previsto" min="1" max="9" value="<?= htmlspecialchars((string) ($_POST['numero_giocatori_previsto'] ?? 9)) ?>" required>
+        </div>
+        <!--<div class="form-group">
+          <label>Logo URL</label>
+          <input type="url" name="logo_url" value="<?= htmlspecialchars($_POST['logo_url'] ?? '') ?>" placeholder="https://...">
+        </div>-->
       </div>
-    </div>
+    </fieldset>
 
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" name="password" minlength="8" required>
-    </div>
-
-    <div class="form-group">
-      <label>Nome squadra</label>
-      <input type="text" name="nome_squadra" value="<?= htmlspecialchars($_POST['nome_squadra'] ?? '') ?>" required>
-    </div>
-
-    <div class="grid2">
-      <div class="form-group">
-        <label>Numero giocatori previsti</label>
-        <input type="number" name="numero_giocatori_previsto" min="1" max="20" value="<?= htmlspecialchars((string) ($_POST['numero_giocatori_previsto'] ?? 10)) ?>">
+    <fieldset style="border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <legend style="padding: 0 .5rem; color: var(--gold); font-weight: 700;">Step 2 - Registrazione capitano</legend>
+      <div class="grid2">
+        <div class="form-group">
+          <label>Nome</label>
+          <input type="text" name="nome" value="<?= htmlspecialchars($_POST['nome'] ?? '') ?>" required>
+        </div>
+        <div class="form-group">
+          <label>Cognome</label>
+          <input type="text" name="cognome" value="<?= htmlspecialchars($_POST['cognome'] ?? '') ?>" required>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Logo URL</label>
-        <input type="url" name="logo_url" value="<?= htmlspecialchars($_POST['logo_url'] ?? '') ?>" placeholder="https://...">
-      </div>
-    </div>
 
-    <div class="checklist">
-      <label class="check-item"><input type="checkbox" name="accetta_regolamento" value="1" required> Accetto il regolamento del torneo.</label>
-      <label class="check-item"><input type="checkbox" name="accetta_privacy" value="1" required> Accetto l'informativa privacy.</label>
-      <label class="check-item"><input type="checkbox" name="accetta_foto" value="1"> Consento la liberatoria foto (facoltativa).</label>
-    </div>
+      <div class="grid2">
+        <div class="form-group">
+          <label>Data di nascita</label>
+          <input type="date" name="data_nascita" value="<?= htmlspecialchars($_POST['data_nascita'] ?? '') ?>" required>
+        </div>
+        <div class="form-group">
+          <label>Telefono</label>
+          <input type="text" name="telefono" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Indirizzo</label>
+        <input type="text" name="indirizzo" value="<?= htmlspecialchars($_POST['indirizzo'] ?? '') ?>" required>
+      </div>
+
+      <div class="grid2">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" minlength="8" required>
+        </div>
+      </div>
+
+      <div class="checklist">
+        <label class="check-item"><input type="checkbox" name="accetta_regolamento" value="1" required> Accetto il regolamento del torneo.</label><br>
+        <label class="check-item"><input type="checkbox" name="accetta_privacy" value="1" required> Accetto l'informativa privacy.</label><br>
+        <label class="check-item"><input type="checkbox" name="accetta_foto" value="1"> Acconsento all’uso di foto e video (facoltativo).</label>
+      </div>
+    </fieldset>
 
     <div class="form-actions">
       <button type="submit" class="btn btn-gold">Crea account</button>

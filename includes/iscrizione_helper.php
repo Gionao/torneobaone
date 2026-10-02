@@ -14,9 +14,10 @@ function get_active_torneo_start_date(PDO $pdo): ?string
 
 function is_minorenne(?string $dataNascita, ?string $dataInizio): bool
 {
-    if (empty($dataNascita) || empty($dataInizio)) {
+    if (empty($dataNascita)) {
         return false;
     }
+    $dataInizio = $dataInizio ?: date('Y-m-d');
 
     try {
         $birth = new DateTimeImmutable($dataNascita);
@@ -99,6 +100,12 @@ function avanza_stato_giocatore(PDO $pdo, int $idGiocatore): void
 
     $dataInizio = get_active_torneo_start_date($pdo);
     $stato = 'invitato';
+    $verifiedStmt = $pdo->prepare('SELECT id FROM token_verifica WHERE tipo = "email_verifica" AND id_giocatore = ? AND usato_at IS NOT NULL LIMIT 1');
+    $verifiedStmt->execute([$idGiocatore]);
+    $emailVerificata = (bool) $verifiedStmt->fetchColumn();
+    $parentStmt = $pdo->prepare('SELECT id FROM genitori WHERE id_giocatore = ? LIMIT 1');
+    $parentStmt->execute([$idGiocatore]);
+    $parent = $parentStmt->fetch();
 
     if (!empty($giocatore['email'])) {
         $tokenExists = $pdo->prepare('SELECT id FROM token_verifica WHERE tipo = "email_verifica" AND id_giocatore = ? AND usato_at IS NULL AND invalidato_at IS NULL AND scadenza > NOW() LIMIT 1');
@@ -111,22 +118,31 @@ function avanza_stato_giocatore(PDO $pdo, int $idGiocatore): void
         }
     }
 
-    if (!empty($giocatore['email']) && !empty($giocatore['data_nascita']) && is_minorenne($giocatore['data_nascita'], $dataInizio ?? '2000-01-01')) {
-        $parentStmt = $pdo->prepare('SELECT id FROM genitori WHERE id_giocatore = ? LIMIT 1');
-        $parentStmt->execute([$idGiocatore]);
-        if ($parentStmt->fetch()) {
-            $stato = 'completo';
+    $richiedeConsensoGenitore = $parent || (
+        !empty($giocatore['email'])
+        && !empty($giocatore['data_nascita'])
+        && is_minorenne($giocatore['data_nascita'], $dataInizio)
+    );
+    if ($richiedeConsensoGenitore) {
+        if (!$emailVerificata) {
+            $stato = 'email_da_verificare';
+        } elseif ($parent) {
+            $consentStmt = $pdo->prepare('SELECT COUNT(DISTINCT c.id_documento) FROM consensi c JOIN documenti d ON d.id = c.id_documento JOIN tipi_documento t ON t.id = d.id_tipo WHERE c.id_genitore = ? AND t.codice IN ("privacy", "regolamento")');
+            $consentStmt->execute([(int) $parent['id']]);
+            $stato = (int) $consentStmt->fetchColumn() >= 2 ? 'completo' : 'in_attesa_genitore';
         } else {
             $stato = 'in_attesa_genitore';
         }
     }
 
     if (
-        !empty($giocatore['email'])
+        $emailVerificata
+        && !$parent
+        && !empty($giocatore['email'])
         && !empty($giocatore['telefono'])
         && !empty($giocatore['data_nascita'])
         && !empty($giocatore['indirizzo'])
-        && !is_minorenne($giocatore['data_nascita'], $dataInizio ?? '2000-01-01')
+        && !is_minorenne($giocatore['data_nascita'], $dataInizio)
     ) {
         $stato = 'completo';
     }
@@ -138,4 +154,36 @@ function avanza_stato_giocatore(PDO $pdo, int $idGiocatore): void
     if ($idSquadra > 0) {
         ricalcola_stato_squadra($pdo, $idSquadra);
     }
+}
+
+function registra_consenso(PDO $pdo, string $codiceDocumento, string $soggetto, int $idSoggetto, string $ip, string $userAgent): void
+{
+    $stmt = $pdo->prepare('SELECT d.id FROM documenti d JOIN tipi_documento t ON t.id = d.id_tipo WHERE t.codice = ? ORDER BY d.versione DESC LIMIT 1');
+    $stmt->execute([$codiceDocumento]);
+    $idDocumento = $stmt->fetchColumn();
+    if (!$idDocumento) {
+        return;
+    }
+    $colonna = in_array($soggetto, ['id_capitano', 'id_giocatore', 'id_genitore'], true) ? $soggetto : null;
+    if ($colonna === null) {
+        return;
+    }
+    $sql = 'INSERT INTO consensi (id_documento, ' . $colonna . ', concesso, ip_address, user_agent) '
+        . 'SELECT ?, ?, 1, ?, ? WHERE NOT EXISTS '
+        . '(SELECT 1 FROM consensi WHERE id_documento = ? AND ' . $colonna . ' = ?)';
+    $pdo->prepare($sql)->execute([(int) $idDocumento, $idSoggetto, $ip ?: null, substr($userAgent, 0, 255), (int) $idDocumento, $idSoggetto]);
+}
+
+function etichetta_stato_iscrizione(string $stato): string
+{
+    return [
+        'completo' => 'Iscrizione confermata', 'in_attesa_genitore' => 'In attesa del genitore',
+        'email_da_verificare' => 'Email da verificare', 'invitato' => 'Invito inviato',
+        'non_registrato' => 'Da completare', 'annullato' => 'Annullato',
+    ][$stato] ?? ucfirst(str_replace('_', ' ', $stato));
+}
+
+function etichetta_stato_pagamento(string $stato): string
+{
+    return ['non_pagato' => 'Da pagare', 'parziale' => 'Pagamento parziale', 'pagato' => 'Pagato'][$stato] ?? ucfirst(str_replace('_', ' ', $stato));
 }

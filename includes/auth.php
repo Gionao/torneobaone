@@ -37,6 +37,10 @@ function require_admin(): void
         header('Location: ' . ADMIN_PATH . '/login.php');
         exit;
     }
+    if (($_SESSION['admin_role'] ?? 'admin') === 'telecronista') {
+        header('Location: ' . SITE_URL . '/telecronista/index.php');
+        exit;
+    }
     // Rigenera il token di sessione ad ogni richiesta (prevenzione session fixation)
     if (empty($_SESSION['last_regen']) || time() - $_SESSION['last_regen'] > 300) {
         session_regenerate_id(true);
@@ -60,7 +64,7 @@ function admin_login(string $username, string $password): bool
     }
 
     $pdo  = db();
-    $stmt = $pdo->prepare('SELECT id, password_hash FROM admin WHERE username = ? LIMIT 1');
+    $stmt = $pdo->prepare('SELECT id, password_hash, role FROM admin WHERE username = ? LIMIT 1');
     $stmt->execute([$username]);
     $row = $stmt->fetch();
 
@@ -68,6 +72,7 @@ function admin_login(string $username, string $password): bool
         // Login riuscito — inizializza sessione
         session_regenerate_id(true);
         $_SESSION['admin_id']    = $row['id'];
+        $_SESSION['admin_role']  = $row['role'] ?? 'admin';
         $_SESSION['admin_token'] = bin2hex(random_bytes(32));
         $_SESSION['login_attempts'] = 0;
         return true;
@@ -77,6 +82,32 @@ function admin_login(string $username, string $password): bool
     $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
     $_SESSION['login_time']     = time();
     return false;
+}
+
+/** Accesso alle sole funzioni di gestione partite per admin e telecronisti. */
+function require_partite_access(): void
+{
+    if (!is_admin_logged()) {
+        header('Location: ' . SITE_URL . '/telecronista/login.php');
+        exit;
+    }
+    if (empty($_SESSION['last_regen']) || time() - $_SESSION['last_regen'] > 300) {
+        session_regenerate_id(true);
+        $_SESSION['last_regen'] = time();
+    }
+    if (($_SESSION['admin_role'] ?? '') === 'telecronista'
+        && strpos((string) ($_SERVER['SCRIPT_NAME'] ?? ''), '/admin/partite/') !== false) {
+        $relative = basename((string) $_SERVER['SCRIPT_NAME']);
+        $query = !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '';
+        header('Location: ' . SITE_URL . '/telecronista/partite/' . $relative . $query);
+        exit;
+    }
+}
+
+function is_telecronista(): bool
+{
+    session_start_secure();
+    return is_admin_logged() && ($_SESSION['admin_role'] ?? '') === 'telecronista';
 }
 
 // Logout

@@ -3,12 +3,11 @@
 -- ============================================================
 
 -- 1. SQUADRE
-INSERT INTO `squadre` (`id`, `nome`, `colore`, `logo_url`, `capitano`) VALUES
-(1, 'Stella Rossa Baone', '#FF0000', 'assets/logos/stella_rossa.png', 'Marco Rossi'),
-(2, 'FC Real Calaone', '#0000FF', 'assets/logos/real_calaone.png', 'Luca Bianchi'),
-(3, 'Atletico Rivadolmo', '#FFCC00', 'assets/logos/atletico_riva.png', 'Alessandro Verdi'),
-(4, 'Valle San Giorgio C5', '#008000', 'assets/logos/valle_sg.png', 'Francesco Neri')
-ON DUPLICATE KEY UPDATE `nome`=VALUES(`nome`), `colore`=VALUES(`colore`), `capitano`=VALUES(`capitano`);
+(1, 'Stella Rossa Baone', '#FF0000', 'assets/logos/stella_rossa.png'),
+(2, 'FC Real Calaone', '#0000FF', 'assets/logos/real_calaone.png'),
+(3, 'Atletico Rivadolmo', '#FFCC00', 'assets/logos/atletico_riva.png'),
+(4, 'Valle San Giorgio C5', '#008000', 'assets/logos/valle_sg.png')
+ON DUPLICATE KEY UPDATE `nome`=VALUES(`nome`), `colore`=VALUES(`colore`);
 
 
 -- 2. GIOCATORI

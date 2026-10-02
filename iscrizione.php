@@ -9,7 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/config.php';
 
 // !! Inserisci qui il link al tuo Google Form !!
-define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
+define('GOOGLE_FORM_URL', './capitano/registrati.php');
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -19,7 +19,7 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
   <title>Iscrizione & Regolamento — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-2">
 </head>
 <body>
 
@@ -64,9 +64,6 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
           Compila il Form di Iscrizione
           <span class="btn-iscriviti-arrow">→</span>
         </a>
-        <p class="iscr-hero-note">
-          🔒 Il form è gestito tramite Google Forms &bull; Dati al sicuro
-        </p>
       </div>
       <div class="iscr-hero-badge">
         <div class="badge-inner">
@@ -101,7 +98,7 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
         <div class="step-flow-num">1</div>
         <div class="step-flow-icon">📋</div>
         <h4>Compila il Form</h4>
-        <p>Il capitano compila il <strong>form Google</strong> con il nome della squadra e i propri contatti. Basta un minuto.</p>
+        <p>Il capitano iscrive la propria squadra compilando il form direttamente dal sito.</p>
         <a href="<?= GOOGLE_FORM_URL ?>" target="_blank" rel="noopener" class="step-cta">Vai al Form →</a>
       </div>
 
@@ -110,8 +107,8 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
       <div class="step-flow-card">
         <div class="step-flow-num">2</div>
         <div class="step-flow-icon">📞</div>
-        <h4>Ti Contattiamo Noi</h4>
-        <p>Gli organizzatori ricontatteranno il capitano per raccogliere la <strong>lista completa dei giocatori</strong> e tutti i dettagli.</p>
+        <h4>Aggiungi la squadra</h4>
+        <p>Il capitano aggiunge tutti i giocatori alla squadra tramite mail.</p>
       </div>
 
       <div class="step-flow-arrow">›</div>
@@ -120,7 +117,7 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
         <div class="step-flow-num">3</div>
         <div class="step-flow-icon">📄</div>
         <h4>Moduli e Pagamento</h4>
-        <p>Compilazione e invio dei <strong>moduli ufficiali</strong> e pagamento del contributo di iscrizione (€ 180 a squadra).</p>
+        <p>Compilazione dei moduli direttamente online e pagamento del contributo di iscrizione (€ 180 a squadra). <br><strong>ENTRO IL 10 GIUGNO</strong></p>
       </div>
 
       <div class="step-flow-arrow">›</div>
@@ -128,8 +125,8 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
       <div class="step-flow-card step-flow-card--last">
         <div class="step-flow-num">4</div>
         <div class="step-flow-icon">🛡️</div>
-        <h4>Logo della Squadra</h4>
-        <p>Puoi inviare un <strong>logo o stemma</strong> della tua squadra — verrà visualizzato sul sito e nelle classifiche.</p>
+        <h4>Personalizzazione della squadra</h4>
+        <p>Aggiungi un logo alla tua squadra. <br>Scegli un colore per la tua maglia.<br>Assegna un numero di maglia a ogni giocatore.</p>
         <span class="step-optional">Facoltativo</span>
       </div>
 
@@ -250,93 +247,8 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
   </div>
 </section>
 
-<!-- FORM DI ISCRIZIONE SQUADRA -->
-<section class="section team-register-wrap">
-  <div class="container">
-    <div class="team-register-header">
-      <p class="iscr-label">⚽ Iscrizione online</p>
-      <h2 class="section-title centered" style="margin-bottom:.5rem;">Registra la tua squadra</h2>
-      <p class="team-register-subtitle">Completa i dati del capitano e della squadra per iniziare la procedura di iscrizione.</p>
-    </div>
 
-    <form class="team-register-form" method="post" action="<?= SITE_URL ?>/capitano/registrati.php">
-      <div class="team-form-grid">
-        <div class="team-form-group">
-          <label for="nome">Nome capitano</label>
-          <input id="nome" name="nome" type="text" placeholder="Es. Marco" required>
-        </div>
-        <div class="team-form-group">
-          <label for="cognome">Cognome capitano</label>
-          <input id="cognome" name="cognome" type="text" placeholder="Es. Rossi" required>
-        </div>
-        <div class="team-form-group">
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" placeholder="esempio@email.it" required>
-        </div>
-        <div class="team-form-group">
-          <label for="telefono">Telefono</label>
-          <input id="telefono" name="telefono" type="tel" placeholder="+39 333 1234567">
-        </div>
-        <div class="team-form-group full-width">
-          <label for="nome_squadra">Nome squadra</label>
-          <input id="nome_squadra" name="nome_squadra" type="text" placeholder="Es. Baone United" required>
-        </div>
-        <div class="team-form-group">
-          <label for="numero_giocatori_previsto">Numero giocatori previsti</label>
-          <input id="numero_giocatori_previsto" name="numero_giocatori_previsto" type="number" min="1" max="20" value="10">
-        </div>
-        <!--<div class="team-form-group">
-          <label for="logo_url">Logo della squadra (URL)</label>
-          <input id="logo_url" name="logo_url" type="url" placeholder="https://...">
-        </div>-->
-        <div class="team-form-group">
-          <label for="password">Password account capitano</label>
-          <input id="password" name="password" type="password" placeholder="Minimo 8 caratteri" required>
-        </div>
-      </div>
-
-      <div class="team-checklist">
-        <label class="team-check-item">
-          <input type="checkbox" name="accetta_regolamento" value="1" required>
-          <span>Accetto il regolamento del torneo.</span>
-        </label>
-        <label class="team-check-item">
-          <input type="checkbox" name="accetta_privacy" value="1" required>
-          <span>Accetto l'informativa privacy.</span>
-        </label>
-        <label class="team-check-item">
-          <input type="checkbox" name="accetta_foto" value="1">
-          <span>Consento la liberatoria foto (facoltativa).</span>
-        </label>
-      </div>
-
-      <div class="team-actions">
-        <button type="submit" class="btn-iscriviti">
-          <span class="btn-iscriviti-icon">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-              <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-1.5 15H6V6h12v12zm-9-9h6v1.5H9V9zm0 3h6v1.5H9V12zm0 3h4.5v1.5H9V15z"/>
-            </svg>
-          </span>
-          Inizia iscrizione
-          <span class="btn-iscriviti-arrow">→</span>
-        </button>
-        <a href="<?= SITE_URL ?>/capitano/login.php" class="team-login-link">Ho già un account</a>
-      </div>
-    </form>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer class="site-footer">
-  <div class="container">
-    <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="footer-logo">
-    <p>&copy; <?= date('Y') ?> Torneo Calcio a 5 Baone &mdash; Patronato San Lorenzo</p>
-    <p class="footer-small">
-      <a href="<?= SITE_URL ?>/regolamento.php">Regolamento</a> &bull;
-      <a href="<?= SITE_URL ?>/admin/login.php">Admin</a>
-    </p>
-  </div>
-</footer>
+<?php require_once __DIR__ . '/shared/footer.php'; ?>
 
 <style>
 .team-register-wrap {
@@ -774,11 +686,6 @@ define('GOOGLE_FORM_URL', 'https://forms.gle/zg6k4K98rFSQs4Zn9');
 </style>
 
 <script>
-// Navbar mobile toggle
-const toggle = document.getElementById('navToggle');
-const links  = document.getElementById('navLinks');
-toggle?.addEventListener('click', () => links.classList.toggle('open'));
-
 // Navbar scroll
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').style.background =

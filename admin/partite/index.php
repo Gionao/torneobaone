@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
 
-require_admin();
+require_partite_access();
 
 $pdo = db();
 
@@ -43,7 +43,7 @@ require_once __DIR__ . '/../_header.php';
 <?php endif; ?>
 
 <div class="qa-grid" style="margin-bottom:1.5rem;">
-  <a href="<?= SITE_URL ?>/admin/partite/form.php" class="qa-btn">+ Nuova Partita</a>
+  <a href="<?= SITE_URL ?>/<?= is_telecronista() ? 'telecronista' : 'admin' ?>/partite/form.php" class="qa-btn">+ Nuova Partita</a>
 </div>
 
 <?php if (empty($partite)): ?>
@@ -103,9 +103,9 @@ require_once __DIR__ . '/../_header.php';
             <a href="form.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline">Modifica</a>
             <a href="risultato.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-gold">Risultato</a>
             <a href="eventi.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline">Eventi</a>
-            <a href="delete.php?id=<?= $p['id'] ?>&csrf=<?= csrf_token() ?>"
+            <?php if (!is_telecronista()): ?><a href="delete.php?id=<?= $p['id'] ?>&csrf=<?= csrf_token() ?>"
                class="btn btn-sm btn-red"
-               onclick="return confirm('Eliminare questa partita?')">Elimina</a>
+               onclick="return confirm('Eliminare questa partita?')">Elimina</a><?php endif; ?>
           </div>
         </td>
       </tr>

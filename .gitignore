@@ -1,0 +1,7 @@
+vendor/
+composer.phar
+config.local.php
+.env
+.env.*
+storage/email_log/*
+!storage/email_log/.gitkeep

@@ -152,12 +152,50 @@ body {
   color: #7ad5a9;
 }
 
+.state-pill.bad { background: rgba(217,79,79,.12); border-color: rgba(217,79,79,.4); color: #ff8585; }
+
+.player-form, .consent-fields, .parent-fields {
+  display: grid;
+  gap: 1rem;
+}
+.player-form {
+  padding: clamp(1rem, 4vw, 1.6rem);
+  border: 1px solid rgba(201,168,76,.22);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+  box-shadow: 0 14px 36px rgba(0,0,0,.22);
+}
+.player-form h2, .parent-fields h2, .consent-fields h2 { margin: 0; color: var(--gold); font-size: 1.15rem; }
+.player-form p { margin: 0; color: var(--muted); line-height: 1.5; }
+.player-form .form-group { display: grid; gap: .45rem; }
+.player-form input:not([type="checkbox"]) {
+  width: 100%; min-height: 48px; padding: .75rem .85rem;
+  border: 1px solid rgba(240,244,248,.16); border-radius: 9px;
+  color: var(--white); background: rgba(4,12,20,.5); font: inherit;
+}
+.player-form input:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.player-form .check-item { min-height: 48px; align-items: center; line-height: 1.4; }
+.player-form .check-item input { width: 20px; height: 20px; flex: 0 0 20px; accent-color: var(--gold); }
+.player-form [hidden] { display: none !important; }
+.parent-fields, .consent-fields { padding: 1rem; border-radius: 10px; background: rgba(0,0,0,.12); }
+.btn-danger { background: rgba(217,79,79,.12); color: #ff8585; border: 1px solid rgba(217,79,79,.38); }
+.btn-outline { background: transparent; color: var(--gold); border: 1px solid rgba(201,168,76,.4); }
+.share-link { display: grid; gap: .55rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid rgba(201,168,76,.3); border-radius: 12px; background: var(--navy-mid); }
+.share-link input { min-width: 0; padding: .75rem; border-radius: 8px; }
+.row-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .65rem; }
+.row-actions form { margin: 0; }
+.row-actions button, .share-link button { min-height: 42px; padding: .6rem .85rem; border-radius: 8px; font: inherit; cursor: pointer; }
+.admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
 @media (max-width: 540px) {
+  .app-shell { align-items: flex-start; padding: 1rem .65rem; }
   .card-shell {
-    padding: 1.4rem;
+    padding: 1.15rem;
   }
 
   .form-row {
     grid-template-columns: 1fr;
   }
+  .player-form { gap: .8rem; }
+  .player-form .inline-actions .btn, .player-form > .btn { width: 100%; min-height: 48px; }
 }

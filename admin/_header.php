@@ -20,13 +20,19 @@
   <div class="admin-nav-inner">
     <div class="admin-brand">
       <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="admin-logo">
-      <span>Admin <em>Baone</em></span>
+      <span><?= is_telecronista() ? 'Telecronista' : 'Admin' ?> <em>Baone</em></span>
     </div>
     <div class="admin-nav-links">
+      <?php if (is_telecronista()): ?>
+      <a href="<?= SITE_URL ?>/telecronista/index.php">Partite</a>
+      <?php else: ?>
       <a href="<?= SITE_URL ?>/admin/index.php">Dashboard</a>
       <a href="<?= SITE_URL ?>/admin/partite/index.php">Partite</a>
       <a href="<?= SITE_URL ?>/admin/squadre/index.php">Squadre</a>
       <a href="<?= SITE_URL ?>/admin/giocatori/index.php">Giocatori</a>
+      <a href="<?= SITE_URL ?>/admin/iscrizioni/index.php"> Iscrizioni</a>
+      <a href="<?= SITE_URL ?>/admin/pagamenti/transazioni.php">Pagamenti</a>
+      <?php endif; ?>
       <a href="<?= SITE_URL ?>/admin/logout.php" class="admin-logout">Esci</a>
     </div>
   </div>

@@ -14,9 +14,7 @@ $squadre = $pdo->query("
     SELECT s.*,
            COUNT(DISTINCT g.id) AS num_giocatori,
            COALESCE(c.punti, 0) AS punti,
-           CONCAT(COALESCE(cap.nome, ''), ' ', COALESCE(cap.cognome, '')) AS capitano_nome,
-           COALESCE(cap.nome, '') AS capitano_nome_raw,
-           COALESCE(cap.cognome, '') AS capitano_cognome_raw
+           CONCAT(COALESCE(cap.nome, ''), ' ', COALESCE(cap.cognome, '')) AS capitano_nome
     FROM squadre s
     LEFT JOIN giocatori g ON g.id_squadra = s.id
     LEFT JOIN classifica c ON c.id_squadra = s.id
@@ -81,11 +79,12 @@ require_once __DIR__ . '/../_header.php';
           <span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:<?= htmlspecialchars($s['colore']) ?>;border:1px solid rgba(255,255,255,.15);"></span>
         </td>
         <td><strong><?= htmlspecialchars($s['nome']) ?></strong></td>
-        <td style="color:var(--muted)"><?= htmlspecialchars(trim((string) ($s['capitano_nome'] ?? '')) ?: (string) ($s['capitano'] ?? '—')) ?></td>
+        <td style="color:var(--muted)"><?= htmlspecialchars(trim((string) ($s['capitano_nome'] ?? '')) ?: '—') ?></td>
         <td><?= $s['num_giocatori'] ?></td>
         <td class="pts" style="font-size:1rem;"><?= $s['punti'] ?></td>
         <td>
           <div class="actions">
+            <a href="dettaglio.php?id=<?= $s['id'] ?>" class="btn btn-sm btn-gold">Check squadra</a>
             <a href="form.php?id=<?= $s['id'] ?>" class="btn btn-sm btn-outline">Modifica</a>
             <a href="<?= SITE_URL ?>/admin/giocatori/index.php?squadra=<?= $s['id'] ?>" class="btn btn-sm btn-outline">Rosa</a>
             <a href="delete.php?id=<?= $s['id'] ?>&csrf=<?= csrf_token() ?>"

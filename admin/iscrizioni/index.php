@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
+require_once __DIR__ . '/../../includes/iscrizione_helper.php';
 require_admin();
 
 $pdo = db();
@@ -33,8 +34,8 @@ require_once __DIR__ . '/../_header.php';
       <?php foreach ($squadre as $s): ?>
         <tr>
           <td><?= htmlspecialchars($s['nome']) ?></td>
-          <td><span class="state-pill"><?= htmlspecialchars($s['stato_iscrizione']) ?></span></td>
-          <td><span class="state-pill warn"><?= htmlspecialchars($s['stato_pagamento']) ?></span></td>
+          <td><span class="state-pill <?= $s['stato_iscrizione'] === 'completa' ? 'ok' : 'warn' ?>"><?= htmlspecialchars(['bozza' => 'Da completare', 'in_corso' => 'Iscrizione in corso', 'completa' => 'Iscrizione confermata'][$s['stato_iscrizione']] ?? ucfirst(str_replace('_', ' ', $s['stato_iscrizione']))) ?></span></td>
+          <td><span class="state-pill <?= $s['stato_pagamento'] === 'pagato' ? 'ok' : 'bad' ?>"><?= htmlspecialchars(etichetta_stato_pagamento((string) $s['stato_pagamento'])) ?></span></td>
           <td><?= (int) ($s['num_giocatori'] ?? 0) ?></td>
           <td>€<?= number_format((float) ($s['quota_iscrizione'] ?? 0), 2, ',', '.') ?></td>
         </tr>

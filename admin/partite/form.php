@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
 
-require_admin();
+require_partite_access();
 
 $pdo = db();
 
@@ -272,6 +272,7 @@ require_once __DIR__ . '/../_header.php';
 </form>
 
 <?php if ($editing): ?>
+<?php if (!is_telecronista()): ?>
 <!-- ── Zona pericolosa: elimina partita ─────────────────── -->
 <div style="
   margin-top:2.5rem;
@@ -297,6 +298,7 @@ require_once __DIR__ . '/../_header.php';
     🗑️ Elimina Partita
   </a>
 </div>
+<?php endif; ?>
 <?php endif; ?>
 
 <script>

@@ -12,6 +12,13 @@ if (is_capitano_logged()) {
 }
 
 $errore = '';
+if (!empty($_SESSION['capitano_notice'])) {
+    $notice = $_SESSION['capitano_notice'];
+    unset($_SESSION['capitano_notice']);
+} else {
+    $notice = '';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim((string) ($_POST['email'] ?? ''));
     $password = (string) ($_POST['password'] ?? '');
@@ -19,7 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($email === '' || $password === '') {
         $errore = 'Inserisci email e password.';
     } elseif (!capitano_login($email, $password)) {
-        $errore = 'Credenziali non valide.';
+      $loginError = $_SESSION['capitano_login_error'] ?? '';
+      unset($_SESSION['capitano_login_error']);
+      if ($loginError === 'email_non_verificata') {
+            $errore = 'L’account non è ancora verificato. Controlla la tua email o richiedi un nuovo link.';
+      } elseif ($loginError === 'squadra_non_attiva') {
+        $errore = 'La password è corretta, ma la squadra non risulta attiva. Contatta l’organizzazione.';
+        } else {
+            $errore = 'Credenziali non valide.';
+        }
     } else {
         header('Location: ' . SITE_URL . '/capitano/dashboard.php');
         exit;
@@ -55,6 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
   <div class="helper">Accedi per gestire la squadra e gli inviti.</div>
 
+  <?php if ($notice): ?>
+    <div class="alert alert-success"><?= htmlspecialchars($notice) ?></div>
+  <?php endif; ?>
+
   <?php if ($errore): ?>
     <div class="alert alert-error"><?= htmlspecialchars($errore) ?></div>
   <?php endif; ?>
@@ -73,7 +92,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <div class="muted-links">
     <a href="<?= SITE_URL ?>/capitano/password-dimenticata.php">Password dimenticata</a>
+    <a href="<?= SITE_URL ?>/capitano/richiedi-verifica.php">Verifica account</a>
     <a href="<?= SITE_URL ?>/capitano/registrati.php">Registrati</a>
+  </div>
+  <div class="muted-links">
+    <a href="<?= SITE_URL ?>">Torna al sito</a>
   </div>
 </div>
 </body>

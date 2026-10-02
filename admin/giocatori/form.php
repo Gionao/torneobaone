@@ -44,6 +44,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo->beginTransaction();
 
+          $teamLock = $pdo->prepare('SELECT id FROM squadre WHERE id = ? FOR UPDATE');
+          $teamLock->execute([$id_squadra]);
+
+          $countSql = 'SELECT COUNT(*) FROM giocatori WHERE id_squadra = ?';
+          $countParams = [$id_squadra];
+          if ($id) {
+            $countSql .= ' AND id <> ?';
+            $countParams[] = $id;
+          }
+          $playerCount = $pdo->prepare($countSql);
+          $playerCount->execute($countParams);
+          if ((int) $playerCount->fetchColumn() >= 9) {
+            throw new RuntimeException('Una squadra può avere al massimo 9 giocatori.');
+          }
+
             if ($id) {
                 $pdo->prepare("
                     UPDATE giocatori SET id_squadra=?, nome=?, cognome=?, numero_maglia=?, ruolo=?

@@ -55,6 +55,7 @@ require_once __DIR__ . '/_header.php';
     <a href="<?= SITE_URL ?>/admin/partite/form.php"    class="qa-btn">+ Nuova Partita</a>
     <a href="<?= SITE_URL ?>/admin/squadre/form.php"    class="qa-btn">+ Nuova Squadra</a>
     <a href="<?= SITE_URL ?>/admin/giocatori/form.php"  class="qa-btn">+ Nuovo Giocatore</a>
+    <a href="<?= SITE_URL ?>/admin/pagamenti/inserisci.php" class="qa-btn">+ Registra Pagamento</a>
     <a href="<?= SITE_URL ?>/classifica.php"            class="qa-btn qa-btn--outline" target="_blank">🏆 Vedi Classifica</a>
     <a href="<?= SITE_URL ?>/calendario.php"            class="qa-btn qa-btn--outline" target="_blank">📅 Vedi Calendario</a>
   </div>

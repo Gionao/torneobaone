@@ -1,5 +1,7 @@
 -- ============================================================
 --  MIGRAZIONE: Ruolo unico su giocatori, rimozione e_portiere
+--  STORICA/DEPRECATA: non eseguire sullo schema attuale; ricrea il vecchio
+--  collegamento squadra-capitano tramite giocatori.
 --  Da eseguire UNA SOLA VOLTA su database già esistenti
 -- ============================================================
 

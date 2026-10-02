@@ -22,8 +22,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($capitano) {
             $token = create_verification_token($pdo, 'reset_password', (int) $capitano['id'], null, null, 48);
             if ($token) {
-                $link = SITE_URL . '/capitano/reset-password.php?token=' . rawurlencode($token);
-                send_mail_message($email, 'Reimposta password', "Apri il seguente link per reimpostare la tua password:<br><br><a href=\"{$link}\">{$link}</a>");
+                $link = build_site_link('/capitano/reset-password.php', $token);
+                $body = build_email_template(
+                    'Reimposta la password',
+                    "Ciao,\n\nabbiamo ricevuto una richiesta per reimpostare la password del tuo account. Per continuare, clicca sul pulsante qui sotto.",
+                    'Reimposta password',
+                    $link,
+                    'Il link di reimpostazione scade tra 48 ore.',
+                    'Se non hai richiesto questo reset, puoi ignorare questa email.'
+                );
+                send_email($email, 'Reimposta la password', $body);
             }
         }
 

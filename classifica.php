@@ -59,7 +59,7 @@ $msgClassificaVuota = [
   <title>Classifica — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-2">
 </head>
 <body>
 
@@ -184,13 +184,6 @@ $msgClassificaVuota = [
 .team-color-dot { display:inline-block; width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 .team-mini-logo { width:20px; height:20px; object-fit:contain; border-radius:3px; }
 </style>
-
-<script>
-// Mobile nav toggle
-const toggle = document.getElementById('navToggle');
-const links  = document.getElementById('navLinks');
-toggle?.addEventListener('click', () => links.classList.toggle('open'));
-</script>
 
 </body>
 </html>
