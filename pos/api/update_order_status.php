@@ -29,12 +29,25 @@ try {
         $stmt = $pdo->prepare('UPDATE pos_orders SET status = ? WHERE id = ?');
         $stmt->execute([$status, $id]);
         if ($stmt->rowCount() === 0) {
+            $exists = $pdo->prepare('SELECT 1 FROM pos_orders WHERE id = ?');
+            $exists->execute([$id]);
+            if ($exists->fetchColumn()) {
+                pos_json(true, ['updated' => true]);
+            }
             pos_json(false, null, 'Ordine non trovato.');
+        }
+        if ($status === 'delivered') {
+            $pdo->prepare("UPDATE pos_order_items SET status = 'delivered' WHERE order_id = ? AND status = 'ready'")->execute([$id]);
         }
     } elseif ($type === 'item') {
         $stmt = $pdo->prepare('UPDATE pos_order_items SET status = ? WHERE id = ?');
         $stmt->execute([$status, $id]);
         if ($stmt->rowCount() === 0) {
+            $exists = $pdo->prepare('SELECT 1 FROM pos_order_items WHERE id = ?');
+            $exists->execute([$id]);
+            if ($exists->fetchColumn()) {
+                pos_json(true, ['updated' => true]);
+            }
             pos_json(false, null, 'Riga ordine non trovata.');
         }
 

@@ -29,7 +29,7 @@ try {
         INNER JOIN pos_order_items oi ON oi.order_id = o.id
         INNER JOIN pos_products p     ON p.id = oi.product_id
         INNER JOIN pos_categories c   ON c.id = p.category_id
-        WHERE o.status IN ('delivered', 'ready')
+        WHERE o.status = 'delivered'
           AND DATE(o.created_at) = ?
     ";
     $params = [$date];

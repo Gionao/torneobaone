@@ -25,7 +25,7 @@ if (!is_array($input) || empty($input['items']) || !is_array($input['items'])) {
 $customerName = substr(trim((string) ($input['customer_name'] ?? '')), 0, 100);
 $tableNumber  = isset($input['table_number']) ? substr(trim((string) $input['table_number']), 0, 20) : null;
 $isTakeaway   = !empty($input['is_takeaway']);
-$covers       = $isTakeaway ? 0 : max(0, (int) ($input['covers'] ?? 1));
+$covers       = $isTakeaway ? 0 : min(255, max(1, (int) ($input['covers'] ?? 1)));
 
 if ($customerName === '') {
     pos_json(false, null, 'Nome cliente obbligatorio.');
@@ -73,8 +73,8 @@ try {
     $orderId = (int) $pdo->lastInsertId();
 
     // Statement riutilizzabili
-    $productStmt = $pdo->prepare('SELECT id, price, is_active FROM pos_products WHERE id = ? LIMIT 1');
-    $couponStmt  = $pdo->prepare('SELECT id, discount_type, discount_value, is_used FROM pos_coupons WHERE id = ? LIMIT 1');
+    $productStmt = $pdo->prepare('SELECT p.id, p.price, p.is_active, p.product_kind, c.name AS category_name, c.department FROM pos_products p JOIN pos_categories c ON c.id = p.category_id WHERE p.id = ? LIMIT 1');
+    $couponStmt  = $pdo->prepare('SELECT id, product_type_restriction, discount_type, discount_value, is_used FROM pos_coupons WHERE id = ? LIMIT 1');
     $couponMarkStmt = $pdo->prepare('UPDATE pos_coupons SET is_used = 1, used_at = NOW() WHERE id = ? AND is_used = 0');
 
     $itemStmt = $pdo->prepare("
@@ -87,13 +87,17 @@ try {
             (order_item_id, ingredient_id, action, extra_price)
         VALUES (?, ?, ?, ?)
     ");
+    $ingredientStmt = $pdo->prepare('SELECT i.id, i.is_removable, i.is_extra, i.extra_price FROM pos_product_ingredients pi JOIN pos_ingredients i ON i.id = pi.ingredient_id WHERE pi.product_id = ? AND i.id = ? LIMIT 1');
 
     $usedCouponIds = [];
     $orderTotal    = $appliedCoverFee + $appliedTakeawayFee;
 
     foreach ($items as $item) {
         $productId = (int) ($item['product_id'] ?? 0);
-        $quantity  = max(1, (int) ($item['quantity'] ?? 1));
+        $quantity  = (int) ($item['quantity'] ?? 1);
+        if ($quantity < 1 || $quantity > 255) {
+            throw new RuntimeException('Quantità non valida (1–255).');
+        }
         $itemNote  = isset($item['item_note']) ? substr(trim((string) $item['item_note']), 0, 255) : null;
         $couponId  = isset($item['coupon_id']) && $item['coupon_id'] !== null
             ? (int) $item['coupon_id']
@@ -107,16 +111,31 @@ try {
         }
 
         $unitPrice = (float) $product['price'];
+        $productKind = pos_product_coupon_kind($product['category_name'], $product['department'], $product['product_kind']);
         $discount  = 0.0;
 
         // Extra dagli ingredienti aggiunti
         $lineExtra = 0.0;
         $mods = $item['modifications'] ?? [];
+        $validatedMods = [];
+        if (!is_array($mods)) {
+            throw new RuntimeException('Modifiche prodotto non valide.');
+        }
         if (is_array($mods)) {
             foreach ($mods as $mod) {
-                if (($mod['action'] ?? '') === 'added') {
-                    $lineExtra += (float) ($mod['extra_price'] ?? 0);
+                $action = $mod['action'] ?? '';
+                $ingredientId = (int) ($mod['ingredient_id'] ?? 0);
+                if (!in_array($action, ['removed', 'added'], true) || $ingredientId < 1) {
+                    throw new RuntimeException('Modifica ingrediente non valida.');
                 }
+                $ingredientStmt->execute([$productId, $ingredientId]);
+                $ingredient = $ingredientStmt->fetch();
+                if (!$ingredient || ($action === 'removed' && !(int) $ingredient['is_removable']) || ($action === 'added' && !(int) $ingredient['is_extra'])) {
+                    throw new RuntimeException('Ingrediente non disponibile per questo prodotto.');
+                }
+                $extraPrice = $action === 'added' ? (float) $ingredient['extra_price'] : 0.0;
+                if ($action === 'added') $lineExtra += $extraPrice;
+                $validatedMods[] = [$ingredientId, $action, $extraPrice];
             }
         }
 
@@ -129,6 +148,9 @@ try {
             $coupon = $couponStmt->fetch();
             if (!$coupon || (int) $coupon['is_used'] === 1) {
                 throw new RuntimeException('Coupon non valido o già utilizzato.');
+            }
+            if ($coupon['product_type_restriction'] !== 'any' && $coupon['product_type_restriction'] !== $productKind) {
+                throw new RuntimeException('Coupon non valido per questo prodotto.');
             }
 
             $discountValue = (float) $coupon['discount_value'];
@@ -154,15 +176,8 @@ try {
         $orderItemId = (int) $pdo->lastInsertId();
 
         // Modifiche ingredienti
-        if (is_array($mods)) {
-            foreach ($mods as $mod) {
-                $ingredientId = (int) ($mod['ingredient_id'] ?? 0);
-                $action       = $mod['action'] ?? '';
-                if (!in_array($action, ['removed', 'added'], true) || $ingredientId < 1) {
-                    continue;
-                }
-                $modStmt->execute([$orderItemId, $ingredientId, $action, (float) ($mod['extra_price'] ?? 0)]);
-            }
+        foreach ($validatedMods as [$ingredientId, $action, $extraPrice]) {
+            $modStmt->execute([$orderItemId, $ingredientId, $action, $extraPrice]);
         }
     }
 

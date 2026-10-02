@@ -19,7 +19,7 @@ try {
     $products = $stmt->fetchAll();
 
     $ingStmt = $pdo->prepare("
-        SELECT i.id, i.name, pi.is_removable, pi.is_extra, pi.extra_price
+        SELECT i.id, i.name, i.is_removable, i.is_extra, i.extra_price
         FROM pos_product_ingredients pi
         INNER JOIN pos_ingredients i ON i.id = pi.ingredient_id
         WHERE pi.product_id = ?

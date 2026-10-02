@@ -1,4 +1,4 @@
-USE `torneobaone`;
+USE `my_torneobaone`;
 
 -- ------------------------------------------------------------
 -- TABELLE POS
