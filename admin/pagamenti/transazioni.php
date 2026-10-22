@@ -18,7 +18,7 @@ require_once __DIR__ . '/../_header.php';
 <div class="admin-page-header">
   <h1>Transazioni</h1>
   <p>Storico dei pagamenti registrati dagli organizzatori.</p>
-  <a class="btn btn-gold btn-sm" href="<?= SITE_URL ?>/admin/pagamenti/inserisci.php">+ Registra pagamento</a>
+  <a class="btn btn-gold btn-sm" href="<?= ADMIN_PATH ?>/pagamenti/inserisci.php">+ Registra pagamento</a>
 </div>
 
 <?php if (($_GET['inserito'] ?? '') === '1'): ?>
@@ -51,8 +51,8 @@ require_once __DIR__ . '/../_header.php';
           <td><?= htmlspecialchars($row['stato']) ?></td>
           <td><?= htmlspecialchars($row['organizzatore']) ?></td>
           <td><div class="actions">
-            <a class="btn btn-sm btn-outline" href="<?= SITE_URL ?>/admin/pagamenti/modifica.php?id=<?= (int) $row['id'] ?>">Modifica</a>
-            <form method="post" action="<?= SITE_URL ?>/admin/pagamenti/elimina.php" onsubmit="return confirm('Eliminare questo pagamento? Il totale versato verrà aggiornato.');" style="display:inline">
+            <a class="btn btn-sm btn-outline" href="<?= ADMIN_PATH ?>/pagamenti/modifica.php?id=<?= (int) $row['id'] ?>">Modifica</a>
+            <form method="post" action="<?= ADMIN_PATH ?>/pagamenti/elimina.php" onsubmit="return confirm('Eliminare questo pagamento? Il totale versato verrà aggiornato.');" style="display:inline">
               <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
               <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
               <button type="submit" class="btn btn-sm btn-red">Elimina</button>

@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/auth.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start_secure();
 
 if (isset($_SESSION['pos_admin_id'])) {
     header('Location: ' . POS_URL . '/index.php');
@@ -52,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/pos/assets/css/pos.css">
+  <link rel="stylesheet" href="<?= POS_URL ?>/assets/css/pos.css">
 </head>
 <body class="pos-login-body">
 

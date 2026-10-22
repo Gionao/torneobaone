@@ -43,7 +43,7 @@ require_once __DIR__ . '/../_header.php';
 <?php endif; ?>
 
 <div class="qa-grid" style="margin-bottom:1.5rem;">
-  <a href="<?= SITE_URL ?>/<?= is_telecronista() ? 'telecronista' : 'admin' ?>/partite/form.php" class="qa-btn">+ Nuova Partita</a>
+  <a href="<?= is_telecronista() ? TELECRONISTA_URL : ADMIN_PATH ?>/partite/form.php" class="qa-btn">+ Nuova Partita</a>
 </div>
 
 <?php if (empty($partite)): ?>

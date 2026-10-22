@@ -16,8 +16,12 @@ if (is_capitano_logged()) {
 
 $errors = [];
 $success = '';
+$numeroSquadre = (int) db()->query('SELECT COUNT(*) FROM squadre')->fetchColumn();
+$iscrizioniAperte = $numeroSquadre < MAX_SQUADRE;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $numeroSquadre = (int) db()->query('SELECT COUNT(*) FROM squadre')->fetchColumn();
+    $iscrizioniAperte = $numeroSquadre < MAX_SQUADRE;
     if (!capitano_csrf_verify()) {
         $errors[] = 'Token di sicurezza non valido.';
     } else {
@@ -50,6 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (!$accettaRegolamento || !$accettaPrivacy) {
             $errors[] = 'Devi accettare regolamento e privacy.';
+        }
+        if (!$iscrizioniAperte) {
+            $errors[] = 'Il numero massimo di squadre iscrivibili (' . MAX_SQUADRE . ') è stato raggiunto.';
         }
         if ($dataNascita !== '' && strtotime($dataNascita) === false) {
             $errors[] = 'Data di nascita non valida.';
@@ -226,8 +233,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php if ($errors): foreach ($errors as $error): ?>
     <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
   <?php endforeach; endif; ?>
+  <?php if (!$iscrizioniAperte): ?>
+    <div class="alert alert-error">Le iscrizioni hanno raggiunto il limite di <?= MAX_SQUADRE ?> squadre.</div>
+  <?php endif; ?>
 
-  <form method="post" class="admin-form" novalidate>
+  <?php if ($iscrizioniAperte): ?><form method="post" class="admin-form" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(capitano_csrf_token()) ?>">
 
     <fieldset style="border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
@@ -307,6 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <a href="<?= SITE_URL ?>/capitano/login.php" class="btn btn-outline">Ho già un account</a>
     </div>
   </form>
+  <?php endif; ?>
 </div>
 </body>
 </html>

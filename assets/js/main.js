@@ -97,8 +97,14 @@
     }
   });
   window.addEventListener('resize', () => {
-    if (window.innerWidth > 768 && button.getAttribute('aria-expanded') === 'true') {
-      setOpen(false);
+    const isOpen = button.getAttribute('aria-expanded') === 'true';
+    if (window.innerWidth > 768) {
+      if (isOpen) setOpen(false, false);
+      menu.setAttribute('aria-hidden', 'false');
+      menu.inert = false;
+    } else if (!isOpen) {
+      menu.setAttribute('aria-hidden', 'true');
+      menu.inert = true;
     }
   }, { passive: true });
 })();

@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS `squadre` (
   `id_capitano`               INT UNSIGNED      NULL DEFAULT NULL,
   `id_torneo`                 TINYINT UNSIGNED  NULL DEFAULT NULL,
   `attiva`                    TINYINT(1)        NOT NULL DEFAULT 0,
+  `autorizzata`               TINYINT(1)        NOT NULL DEFAULT 0,
   `numero_giocatori_previsto` TINYINT UNSIGNED  NULL DEFAULT NULL,
   `stato_iscrizione`          ENUM('bozza','in_corso','completa') NOT NULL DEFAULT 'bozza',
   `stato_pagamento`           ENUM('non_pagato','parziale','pagato') NOT NULL DEFAULT 'non_pagato',
@@ -269,7 +270,7 @@ CREATE TABLE IF NOT EXISTS `tipi_documento` (
 CREATE TABLE IF NOT EXISTS `documenti` (
   `id`                 INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_tipo`            TINYINT UNSIGNED NOT NULL,
-  `versione`           SMALLINT UNSIGNED NOT NULL,
+  `versione`           VARCHAR(10) NOT NULL,
   `titolo`             VARCHAR(150) NOT NULL,
   `url_file`           VARCHAR(255) NULL DEFAULT NULL,
   `data_pubblicazione` DATE NOT NULL,

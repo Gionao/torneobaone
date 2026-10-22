@@ -191,8 +191,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="date" name="data_nascita" value="<?= htmlspecialchars($_POST['data_nascita'] ?? '') ?>" required>
           </div>
           <div class="form-group">
-            <label>Indirizzo</label>
-            <input type="text" name="indirizzo" maxlength="255" value="<?= htmlspecialchars($_POST['indirizzo'] ?? '') ?>" required>
+            <label>Indirizzo (via/piazza - civico - paese)</label>
+            <input type="text" name="indirizzo" maxlength="255" placeholder="Via Roma - 10 - Baone" value="<?= htmlspecialchars($_POST['indirizzo'] ?? '') ?>" required>
           </div>
           <section class="parent-fields" id="parent-fields" hidden>
             <h2>Iscrizione minorenne</h2>

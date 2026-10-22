@@ -2,9 +2,8 @@
 // pos/includes/auth_check.php — Guard sessione POS
 declare(strict_types=1);
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once dirname(__DIR__, 2) . '/includes/auth.php';
+session_start_secure();
 
 if (!isset($_SESSION['pos_admin_id'])) {
     if (defined('POS_API') && POS_API) {
@@ -18,7 +17,7 @@ if (!isset($_SESSION['pos_admin_id'])) {
     }
 
     require_once dirname(__DIR__, 2) . '/includes/config.php';
-    header('Location: ' . SITE_URL . '/pos/login.php');
+    header('Location: ' . POS_URL . '/login.php');
     exit;
 }
 

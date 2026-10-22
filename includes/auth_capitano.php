@@ -12,6 +12,7 @@ function capitano_session_start_secure(): void
         session_set_cookie_params([
             'lifetime' => 0,
             'path' => '/',
+            'domain' => ENV === 'production' ? '.torneobaone.it' : '',
             'secure' => (ENV === 'production'),
             'httponly' => true,
             'samesite' => 'Strict',

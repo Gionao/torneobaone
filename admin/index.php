@@ -27,17 +27,17 @@ require_once __DIR__ . '/_header.php';
   <div class="stat-card stat-card--highlight">
     <div class="stat-num"><?= $numSquadre ?></div>
     <div class="stat-lbl">Squadre</div>
-    <a href="<?= SITE_URL ?>/admin/squadre/index.php" class="stat-link">Gestisci →</a>
+    <a href="<?= ADMIN_PATH ?>/squadre/index.php" class="stat-link">Gestisci →</a>
   </div>
   <div class="stat-card">
     <div class="stat-num"><?= $numGioc ?></div>
     <div class="stat-lbl">Giocatori</div>
-    <a href="<?= SITE_URL ?>/admin/giocatori/index.php" class="stat-link">Gestisci →</a>
+    <a href="<?= ADMIN_PATH ?>/giocatori/index.php" class="stat-link">Gestisci →</a>
   </div>
   <div class="stat-card">
     <div class="stat-num"><?= $numPartite ?></div>
     <div class="stat-lbl">Partite totali</div>
-    <a href="<?= SITE_URL ?>/admin/partite/index.php" class="stat-link">Calendario →</a>
+    <a href="<?= ADMIN_PATH ?>/partite/index.php" class="stat-link">Calendario →</a>
   </div>
   <div class="stat-card">
     <div class="stat-num"><?= $numGiocate ?></div>
@@ -52,10 +52,10 @@ require_once __DIR__ . '/_header.php';
 <div class="quick-actions">
   <h2>Azioni rapide</h2>
   <div class="qa-grid">
-    <a href="<?= SITE_URL ?>/admin/partite/form.php"    class="qa-btn">+ Nuova Partita</a>
-    <a href="<?= SITE_URL ?>/admin/squadre/form.php"    class="qa-btn">+ Nuova Squadra</a>
-    <a href="<?= SITE_URL ?>/admin/giocatori/form.php"  class="qa-btn">+ Nuovo Giocatore</a>
-    <a href="<?= SITE_URL ?>/admin/pagamenti/inserisci.php" class="qa-btn">+ Registra Pagamento</a>
+    <a href="<?= ADMIN_PATH ?>/partite/form.php"    class="qa-btn">+ Nuova Partita</a>
+    <a href="<?= ADMIN_PATH ?>/squadre/form.php"    class="qa-btn">+ Nuova Squadra</a>
+    <a href="<?= ADMIN_PATH ?>/giocatori/form.php"  class="qa-btn">+ Nuovo Giocatore</a>
+    <a href="<?= ADMIN_PATH ?>/pagamenti/inserisci.php" class="qa-btn">+ Registra Pagamento</a>
     <a href="<?= SITE_URL ?>/classifica.php"            class="qa-btn qa-btn--outline" target="_blank">🏆 Vedi Classifica</a>
     <a href="<?= SITE_URL ?>/calendario.php"            class="qa-btn qa-btn--outline" target="_blank">📅 Vedi Calendario</a>
   </div>

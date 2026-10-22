@@ -1,0 +1,19 @@
+-Inserire una checkbox che autorizza la squadra a giocare. (Il giorno del torneo gli organizzatori si occuperanno di fare un check della squadra (pagamenti, iscrizioni, consensi) per autorizzarli a giocare) [completato]
+
+-Le persone con ruolo 'telecronista' vedranno le squadre non autorizzate "disabilitate" 
+nel calendario, solo loro. [completato]
+
+-Aggiungere un limite alle squadre che si possono iscrivere [completato]
+
+-Generare file .htaccess, e bloccare tutte le cartelle di conf [completato]
+
+-Riadattare il sito ai sottodominii (admin.torneobaone.it / pos.torneobaone.it) [completato]
+
+-Verifica i colori dei vari stati [completato]
+
+-Inserire in ogni cartella (capitano, admin, pos) un file index.php che indirizza al login o alla dashboard 
+in base a se si è loggati o meno [completato]
+
+-nel file iscrizione/giocatore, inserire nella label dell'indirizzo il formato (via/piazza - civico - paese) [completato]
+
+==== COMMIT 22-10-2026 ====

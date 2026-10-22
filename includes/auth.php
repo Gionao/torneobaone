@@ -15,6 +15,7 @@ function session_start_secure(): void
         session_set_cookie_params([
             'lifetime' => 0,           // Sessione finisce alla chiusura browser
             'path'     => '/',
+            'domain'   => ENV === 'production' ? '.torneobaone.it' : '',
             'secure'   => (ENV === 'production'),  // HTTPS solo in produzione
             'httponly' => true,
             'samesite' => 'Strict',
@@ -38,7 +39,7 @@ function require_admin(): void
         exit;
     }
     if (($_SESSION['admin_role'] ?? 'admin') === 'telecronista') {
-        header('Location: ' . SITE_URL . '/telecronista/index.php');
+        header('Location: ' . TELECRONISTA_URL . '/index.php');
         exit;
     }
     // Rigenera il token di sessione ad ogni richiesta (prevenzione session fixation)
@@ -88,7 +89,7 @@ function admin_login(string $username, string $password): bool
 function require_partite_access(): void
 {
     if (!is_admin_logged()) {
-        header('Location: ' . SITE_URL . '/telecronista/login.php');
+        header('Location: ' . TELECRONISTA_URL . '/login.php');
         exit;
     }
     if (empty($_SESSION['last_regen']) || time() - $_SESSION['last_regen'] > 300) {
@@ -99,7 +100,7 @@ function require_partite_access(): void
         && strpos((string) ($_SERVER['SCRIPT_NAME'] ?? ''), '/admin/partite/') !== false) {
         $relative = basename((string) $_SERVER['SCRIPT_NAME']);
         $query = !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '';
-        header('Location: ' . SITE_URL . '/telecronista/partite/' . $relative . $query);
+        header('Location: ' . TELECRONISTA_URL . '/partite/' . $relative . $query);
         exit;
     }
 }

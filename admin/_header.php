@@ -24,16 +24,16 @@
     </div>
     <div class="admin-nav-links">
       <?php if (is_telecronista()): ?>
-      <a href="<?= SITE_URL ?>/telecronista/index.php">Partite</a>
+      <a href="<?= TELECRONISTA_URL ?>/index.php">Partite</a>
       <?php else: ?>
-      <a href="<?= SITE_URL ?>/admin/index.php">Dashboard</a>
-      <a href="<?= SITE_URL ?>/admin/partite/index.php">Partite</a>
-      <a href="<?= SITE_URL ?>/admin/squadre/index.php">Squadre</a>
-      <a href="<?= SITE_URL ?>/admin/giocatori/index.php">Giocatori</a>
-      <a href="<?= SITE_URL ?>/admin/iscrizioni/index.php"> Iscrizioni</a>
-      <a href="<?= SITE_URL ?>/admin/pagamenti/transazioni.php">Pagamenti</a>
+      <a href="<?= ADMIN_PATH ?>/index.php">Dashboard</a>
+      <a href="<?= ADMIN_PATH ?>/partite/index.php">Partite</a>
+      <a href="<?= ADMIN_PATH ?>/squadre/index.php">Squadre</a>
+      <a href="<?= ADMIN_PATH ?>/giocatori/index.php">Giocatori</a>
+      <a href="<?= ADMIN_PATH ?>/iscrizioni/index.php"> Iscrizioni</a>
+      <a href="<?= ADMIN_PATH ?>/pagamenti/transazioni.php">Pagamenti</a>
       <?php endif; ?>
-      <a href="<?= SITE_URL ?>/admin/logout.php" class="admin-logout">Esci</a>
+      <a href="<?= ADMIN_PATH ?>/logout.php" class="admin-logout">Esci</a>
     </div>
   </div>
 </nav>

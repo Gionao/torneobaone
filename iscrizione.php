@@ -19,7 +19,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   <title>Iscrizione & Regolamento — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-2">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-4">
 </head>
 <body>
 
@@ -160,7 +160,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
         <div class="doc-body">
           <h3>Regolamento Ufficiale</h3>
         </div>
-        <a href="<?= SITE_URL ?>/shared/documentazione/torneoBaone2026-regolamento.pdf" download class="btn btn-gold btn-sm">
+        <a href="<?= SITE_URL ?>/shared/documentazione/2026_v1/torneoBaone2026-regolamento.pdf" download class="btn btn-gold btn-sm">
           ⬇ Scarica PDF
         </a>
       </div>
@@ -170,7 +170,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
         <div class="doc-body">
           <h3>Liberatoria</h3>
         </div>
-        <a href="<?= SITE_URL ?>/shared/documentazione/torneoBaone2026-libertoria.pdf" download class="btn btn-gold btn-sm">
+        <a href="<?= SITE_URL ?>/shared/documentazione/2026_v1/torneoBaone2026-libertoria.pdf" download class="btn btn-gold btn-sm">
           ⬇ Scarica PDF
         </a>
       </div>
@@ -178,9 +178,9 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
       <div class="doc-card">
         <div class="doc-icon">📋</div>
         <div class="doc-body">
-          <h3>Informativa privacy</p>
+          <h3>Informativa privacy</h3>
         </div>
-        <a href="<?= SITE_URL ?>/shared/documentazione/torneoBaone2026-privacy.pdf" download class="btn btn-gold btn-sm">
+        <a href="<?= SITE_URL ?>/shared/documentazione/2026_v1/torneoBaone2026-privacy.pdf" download class="btn btn-gold btn-sm">
           ⬇ Scarica PDF
         </a>
       </div>

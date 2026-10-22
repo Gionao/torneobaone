@@ -53,6 +53,7 @@ require_once __DIR__ . '/../_header.php';
         <th>Capitano</th>
         <th>Giocatori</th>
         <th>Punti</th>
+        <th>Autorizzata</th>
         <th>Azioni</th>
       </tr>
     </thead>
@@ -82,11 +83,12 @@ require_once __DIR__ . '/../_header.php';
         <td style="color:var(--muted)"><?= htmlspecialchars(trim((string) ($s['capitano_nome'] ?? '')) ?: '—') ?></td>
         <td><?= $s['num_giocatori'] ?></td>
         <td class="pts" style="font-size:1rem;"><?= $s['punti'] ?></td>
+        <td><span class="state-pill <?= !empty($s['autorizzata']) ? 'ok' : 'bad' ?>"><?= !empty($s['autorizzata']) ? 'Sì' : 'No' ?></span></td>
         <td>
           <div class="actions">
             <a href="dettaglio.php?id=<?= $s['id'] ?>" class="btn btn-sm btn-gold">Check squadra</a>
             <a href="form.php?id=<?= $s['id'] ?>" class="btn btn-sm btn-outline">Modifica</a>
-            <a href="<?= SITE_URL ?>/admin/giocatori/index.php?squadra=<?= $s['id'] ?>" class="btn btn-sm btn-outline">Rosa</a>
+            <a href="<?= ADMIN_PATH ?>/giocatori/index.php?squadra=<?= $s['id'] ?>" class="btn btn-sm btn-outline">Rosa</a>
             <a href="delete.php?id=<?= $s['id'] ?>&csrf=<?= csrf_token() ?>"
                class="btn btn-sm btn-red"
                onclick="return confirm('Eliminare questa squadra e tutti i dati correlati?')">Elimina</a>
