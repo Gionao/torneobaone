@@ -20,7 +20,6 @@ $navActive = match ($currentPage) {
     <button class="nav-toggle" id="navMenuToggle" type="button" aria-label="Apri il menu" aria-controls="navLinks" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
-    <div class="nav-backdrop" id="navBackdrop" aria-hidden="true"></div>
     <ul class="nav-links" id="navLinks">
       <li><a href="<?php echo SITE_URL; ?>/index.php" class="<?= $navActive === 'home' ? 'active' : '' ?>">Home</a></li>
       <li><a href="<?php echo SITE_URL; ?>/calendario.php" class="<?= $navActive === 'calendario' ? 'active' : '' ?>">Calendario</a></li>
@@ -30,3 +29,4 @@ $navActive = match ($currentPage) {
     </ul>
   </div>
 </nav>
+<div class="nav-backdrop" id="navBackdrop" aria-hidden="true"></div>

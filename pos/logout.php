@@ -2,10 +2,9 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/includes/config.php';
+require_once dirname(__DIR__) . '/includes/auth.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start_secure();
 
 unset(
     $_SESSION['pos_admin_id'],
@@ -14,5 +13,5 @@ unset(
     $_SESSION['pos_admin_station']
 );
 
-header('Location: ' . SITE_URL . '/pos/login.php');
+header('Location: ' . POS_URL . '/login.php');
 exit;

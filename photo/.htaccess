@@ -1,0 +1,7 @@
+# Archivio privato: nessun elenco cartelle e nessun accesso agli interni.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^(?:includes|tools)(?:/|$) - [F,L,NC]
+</IfModule>

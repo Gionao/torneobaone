@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             ricalcola_stato_pagamento($pdo, $idSquadra);
             $pdo->commit();
-            header('Location: ' . SITE_URL . '/admin/pagamenti/transazioni.php?inserito=1');
+            header('Location: ' . ADMIN_PATH . '/pagamenti/transazioni.php?inserito=1');
             exit;
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
@@ -137,7 +137,7 @@ require_once __DIR__ . '/../_header.php';
     </div>
     <div class="inline-actions">
       <button type="submit" class="btn btn-gold">Registra pagamento</button>
-      <a class="btn btn-outline" href="<?= SITE_URL ?>/admin/pagamenti/transazioni.php">Annulla</a>
+      <a class="btn btn-outline" href="<?= ADMIN_PATH ?>/pagamenti/transazioni.php">Annulla</a>
     </div>
   </form>
 <?php endif; ?>

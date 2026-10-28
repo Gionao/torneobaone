@@ -84,29 +84,11 @@ if ($hasScore) {
   <title><?= htmlspecialchars($partita['nome_casa']) ?> vs <?= htmlspecialchars($partita['nome_osp']) ?> — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-2">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-4">
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="nav-container">
-    <a href="<?= SITE_URL ?>" class="nav-brand">
-      <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="nav-logo">
-      <span>Torneo <em>Baone</em> 2026</span>
-    </a>
-    <input type="checkbox" class="nav-menu-check" id="matchNavMenuToggle" aria-label="Apri o chiudi il menu" aria-controls="matchNavLinks">
-    <label class="nav-toggle" for="matchNavMenuToggle" aria-hidden="true">
-      <span></span><span></span><span></span>
-    </label>
-    <ul class="nav-links" id="matchNavLinks">
-      <li><a href="<?= SITE_URL ?>">Home</a></li>
-      <li><a href="<?= SITE_URL ?>/calendario.php" class="active">Calendario</a></li>
-      <li><a href="<?= SITE_URL ?>/classifica.php">Classifica</a></li>
-      <li><a href="<?= SITE_URL ?>/iscrizione.php">Iscrizione</a></li>
-    </ul>
-  </div>
-</nav>
+<?php include 'shared/header.php'; ?>
 
 <!-- BREADCRUMB -->
 <div class="container" style="padding-top:1.5rem;">

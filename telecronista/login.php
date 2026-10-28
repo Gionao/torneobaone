@@ -13,7 +13,7 @@ session_start_secure();
 
 // Se già loggato, vai alla dashboard
 if (is_admin_logged()) {
-    header('Location: ' . SITE_URL . (is_telecronista() ? '/telecronista/index.php' : '/admin/index.php'));
+    header('Location: ' . (is_telecronista() ? TELECRONISTA_URL . '/index.php' : ADMIN_PATH . '/index.php'));
     exit;
 }
 
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Messaggio vago per non rivelare se l'username esiste
         $errore = 'Credenziali non valide. Riprova.';
     } else {
-        header('Location: ' . SITE_URL . '/telecronista/index.php');
+        header('Location: ' . TELECRONISTA_URL . '/index.php');
         exit;
     }
 }

@@ -12,6 +12,18 @@ $stmt->execute([$id]);
 $squadra = $stmt->fetch();
 if (!$squadra) { header('Location: index.php'); exit; }
 
+$saveError = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_verify()) {
+        $saveError = 'Token di sicurezza non valido. Riprova.';
+    } else {
+        $autorizzata = isset($_POST['autorizzata']) && $_POST['autorizzata'] === '1' ? 1 : 0;
+        $pdo->prepare('UPDATE squadre SET autorizzata = ? WHERE id = ?')->execute([$autorizzata, $id]);
+        header('Location: dettaglio.php?id=' . $id);
+        exit;
+    }
+}
+
 $playersStmt = $pdo->prepare('SELECT g.*, gen.id AS id_genitore, gen.email AS email_genitore FROM giocatori g LEFT JOIN genitori gen ON gen.id_giocatore = g.id WHERE g.id_squadra = ? AND g.stato_iscrizione <> "annullato" ORDER BY g.cognome, g.nome');
 $playersStmt->execute([$id]);
 $giocatori = $playersStmt->fetchAll();
@@ -45,14 +57,24 @@ foreach ($giocatori as $giocatore) {
 $pageTitle = 'Check squadra — ' . $squadra['nome'];
 require_once __DIR__ . '/../_header.php';
 ?>
-<div class="admin-page-header"><h1>Check squadra: <?= htmlspecialchars($squadra['nome']) ?></h1><p><a href="index.php" style="color:var(--muted)">← Torna alle squadre</a> · <a href="<?= SITE_URL ?>/admin/giocatori/index.php?squadra=<?= (int) $id ?>" style="color:var(--muted)">Gestisci rosa</a></p></div>
+<div class="admin-page-header"><h1>Check squadra: <?= htmlspecialchars($squadra['nome']) ?></h1><p><a href="index.php" style="color:var(--muted)">← Torna alle squadre</a> · <a href="<?= ADMIN_PATH ?>/giocatori/index.php?squadra=<?= (int) $id ?>" style="color:var(--muted)">Gestisci rosa</a></p></div>
 <div class="alert alert-<?= $checkOk ? 'success' : 'error' ?>"><?= $checkOk ? 'Squadra pronta: registrazioni, consensi obbligatori e pagamento sono regolari.' : 'Controllo incompleto: verifica registrazioni, consensi obbligatori e pagamento qui sotto.' ?></div>
+<?php if ($saveError !== ''): ?><div class="alert alert-error"><?= htmlspecialchars($saveError) ?></div><?php endif; ?>
+<form method="post" class="admin-form team-authorization">
+  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
+  <label class="team-authorization-label">
+    <input type="checkbox" name="autorizzata" value="1" <?= !empty($squadra['autorizzata']) ? 'checked' : '' ?>>
+    Autorizza questa squadra a giocare
+  </label>
+  <p class="form-note">Il controllo dei pagamenti, delle iscrizioni e dei consensi è informativo: l’autorizzazione deve essere confermata dagli organizzatori.</p>
+  <button type="submit" class="btn btn-gold">Salva autorizzazione</button>
+</form>
 <section class="admin-form" style="max-width:none;margin-bottom:1.5rem">
 <h2>Pagamento</h2>
 <p><span class="state-pill <?= $pagamentoOk ? 'ok' : 'bad' ?>"><?= $pagamentoOk ? 'Regolare' : 'Da completare' ?></span>
 <strong style="margin-left:.6rem">€<?= number_format($saldo, 2, ',', '.') ?></strong> versati su €<?= number_format($quota, 2, ',', '.') ?>
 <?php if ((float) $pagamenti['attesa'] > 0): ?> · €<?= number_format((float) $pagamenti['attesa'], 2, ',', '.') ?> in attesa<?php endif; ?></p>
-<a class="btn btn-sm btn-outline" href="<?= SITE_URL ?>/admin/pagamenti/inserisci.php?squadra=<?= (int) $id ?>">Registra pagamento</a>
+<a class="btn btn-sm btn-outline" href="<?= ADMIN_PATH ?>/pagamenti/inserisci.php?squadra=<?= (int) $id ?>">Registra pagamento</a>
 </section>
 <h2>Capitano e giocatori</h2>
 <?php if (!$giocatori && empty($squadra['id_capitano'])): ?><p class="empty-msg">Capitano non assegnato e nessun giocatore in rosa.</p><?php else: ?>
@@ -75,5 +97,9 @@ require_once __DIR__ . '/../_header.php';
 <style>
 .captain-check-row { background:rgba(201,168,76,.09); box-shadow:inset 4px 0 0 var(--gold); }
 .captain-check-badge { display:inline-block;margin:.15rem 0 .3rem;padding:.12rem .4rem;border-radius:4px;background:var(--gold);color:#0d1b2a;font-size:.65rem;font-weight:800;letter-spacing:.06em; }
+.team-authorization { margin-bottom:1.5rem; }
+.team-authorization-label { display:flex;align-items:center;gap:.65rem;font-weight:700; }
+.team-authorization-label input { width:1.15rem;height:1.15rem;accent-color:#6ddfab; }
+.team-authorization .form-note { color:var(--muted);margin:.5rem 0 1rem; }
 </style>
 <?php require_once __DIR__ . '/../_footer.php'; ?>

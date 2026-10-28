@@ -10,6 +10,6 @@
     <p>Sito realizzato da Giona Davide</p>
   </div>
 </footer>
-<script src="<?= SITE_URL ?>/assets/js/main.js"></script>
+<script src="<?= SITE_URL ?>/assets/js/main.js?v=<?= filemtime(__DIR__ . '/../assets/js/main.js') ?>"></script>
 </body>
 </html>

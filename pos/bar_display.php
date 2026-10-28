@@ -22,7 +22,7 @@ $apiDept      = 'bar';
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/pos/assets/css/pos.css">
+  <link rel="stylesheet" href="<?= POS_URL ?>/assets/css/pos.css">
 </head>
 <body class="pos-display-body">
 

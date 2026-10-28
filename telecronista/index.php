@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
 session_start_secure();
 if (!is_admin_logged()) { header('Location: login.php'); exit; }
-if (!is_telecronista()) { header('Location: ' . SITE_URL . '/admin/index.php'); exit; }
+if (!is_telecronista()) { header('Location: ' . ADMIN_PATH . '/index.php'); exit; }
 $pdo = db();
 $numPartite = (int) $pdo->query('SELECT COUNT(*) FROM partite')->fetchColumn();
 $pageTitle = 'Area telecronista';

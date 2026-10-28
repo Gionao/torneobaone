@@ -1,0 +1,20 @@
+Options -Indexes
+RewriteEngine On
+
+RewriteRule ^(?:\.git|includes|pos/includes|storage|tests|tools|vendor|assets/sql|photo/includes|photo/tools|photo/storage)(?:/|$) - [F,L,NC]
+
+<FilesMatch "^(?:config(?:\.local)?\.php|\.env(?:\..*)?)$">
+  Require all denied
+</FilesMatch>
+
+RewriteCond %{HTTP_HOST} ^admin\.torneobaone\.it$ [NC]
+RewriteRule ^$ admin/index.php [L]
+
+RewriteCond %{HTTP_HOST} ^pos\.torneobaone\.it$ [NC]
+RewriteRule ^$ pos/index.php [L]
+
+RewriteCond %{HTTP_HOST} ^(?:www\.)?torneobaone\.it$ [NC]
+RewriteRule ^admin(?:/(.*))?$ https://admin.torneobaone.it/admin/$1 [R=302,L,NE]
+
+RewriteCond %{HTTP_HOST} ^(?:www\.)?torneobaone\.it$ [NC]
+RewriteRule ^pos(?:/(.*))?$ https://pos.torneobaone.it/pos/$1 [R=302,L,NE]

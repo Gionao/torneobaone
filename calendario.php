@@ -7,9 +7,11 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 
 $pdo = db();
+$isTelecronista = is_telecronista();
 
 // Tutte le partite con dati squadre e fase, ordinate per data poi fase
 $stmt = $pdo->query("
@@ -20,9 +22,11 @@ $stmt = $pdo->query("
         sc.nome           AS nome_casa,
         sc.colore         AS colore_casa,
         sc.logo_url       AS logo_casa,
+        sc.autorizzata    AS autorizzata_casa,
         so.nome           AS nome_osp,
         so.colore         AS colore_osp,
-        so.logo_url       AS logo_osp
+        so.logo_url       AS logo_osp,
+        so.autorizzata    AS autorizzata_osp
     FROM partite p
     JOIN fasi    f  ON f.id  = p.id_fase
     JOIN squadre sc ON sc.id = p.id_squadra_casa
@@ -48,7 +52,7 @@ $filtro = $_GET['fase'] ?? 'tutte';
   <title>Calendario — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-2">
+  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-4">
 </head>
 <body>
 
@@ -102,6 +106,8 @@ $filtro = $_GET['fase'] ?? 'tutte';
       <div class="cal-cards">
         <?php foreach ($matches as $m):
           $giocata  = (bool)$m['giocata'];
+          $squadreNonAutorizzate = empty($m['autorizzata_casa']) || empty($m['autorizzata_osp']);
+          $partitaDisabilitata = $isTelecronista && $squadreNonAutorizzate;
           $hasScore = $giocata && $m['gol_casa'] !== null;
           $dataFmt  = $m['data_ora'] ? date('d/m/Y H:i', strtotime($m['data_ora'])) : 'Da definire';
           $vincitore = null;
@@ -110,13 +116,19 @@ $filtro = $_GET['fase'] ?? 'tutte';
               elseif ($m['gol_osp'] > $m['gol_casa'])  $vincitore = 'osp';
           }
         ?>
+        <?php if ($partitaDisabilitata): ?>
+        <div class="cal-card cal-card--disabled" aria-disabled="true">
+        <?php else: ?>
         <a href="<?= SITE_URL ?>/partita.php?id=<?= $m['id'] ?>" class="cal-card <?= $giocata ? 'cal-card--played' : '' ?>">
+        <?php endif; ?>
           <div class="cal-card-meta">
             <span class="cal-date"><?= $dataFmt ?></span>
             <?php if (!empty($m['campo'])): ?>
               <span class="cal-campo">📍 <?= htmlspecialchars($m['campo']) ?></span>
             <?php endif; ?>
-            <?php if ($giocata): ?>
+            <?php if ($partitaDisabilitata): ?>
+              <span class="cal-status cal-status--disabled">Squadra non autorizzata</span>
+            <?php elseif ($giocata): ?>
               <span class="cal-status cal-status--done">✓ Giocata</span>
             <?php else: ?>
               <span class="cal-status cal-status--pending">In programma</span>
@@ -164,7 +176,7 @@ $filtro = $_GET['fase'] ?? 'tutte';
           <?php if ($giocata): ?>
             <div class="cal-detail-hint">Vedi tabellino →</div>
           <?php endif; ?>
-        </a>
+        <?php if ($partitaDisabilitata): ?></div><?php else: ?></a><?php endif; ?>
         <?php endforeach; ?>
       </div>
     </div>
