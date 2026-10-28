@@ -11,9 +11,12 @@ require_once __DIR__ . '/../includes/auth.php';
 
 session_start_secure();
 
-// Se già loggato, vai alla dashboard
+// Se già loggato, vai alla dashboard corretta
 if (is_admin_logged()) {
-    header('Location: index.php');
+    $destinazione = in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)
+        ? ARCHIVIO_URL . '/index.php'
+        : 'index.php';
+    header('Location: ' . $destinazione);
     exit;
 }
 
@@ -29,7 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Messaggio vago per non rivelare se l'username esiste
         $errore = 'Credenziali non valide. Riprova.';
     } else {
-        header('Location: index.php');
+        $destinazione = in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)
+            ? ARCHIVIO_URL . '/index.php'
+            : 'index.php';
+        header('Location: ' . $destinazione);
         exit;
     }
 }

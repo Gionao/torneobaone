@@ -14,6 +14,7 @@ $messageType  = 'success';
 $editUserId   = (int) ($_GET['edit_password'] ?? 0);
 
 $roles = ['admin', 'operatore', 'bar', 'cucina'];
+$ruoliPos = $roles;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -61,7 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-            $pdo->prepare('UPDATE admin SET password_hash = ? WHERE id = ?')->execute([$hash, $userId]);
+            $stmt = $pdo->prepare('
+                UPDATE admin SET password_hash = ?
+                WHERE id = ? AND role IN (?, ?, ?, ?)
+            ');
+            $stmt->execute([$hash, $userId, ...$ruoliPos]);
+            if ($stmt->rowCount() === 0) {
+                throw new RuntimeException('Utente POS non trovato.');
+            }
             $message = 'Password aggiornata.';
             $editUserId = 0;
         } elseif ($action === 'delete_user') {
@@ -69,7 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($userId === $currentId) {
                 throw new RuntimeException('Non puoi eliminare il tuo account.');
             }
-            $pdo->prepare('DELETE FROM admin WHERE id = ?')->execute([$userId]);
+            $stmt = $pdo->prepare('DELETE FROM admin WHERE id = ? AND role IN (?, ?, ?, ?)');
+            $stmt->execute([$userId, ...$ruoliPos]);
+            if ($stmt->rowCount() === 0) {
+                throw new RuntimeException('Utente POS non trovato.');
+            }
             $message = 'Utente eliminato.';
         }
     } catch (Throwable $e) {
@@ -78,10 +90,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$users = $pdo->query('
+$users = $pdo->prepare('
     SELECT id, username, role, station_name, created_at
-    FROM admin ORDER BY role, username
-')->fetchAll();
+    FROM admin WHERE role IN (?, ?, ?, ?) ORDER BY role, username
+');
+$users->execute($ruoliPos);
+$users = $users->fetchAll();
 
 $pageTitle = 'Utenti POS';
 ?>

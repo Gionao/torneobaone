@@ -28,6 +28,14 @@ alla cartella principale del progetto.
 ├── capitano/                    # Registrazione, accesso e area capitani
 ├── iscrizione/                  # Moduli e verifica delle iscrizioni
 ├── telecronista/                # Accesso e gestione telecronaca
+├── photo/                       # Archivio foto/video privato
+│   ├── admin/                   # Interfaccia riservata (galleria, upload, cestino, utenti)
+│   ├── api/                     # Download, miniature e ZIP autorizzati
+│   ├── upload/                  # Upload a blocchi con ripresa
+│   ├── includes/                # Config, autorizzazione, repository e storage
+│   ├── assets/                  # CSS e JavaScript dell'archivio
+│   ├── tools/                   # Cron CLI per ZIP e manutenzione
+│   └── README.md                # Ruoli, sicurezza, limiti, backup e deploy
 ├── pos/
 │   ├── index.php                # Punto d'ingresso POS
 │   ├── admin/                   # Gestione POS
@@ -49,7 +57,9 @@ alla cartella principale del progetto.
 ├── assets/
 │   ├── css/, js/, img/          # Stili, script e immagini
 │   └── sql/                     # Schemi, dati iniziali e migrazioni SQL
-├── storage/email_log/           # Log locali degli invii email
+├── storage/
+│   ├── email_log/               # Log locali degli invii email
+│   └── media/                   # Originali, miniature, upload temporanei e ZIP (escluso da Git)
 ├── tests/                       # Test e verifiche
 ├── tools/                       # Strumenti di supporto
 ├── composer.json, composer.lock # Dipendenze PHP
@@ -69,7 +79,9 @@ alla cartella principale del progetto.
 3. Per un database esistente, applica le migrazioni necessarie una sola volta.
    In particolare `assets/sql/migration_squadre_autorizzazione.sql` aggiunge
    il campo di autorizzazione squadre. `database_insert.sql` contiene dati
-   dimostrativi: usalo solo se desideri caricarli.
+   dimostrativi: usalo solo se desideri caricarli. Per l'archivio multimediale
+   applica in ordine `migration_media_001_schema.sql` … `migration_media_004_accessi_selezione.sql`
+   (vedi `photo/README.md`); sono additive e non eliminano dati.
 4. Prima di rendere il sito pubblico, controlla e sostituisci eventuali
    credenziali iniziali previste dagli script SQL.
 
@@ -82,7 +94,9 @@ variabili d'ambiente PHP:
 - Ambiente e debug: `APP_ENV` (`production` in produzione), `DEBUG_MODE`.
 - Database: `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`, `DB_CHARSET`.
 - Sito e URL: `SITE_NAME`, `SITE_URL`, `ADMIN_PATH`, `POS_URL`,
-  `TELECRONISTA_URL`; `ADMIN_URL` è accettata come alternativa a `ADMIN_PATH`.
+  `TELECRONISTA_URL`, `ARCHIVIO_URL`; `ADMIN_URL` è accettata come alternativa
+  a `ADMIN_PATH`. `ARCHIVIO_URL` punta per impostazione predefinita a
+  `SITE_URL/photo/admin`.
 - Limite squadre: `MAX_SQUADRE` (intero positivo; predefinito 20).
 - Email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`,
   `SMTP_ENCRYPTION`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`, `MAIL_REPLY_TO`.
@@ -103,5 +117,8 @@ repository.
   `mod_rewrite` e `AllowOverride` abilitato. Se il server non supporta
   `.htaccess`, configura regole equivalenti nel web server prima del deploy.
 - Verifica che `includes/config.php` e `vendor/` siano presenti e che PHP possa
-  scrivere in `storage/email_log/`. Le directory interne, i test, gli strumenti
-  e gli script SQL sono protetti dall'accesso HTTP dalle regole Apache.
+  scrivere in `storage/email_log/` e in `storage/media/`. Le directory interne,
+  i test, gli strumenti e gli script SQL sono protetti dall'accesso HTTP dalle
+  regole Apache. Per l'archivio, imposta il cron di
+  `photo/tools/process_zip.php` e `photo/tools/maintenance.php` e verifica i
+  limiti reali dell'hosting (vedi `photo/README.md`).

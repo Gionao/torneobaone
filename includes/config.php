@@ -29,13 +29,13 @@ if (!defined('DB_CHARSET')) {
 
 if (!defined('SITE_NAME')) {
     define('SITE_NAME', getenv('SITE_NAME') ?: (ENV === 'production'
-        ? 'Torneo Calcio a 5 - Baone 2026'
-        : 'Torneo Calcio a 5 - Baone 2026 [LOCAL]'));
+        ? 'Torneo Calcio a 5 - Baone 2027'
+        : 'Torneo Calcio a 5 - Baone 2027 [LOCAL]'));
 }
 if (!defined('SITE_URL')) {
     define('SITE_URL', getenv('SITE_URL') ?: (ENV === 'production'
         ? 'https://torneobaone.it'
-        : 'http://localhost/sito_torneo'));
+        : 'http://torneobaone.test'));
 }
 if (!defined('ADMIN_PATH')) {
     define('ADMIN_PATH', getenv('ADMIN_PATH') ?: (getenv('ADMIN_URL') ?: (ENV === 'production'
@@ -51,6 +51,9 @@ if (!defined('TELECRONISTA_URL')) {
     define('TELECRONISTA_URL', getenv('TELECRONISTA_URL') ?: (ENV === 'production'
         ? 'https://admin.torneobaone.it/telecronista'
         : SITE_URL . '/telecronista'));
+}
+if (!defined('ARCHIVIO_URL')) {
+    define('ARCHIVIO_URL', getenv('ARCHIVIO_URL') ?: SITE_URL . '/photo/admin');
 }
 if (!defined('MAX_SQUADRE')) {
     $configuredMaxSquadre = getenv('MAX_SQUADRE');
@@ -85,7 +88,7 @@ if (!defined('SMTP_ENCRYPTION')) {
     define('SMTP_ENCRYPTION', getenv('SMTP_ENCRYPTION') ?: 'tls');
 }
 if (!defined('MAIL_FROM_ADDRESS')) {
-    define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS') ?: 'noreply@localhost');
+    define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS') ?: 'noreply@torneobaone.test');
 }
 if (!defined('MAIL_FROM_NAME')) {
     define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: SITE_NAME);

@@ -5,3 +5,7 @@ config.local.php
 .env.*
 storage/email_log/*
 !storage/email_log/.gitkeep
+storage/media/*
+!storage/media/.gitignore
+!storage/media/.htaccess
+!storage/media/index.html

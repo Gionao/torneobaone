@@ -32,6 +32,7 @@
       <a href="<?= ADMIN_PATH ?>/giocatori/index.php">Giocatori</a>
       <a href="<?= ADMIN_PATH ?>/iscrizioni/index.php"> Iscrizioni</a>
       <a href="<?= ADMIN_PATH ?>/pagamenti/transazioni.php">Pagamenti</a>
+      <a href="<?= ARCHIVIO_URL ?>/index.php">Archivio media</a>
       <?php endif; ?>
       <a href="<?= ADMIN_PATH ?>/logout.php" class="admin-logout">Esci</a>
     </div>

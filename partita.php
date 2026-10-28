@@ -88,25 +88,7 @@ if ($hasScore) {
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="nav-container">
-    <a href="<?= SITE_URL ?>" class="nav-brand">
-      <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="nav-logo">
-      <span>Torneo <em>Baone</em> 2026</span>
-    </a>
-    <input type="checkbox" class="nav-menu-check" id="matchNavMenuToggle" aria-label="Apri o chiudi il menu" aria-controls="matchNavLinks">
-    <label class="nav-toggle" for="matchNavMenuToggle" aria-hidden="true">
-      <span></span><span></span><span></span>
-    </label>
-    <ul class="nav-links" id="matchNavLinks">
-      <li><a href="<?= SITE_URL ?>">Home</a></li>
-      <li><a href="<?= SITE_URL ?>/calendario.php" class="active">Calendario</a></li>
-      <li><a href="<?= SITE_URL ?>/classifica.php">Classifica</a></li>
-      <li><a href="<?= SITE_URL ?>/iscrizione.php">Iscrizione</a></li>
-    </ul>
-  </div>
-</nav>
+<?php include 'shared/header.php'; ?>
 
 <!-- BREADCRUMB -->
 <div class="container" style="padding-top:1.5rem;">

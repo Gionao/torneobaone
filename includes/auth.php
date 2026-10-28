@@ -42,6 +42,10 @@ function require_admin(): void
         header('Location: ' . TELECRONISTA_URL . '/index.php');
         exit;
     }
+    if (in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)) {
+        header('Location: ' . ARCHIVIO_URL . '/index.php');
+        exit;
+    }
     // Rigenera il token di sessione ad ogni richiesta (prevenzione session fixation)
     if (empty($_SESSION['last_regen']) || time() - $_SESSION['last_regen'] > 300) {
         session_regenerate_id(true);
@@ -65,7 +69,7 @@ function admin_login(string $username, string $password): bool
     }
 
     $pdo  = db();
-    $stmt = $pdo->prepare('SELECT id, password_hash, role FROM admin WHERE username = ? LIMIT 1');
+    $stmt = $pdo->prepare('SELECT id, username, password_hash, role FROM admin WHERE username = ? LIMIT 1');
     $stmt->execute([$username]);
     $row = $stmt->fetch();
 
@@ -73,6 +77,7 @@ function admin_login(string $username, string $password): bool
         // Login riuscito — inizializza sessione
         session_regenerate_id(true);
         $_SESSION['admin_id']    = $row['id'];
+        $_SESSION['admin_username'] = $row['username'];
         $_SESSION['admin_role']  = $row['role'] ?? 'admin';
         $_SESSION['admin_token'] = bin2hex(random_bytes(32));
         $_SESSION['login_attempts'] = 0;
@@ -90,6 +95,10 @@ function require_partite_access(): void
 {
     if (!is_admin_logged()) {
         header('Location: ' . TELECRONISTA_URL . '/login.php');
+        exit;
+    }
+    if (in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)) {
+        header('Location: ' . ARCHIVIO_URL . '/index.php');
         exit;
     }
     if (empty($_SESSION['last_regen']) || time() - $_SESSION['last_regen'] > 300) {

@@ -25,6 +25,8 @@ switch ($role) {
         header('Location: ' . POS_URL . '/kitchen_display.php');
         break;
     default:
+        unset($_SESSION['pos_admin_id'], $_SESSION['pos_admin_user'], $_SESSION['pos_admin_role'], $_SESSION['pos_admin_station']);
+        session_regenerate_id(true);
         header('Location: ' . POS_URL . '/login.php');
 }
 
