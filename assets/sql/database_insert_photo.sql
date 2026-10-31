@@ -1,0 +1,1 @@
+-- Nessun dato demo per il drive fotografico, come richiesto.
