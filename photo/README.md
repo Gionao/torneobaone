@@ -105,24 +105,28 @@ php photo/tools/process_zip.php --max=3
 Prerequisiti PHP: `pdo_mysql`, `gd`, `zip`, `exif`, `fileinfo`. MySQL 8 o
 compatibile, Apache con `mod_rewrite` e `AllowOverride` abilitato.
 
-Per una nuova installazione, creare prima il database e applicare uno schema
-del torneo (che crea anche `admin` e `impostazioni`), poi lo schema del drive,
-sempre sul database `my_torneobaone`:
+Per una nuova installazione, il percorso più semplice è importare
+`assets/sql/database_schema.sql`: crea le tabelle torneo, POS e drive sul
+database `my_torneobaone`. In alternativa, gli schemi per modulo possono essere
+importati separatamente; ciascuno crea il database e le tabelle condivise minime
+se non esistono:
 
 ```bash
 mysql -u utente -p < assets/sql/database_schema_torneo.sql
-mysql -u utente -p my_torneobaone < assets/sql/database_schema_pos.sql
-mysql -u utente -p my_torneobaone < assets/sql/database_schema_photo.sql
+mysql -u utente -p < assets/sql/database_schema_pos.sql
+mysql -u utente -p < assets/sql/database_schema_photo.sql
 ```
 
-In alternativa, `assets/sql/database_schema.sql` crea torneo e POS in un unico
-passaggio; applicare poi lo schema foto come sopra. Il nome predefinito
-`my_torneobaone` è condiviso con `includes/config.php`. Gli schemi completi
-sono destinati a nuove installazioni: non usarli come migrazioni su un database
-esistente senza confrontare prima struttura e dati e senza un backup verificato.
+Il nome predefinito `my_torneobaone` è condiviso con `includes/config.php`.
+Gli schemi completi sono destinati a nuove installazioni: non usarli come
+migrazioni su un database esistente senza confrontare prima struttura e dati e
+senza un backup verificato. `CREATE TABLE IF NOT EXISTS` evita errori per
+tabelle già create, ma non aggiorna tabelle esistenti a una struttura diversa.
 
 Gli schemi includono i ruoli `uploader` ed `editor` e inizializzano le
-impostazioni del drive senza sovrascrivere valori già configurati. Dopo
+impostazioni del drive senza sovrascrivere valori già configurati. Lo schema
+combinato crea tutte e 8 le tabelle `media_*`, evitando che il drive venga
+omesso durante l'installazione. Dopo
 l'installazione, creare o assegnare gli account dalla pagina **Utenti**.
 
 Per un database già popolato, consultare

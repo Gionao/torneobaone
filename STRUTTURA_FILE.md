@@ -24,7 +24,8 @@ alla cartella principale del progetto.
 │   ├── iscrizioni/              # Gestione iscrizioni
 │   ├── pagamenti/               # Metodi e transazioni di pagamento
 │   ├── partite/                 # Partite, risultati ed eventi
-│   └── squadre/                 # Gestione squadre
+│   ├── squadre/                 # Gestione squadre
+│   └── README.md                # Guida gestione torneo e iscrizioni
 ├── capitano/                    # Registrazione, accesso e area capitani
 ├── iscrizione/                  # Moduli e verifica delle iscrizioni
 ├── telecronista/                # Accesso e gestione telecronaca
@@ -41,7 +42,8 @@ alla cartella principale del progetto.
 │   ├── admin/                   # Gestione POS
 │   ├── api/                     # API degli ordini, prodotti e coupon
 │   ├── includes/                # Database e controlli di accesso POS
-│   └── assets/                  # Risorse grafiche POS
+│   ├── assets/                  # Risorse grafiche POS
+│   └── README.md                # Guida del modulo POS
 ├── includes/
 │   ├── config.php               # Configurazione comune, tramite variabili d'ambiente
 │   ├── db.php                   # Connessione PDO al database
@@ -66,7 +68,8 @@ alla cartella principale del progetto.
 │   ├── restore.php              # Ripristino esplicito da archivio ZIP
 │   └── backup_common.php        # Funzioni condivise backup/ripristino
 ├── composer.json, composer.lock # Dipendenze PHP
-└── vendor/                      # Dipendenze installate da Composer
+├── vendor/                      # Dipendenze installate da Composer
+└── README.md                    # Panoramica e installazione generale
 ```
 
 ## Installazione e database
@@ -74,11 +77,11 @@ alla cartella principale del progetto.
 1. Configura PHP con PDO MySQL e installa le dipendenze dalla cartella del
    progetto con `composer install`. PHPMailer è gestito da Composer.
 2. Usa `my_torneobaone` come nome canonico del database: è il valore predefinito
-   in `includes/config.php`. Per una nuova installazione scegli uno dei due
-   percorsi: importa `assets/sql/database_schema.sql` per torneo e POS insieme,
-   oppure importa `database_schema_torneo.sql` seguito da
-   `database_schema_pos.sql`. Poi importa `database_schema_photo.sql` per il
-   drive. Tutti gli schemi usano lo stesso database.
+   in `includes/config.php`. Per una nuova installazione importa
+   `assets/sql/database_schema.sql`, che crea torneo, POS e tutte le tabelle
+   del drive. In alternativa importa `database_schema_torneo.sql`,
+   `database_schema_pos.sql` e `database_schema_photo.sql` sul database
+   condiviso.
 3. I file `database_insert_torneo.sql` e `database_insert_pos.sql` inseriscono
    dati dimostrativi; usarli solo in sviluppo/test. `database_insert_photo.sql`
    non aggiunge record al drive.

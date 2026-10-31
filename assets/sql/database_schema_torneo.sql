@@ -2,6 +2,7 @@
 --  TORNEO CALCIO A 5 - BAONE 2026
 --  Schema Database per phpMyAdmin / Altervista MySQL
 --  Charset: utf8mb4  |  Collation: utf8mb4_unicode_ci
+--  Eseguibile più volte senza duplicare account, fasi o trigger.
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS `my_torneobaone`
@@ -25,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Utente admin di default  (password: admin — DA CAMBIARE subito)
-INSERT INTO `admin` (`username`, `password_hash`) VALUES
+INSERT IGNORE INTO `admin` (`username`, `password_hash`) VALUES
 ('admin', '$2y$10$ZVqAQkZ.6NVKkBofUpIj6uideKqYape41nHFimOaUtjl2qHtKvQjK');
 -- ^ hash generato con: password_hash('Admin2026!', PASSWORD_BCRYPT, ['cost'=>12])
 -- IMPORTANTE: rigenera questo hash con la tua password reale prima del deploy!
@@ -52,12 +53,18 @@ CREATE TABLE IF NOT EXISTS `fasi` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `fasi` (`nome`, `ordine`) VALUES
-('Girone',           1),
-('Playoff',          2),
-('Semifinale',       3),
-('Finale 3°/4°',     4),
-('Finale 1°/2°',     5);
+INSERT INTO `fasi` (`nome`, `ordine`)
+SELECT d.`nome`, d.`ordine`
+FROM (
+  SELECT 'Girone' AS `nome`, 1 AS `ordine`
+  UNION ALL SELECT 'Playoff', 2
+  UNION ALL SELECT 'Semifinale', 3
+  UNION ALL SELECT 'Finale 3°/4°', 4
+  UNION ALL SELECT 'Finale 1°/2°', 5
+) d
+WHERE NOT EXISTS (
+  SELECT 1 FROM `fasi` f WHERE f.`nome` = d.`nome` OR f.`ordine` = d.`ordine`
+);
 
 
 -- ------------------------------------------------------------
@@ -132,6 +139,7 @@ CREATE TABLE IF NOT EXISTS `giocatori` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DELIMITER //
+DROP TRIGGER IF EXISTS `trg_giocatori_max_nove_insert`//
 CREATE TRIGGER `trg_giocatori_max_nove_insert`
 BEFORE INSERT ON `giocatori`
 FOR EACH ROW
@@ -143,6 +151,7 @@ BEGIN
   END IF;
 END//
 
+DROP TRIGGER IF EXISTS `trg_giocatori_max_nove_update`//
 CREATE TRIGGER `trg_giocatori_max_nove_update`
 BEFORE UPDATE ON `giocatori`
 FOR EACH ROW

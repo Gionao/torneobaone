@@ -3,9 +3,11 @@
 --
 -- Eseguire UNA SOLA VOLTA su un database esistente dopo aver:
 -- 1) verificato il database selezionato e il backup completo;
--- 2) applicato gli schemi del torneo e del drive se le tabelle media
---    non esistono ancora;
--- 3) controllato i risultati delle query di preflight qui sotto.
+-- 2) verificato che esistano `admin`, `impostazioni`, `pos_orders`,
+--    `media_file`, `media_giornate` e `media_album` (applicare gli schemi
+--    mancanti prima di questa migrazione);
+-- 3) controllato che tutti i risultati delle query di preflight qui sotto
+--    siano zero e che i vincoli non siano già presenti.
 --
 -- La migrazione non elimina record. Le ALTER TABLE possono fallire se
 -- esistono dati incoerenti o vincoli già creati manualmente.

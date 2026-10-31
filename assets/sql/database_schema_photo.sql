@@ -2,13 +2,35 @@
 -- Archivio fotografico — schema completo
 -- Crea le tabelle per il drive foto/video e le relative relazioni.
 --
--- Prerequisito: deve esistere la tabella condivisa `admin`
--- con `id` di tipo INT UNSIGNED.
--- Gli schemi torneo includono i ruoli `uploader` ed `editor`.
--- Questo script presuppone che esista la tabella `impostazioni`.
+-- Lo script può essere eseguito da solo: crea database e tabelle condivise
+-- minime se mancano. Per un'installazione completa è preferibile
+-- database_schema.sql, che crea torneo, POS e drive nello stesso database.
 -- ============================================================
 
+CREATE DATABASE IF NOT EXISTS `my_torneobaone`
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+USE `my_torneobaone`;
 SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `admin` (
+  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `username`      VARCHAR(60) NOT NULL,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `role`          ENUM('admin','operatore','bar','cucina','telecronista','uploader','editor') NOT NULL DEFAULT 'admin',
+  `station_name`  VARCHAR(80) NULL DEFAULT NULL,
+  `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_admin_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `impostazioni` (
+  `chiave`      VARCHAR(60) NOT NULL,
+  `valore`      VARCHAR(255) NOT NULL DEFAULT '',
+  `descrizione` VARCHAR(150) NULL DEFAULT NULL,
+  `updated_at`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`chiave`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
 -- Edizioni dell'archivio
