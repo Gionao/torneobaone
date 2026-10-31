@@ -100,31 +100,36 @@ php photo/tools/process_zip.php --max=3
   `X-Robots-Tag: noindex` sulle pagine dell'archivio.
 - Nessun contenuto viene inviato a servizi esterni.
 
-## Installazione e migrazioni
+## Installazione
 
 Prerequisiti PHP: `pdo_mysql`, `gd`, `zip`, `exif`, `fileinfo`. MySQL 8 o
 compatibile, Apache con `mod_rewrite` e `AllowOverride` abilitato.
 
-Applicare le migrazioni **in ordine**, una sola volta, su un database di
-sviluppo/staging e con backup disponibile:
+Per una nuova installazione, creare prima il database e applicare uno schema
+del torneo (che crea anche `admin` e `impostazioni`), poi lo schema del drive,
+sempre sul database `my_torneobaone`:
 
 ```bash
-mysql -u utente -p nome_database < assets/sql/migration_media_001_schema.sql
-mysql -u utente -p nome_database < assets/sql/migration_media_002_admin_roles.sql
-mysql -u utente -p nome_database < assets/sql/migration_media_003_settings.sql
-mysql -u utente -p nome_database < assets/sql/migration_media_004_accessi_selezione.sql
+mysql -u utente -p < assets/sql/database_schema_torneo.sql
+mysql -u utente -p my_torneobaone < assets/sql/database_schema_pos.sql
+mysql -u utente -p my_torneobaone < assets/sql/database_schema_photo.sql
 ```
 
-Le migrazioni sono additive: creano tabelle, aggiungono i ruoli `uploader` ed
-`editor` all'enum esistente e inseriscono le impostazioni con `INSERT IGNORE`.
-Non eliminano dati preesistenti.
+In alternativa, `assets/sql/database_schema.sql` crea torneo e POS in un unico
+passaggio; applicare poi lo schema foto come sopra. Il nome predefinito
+`my_torneobaone` è condiviso con `includes/config.php`. Gli schemi completi
+sono destinati a nuove installazioni: non usarli come migrazioni su un database
+esistente senza confrontare prima struttura e dati e senza un backup verificato.
 
-Gli script `*_down.sql` sono distruttivi e servono solo per test o ripristini
-controllati. Non eseguirli in produzione senza autorizzazione e backup
-verificato. La migrazione 002 down fallisce se esistono ancora account con i
-ruoli `uploader`/`editor`: vanno prima riassegnati o rimossi.
+Gli schemi includono i ruoli `uploader` ed `editor` e inizializzano le
+impostazioni del drive senza sovrascrivere valori già configurati. Dopo
+l'installazione, creare o assegnare gli account dalla pagina **Utenti**.
 
-Dopo le migrazioni, creare o assegnare gli account dalla pagina **Utenti**.
+Per un database già popolato, consultare
+`assets/sql/migration_architettura_001.sql`: eseguire prima le query di
+preflight, verificare backup e vincoli esistenti, quindi applicare la
+migrazione una sola volta. Non reimportare lo schema foto completo come
+sostituto di una migrazione.
 Gli account `uploader` devono avere almeno una edizione assegnata.
 
 ## Configurazione
@@ -172,30 +177,61 @@ Esempio di crontab (adattare percorsi e utente):
 
 ## Backup e ripristino
 
-Backup minimo indispensabile:
+Gli script CLI in `tools/` includono l'intero database MySQL configurato e tutti
+i file dello storage media (originali, miniature, upload temporanei, ZIP,
+quarantena e log) in un archivio ZIP. I backup sono giornalieri e vengono
+conservati per 5 giorni. Un lock impedisce l'avvio simultaneo di due backup o
+di un backup durante un ripristino.
 
-1. database MySQL (tabelle `admin`, `impostazioni`, `media_*`);
-2. intera cartella dello storage (`storage/media` o il percorso configurato),
-   comprese `originali/`, `miniature/`, `upload_tmp/`, `zip_tmp/`,
-   `quarantena/` e `log/`.
+Su Windows/Laragon, configurare le variabili d'ambiente `DB_HOST`, `DB_NAME`,
+`DB_USER` e `DB_PASS` come per l'applicazione. I client MySQL vengono rilevati automaticamente se è installata una sola
+versione in `C:\laragon\bin\mysql`. Se non sono nel `PATH` e non vengono
+rilevati, impostare `MYSQLDUMP_PATH` e `MYSQL_PATH` con i percorsi completi di
+`mysqldump.exe` e `mysql.exe`. `BACKUP_DIR` può sovrascrivere la destinazione;
+il valore predefinito è `C:\laragon\backups\torneobaone`, fuori dalla document
+root. Lo script rifiuta destinazioni sotto la cartella del progetto.
 
-Senza entrambi non è possibile ricostruire l'archivio: il database contiene i
-metadati e i percorsi, lo storage contiene gli originali.
+Esecuzione manuale (usare l'eseguibile della versione PHP installata in
+Laragon; `php.exe` può essere usato se è nel `PATH`):
 
-Esempio:
-
-```bash
-mysqldump -u utente -p --single-transaction nome_database > backup-db.sql
-rsync -a storage/media/ /backup/media/
+```powershell
+php.exe C:\laragon\www\torneobaone\tools\backup.php
 ```
 
-Ripristino: ripristinare il database, ripristinare la cartella storage nello
-stesso percorso (o aggiornare `media_storage_path`), verificare i permessi di
-scrittura e lanciare la manutenzione. Verificare alcuni download e un
-ripristino dal cestino prima di considerare concluso il ripristino.
+In **Utilità di pianificazione**, creare un'attività giornaliera (ad esempio
+alle 02:00) che esegua `php.exe` con argomento
+`C:\laragon\www\torneobaone\tools\backup.php`. Usare un account Windows che
+possa leggere la configurazione dell'applicazione, eseguire il client MySQL e
+scrivere nella cartella di destinazione.
 
-I backup devono essere conservati fuori dalla document root e non devono essere
-accessibili via HTTP.
+Per ripristinare, selezionare un archivio ed eseguire il comando da terminale
+con un account che possa accedere al database, ai client MySQL e allo storage:
+
+```powershell
+php.exe C:\laragon\www\torneobaone\tools\restore.php --archive="C:\laragon\backups\torneobaone\torneobaone_YYYYMMDD_HHMMSS_XXXXXXXX.zip" --confirm-overwrite
+```
+
+Il flag esplicito è obbligatorio: il ripristino sovrascrive i dati del database
+configurato e sostituisce lo storage corrente. Prima dell'importazione viene
+creato un ulteriore backup di sicurezza dello stato presente. I backup devono
+essere ripristinati sul database configurato nell'applicazione e con lo storage
+media raggiungibile nel percorso attualmente configurato. Dopo il ripristino,
+verificare alcuni download e l'accesso all'archivio. L'account MySQL usato per
+il ripristino deve poter eliminare e ricreare il database. Se il ripristino si
+interrompe a metà, usare il backup pre-ripristino stampato dal comando per
+recuperare lo stato precedente.
+
+Il dump viene catturato con `--single-transaction`, ma il filesystem non offre
+una snapshot coordinata con MySQL: eseguire il job quando non sono in corso
+caricamenti o cancellazioni media per evitare una copia non coerente. Backup e
+ripristino richiedono spazio temporaneo aggiuntivo per dump, archivio e staging
+dei file: verificare lo spazio disponibile prima di avviare il ripristino.
+
+La cifratura non è abilitata. Limitare tramite ACL NTFS l'accesso alla cartella
+dei backup e predisporre una copia off-site: la destinazione locale non protegge
+da guasti o perdita dell'host. I dump e il file temporaneo delle credenziali
+MySQL vengono rimossi al termine; eseguire lo script solo con un account
+Windows fidato e mantenere la cartella fuori dalla document root.
 
 ## Test eseguiti
 

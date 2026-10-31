@@ -1,13 +1,13 @@
 -- ============================================================
---  TORNEO CALCIO A 5 - BAONE 2026
---  Schema Database per phpMyAdmin / Altervista MySQL
+--  Schema combinato torneo + POS (database canonico applicativo)
+--  Archivio foto/video: applicare database_schema_photo.sql dopo questo file.
 --  Charset: utf8mb4  |  Collation: utf8mb4_unicode_ci
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS `torneobaone`
+CREATE DATABASE IF NOT EXISTS `my_torneobaone`
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
-USE `torneobaone`;
+USE `my_torneobaone`;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+02:00";
 
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
   `id`            INT UNSIGNED    NOT NULL AUTO_INCREMENT,
   `username`      VARCHAR(60)     NOT NULL UNIQUE,
   `password_hash` VARCHAR(255)    NOT NULL,          -- bcrypt via password_hash()
-  `role`          ENUM('admin','operatore','bar','cucina','telecronista') NOT NULL DEFAULT 'admin',
+  `role`          ENUM('admin','operatore','bar','cucina','telecronista','uploader','editor') NOT NULL DEFAULT 'admin',
   `station_name`  VARCHAR(80)     NULL DEFAULT NULL,
   `created_at`    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -468,14 +468,18 @@ CREATE TABLE IF NOT EXISTS `pos_orders` (
   `covers`        TINYINT UNSIGNED NOT NULL DEFAULT 1,
   `cover_fee`     DECIMAL(8,2) NOT NULL DEFAULT 0.00,
   `takeaway_fee`  DECIMAL(8,2) NOT NULL DEFAULT 0.00,
-  `admin_id`      INT UNSIGNED NOT NULL,
+  `admin_id`      INT UNSIGNED NULL DEFAULT NULL,
   `station_name`  VARCHAR(80) NULL DEFAULT NULL,
   `status`        ENUM('pending','preparing','ready','delivered','cancelled') NOT NULL DEFAULT 'pending',
   `total_amount`  DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_pos_orders_date` (`created_at`),
-  KEY `idx_pos_orders_status` (`status`)
+  KEY `idx_pos_orders_status` (`status`),
+  KEY `idx_pos_orders_admin` (`admin_id`),
+  CONSTRAINT `fk_pos_orders_admin`
+    FOREIGN KEY (`admin_id`) REFERENCES `admin` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `pos_order_items` (

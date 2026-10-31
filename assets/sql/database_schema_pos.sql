@@ -79,14 +79,18 @@ CREATE TABLE IF NOT EXISTS `pos_orders` (
   `covers`        TINYINT UNSIGNED NOT NULL DEFAULT 1,
   `cover_fee`     DECIMAL(8,2) NOT NULL DEFAULT 0.00,
   `takeaway_fee`  DECIMAL(8,2) NOT NULL DEFAULT 0.00,
-  `admin_id`      INT UNSIGNED NOT NULL,
+  `admin_id`      INT UNSIGNED NULL DEFAULT NULL,
   `station_name`  VARCHAR(80) NULL DEFAULT NULL,
   `status`        ENUM('pending','preparing','ready','delivered','cancelled') NOT NULL DEFAULT 'pending',
   `total_amount`  DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_pos_orders_date` (`created_at`),
-  KEY `idx_pos_orders_status` (`status`)
+  KEY `idx_pos_orders_status` (`status`),
+  KEY `idx_pos_orders_admin` (`admin_id`),
+  CONSTRAINT `fk_pos_orders_admin`
+    FOREIGN KEY (`admin_id`) REFERENCES `admin` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `pos_order_items` (

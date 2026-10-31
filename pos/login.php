@@ -8,12 +8,17 @@ require_once dirname(__DIR__) . '/includes/auth.php';
 session_start_secure();
 
 if (isset($_SESSION['pos_admin_id'])) {
-    $ruoloPos = (string) ($_SESSION['pos_admin_role'] ?? '');
-    if (in_array($ruoloPos, ['admin', 'operatore', 'bar', 'cucina'], true)) {
+    $stmt = $pdo->prepare('SELECT id, username, role, station_name FROM admin WHERE id = ? LIMIT 1');
+    $stmt->execute([(int) $_SESSION['pos_admin_id']]);
+    $account = $stmt->fetch();
+    $ruoloPos = (string) ($account['role'] ?? '');
+    if ($account && in_array($ruoloPos, ['admin', 'operatore', 'bar', 'cucina'], true)) {
+        $_SESSION['pos_admin_user'] = (string) $account['username'];
+        $_SESSION['pos_admin_role'] = $ruoloPos;
+        $_SESSION['pos_admin_station'] = $account['station_name'];
         header('Location: ' . POS_URL . '/index.php');
         exit;
     }
-    // Ruolo non POS (es. archivio): chiudi la sessione POS per evitare loop.
     unset($_SESSION['pos_admin_id'], $_SESSION['pos_admin_user'], $_SESSION['pos_admin_role'], $_SESSION['pos_admin_station']);
     session_regenerate_id(true);
 }
@@ -27,20 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === '' || $password === '') {
         $errore = 'Credenziali non valide';
     } else {
-        $stmt = $pdo->prepare('
-            SELECT id, username, password_hash, role, station_name
-            FROM admin WHERE username = ? LIMIT 1
-        ');
-        $stmt->execute([$username]);
-        $row = $stmt->fetch();
-
-        if ($row && password_verify($password, $row['password_hash'])
-            && in_array((string) ($row['role'] ?? ''), ['admin', 'operatore', 'bar', 'cucina'], true)) {
+        $account = admin_authenticate_credentials($username, $password);
+        if ($account && in_array($account['role'], ['admin', 'operatore', 'bar', 'cucina'], true)) {
             session_regenerate_id(true);
-            $_SESSION['pos_admin_id']      = (int) $row['id'];
-            $_SESSION['pos_admin_user']    = $row['username'];
-            $_SESSION['pos_admin_role']    = $row['role'] ?? 'operatore';
-            $_SESSION['pos_admin_station'] = $row['station_name'];
+            unset($_SESSION['admin_id'], $_SESSION['admin_username'], $_SESSION['admin_role'], $_SESSION['admin_token']);
+            $_SESSION['pos_admin_id']      = $account['id'];
+            $_SESSION['pos_admin_user']    = $account['username'];
+            $_SESSION['pos_admin_role']    = $account['role'];
+            $_SESSION['pos_admin_station'] = $account['station_name'];
             header('Location: ' . POS_URL . '/index.php');
             exit;
         }

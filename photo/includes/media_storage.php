@@ -256,6 +256,41 @@ function media_storage_delete(string $relativo): bool
     return is_file($path) ? @unlink($path) : false;
 }
 
+/** Sposta temporaneamente un file nel cestino interno allo storage. */
+function media_storage_quarantina(string $relativo): ?string
+{
+    $path = media_storage_path($relativo);
+    if (!is_file($path)) {
+        return null;
+    }
+
+    $nome = basename(str_replace('\\', '/', $relativo));
+    $destinazione = 'quarantena/eliminazione_' . bin2hex(random_bytes(16)) . '_' . $nome;
+    $pathQuarantena = media_storage_path($destinazione);
+    if (!@rename($path, $pathQuarantena)) {
+        throw new RuntimeException('Impossibile preparare il file per l\'eliminazione.');
+    }
+
+    return $destinazione;
+}
+
+/** Ripristina un file dalla quarantena al suo percorso originale. */
+function media_storage_ripristina_quarantena(string $quarantinato, string $originale): bool
+{
+    $pathQuarantena = media_storage_path($quarantinato);
+    $pathOriginale = media_storage_path($originale);
+    if (!is_file($pathQuarantena) || file_exists($pathOriginale)) {
+        return false;
+    }
+
+    $directory = dirname($pathOriginale);
+    if (!is_dir($directory) && !@mkdir($directory, 0775, true) && !is_dir($directory)) {
+        return false;
+    }
+
+    return @rename($pathQuarantena, $pathOriginale);
+}
+
 function media_spazio_libero(): int|false
 {
     try {

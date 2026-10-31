@@ -13,9 +13,15 @@ session_start_secure();
 
 // Se già loggato, vai alla dashboard corretta
 if (is_admin_logged()) {
-    $destinazione = in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)
-        ? ARCHIVIO_URL . '/index.php'
-        : 'index.php';
+    $account = admin_current_account();
+    $ruolo = (string) ($account['role'] ?? '');
+    $destinazione = match ($ruolo) {
+        'uploader', 'editor' => ARCHIVIO_URL . '/index.php',
+        'telecronista' => TELECRONISTA_URL . '/index.php',
+        'operatore', 'bar', 'cucina' => POS_URL . '/login.php',
+        'admin' => 'index.php',
+        default => ADMIN_PATH . '/login.php',
+    };
     header('Location: ' . $destinazione);
     exit;
 }
@@ -32,9 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Messaggio vago per non rivelare se l'username esiste
         $errore = 'Credenziali non valide. Riprova.';
     } else {
-        $destinazione = in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)
-            ? ARCHIVIO_URL . '/index.php'
-            : 'index.php';
+        $ruolo = (string) ($_SESSION['admin_role'] ?? '');
+        $destinazione = match ($ruolo) {
+            'uploader', 'editor' => ARCHIVIO_URL . '/index.php',
+            'telecronista' => TELECRONISTA_URL . '/index.php',
+            'operatore', 'bar', 'cucina' => POS_URL . '/login.php',
+            default => 'index.php',
+        };
         header('Location: ' . $destinazione);
         exit;
     }
