@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
   `id`            INT UNSIGNED    NOT NULL AUTO_INCREMENT,
   `username`      VARCHAR(60)     NOT NULL UNIQUE,
   `password_hash` VARCHAR(255)    NOT NULL,          -- bcrypt via password_hash()
-  `role`          ENUM('admin','operatore','bar','cucina','telecronista') NOT NULL DEFAULT 'admin',
+  `role`          ENUM('admin','operatore','bar','cucina','telecronista','uploader','editor') NOT NULL DEFAULT 'admin',
   `station_name`  VARCHAR(80)     NULL DEFAULT NULL,
   `created_at`    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)

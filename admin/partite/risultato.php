@@ -150,7 +150,7 @@ require_once __DIR__ . '/../_header.php';
 <style>
 .matchup-recap {
   display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
-  background:rgba(201,168,76,.06); border:1px solid rgba(201,168,76,.15);
+  background:rgba(231,169,50,.06); border:1px solid rgba(231,169,50,.15);
   border-radius:var(--radius); padding:1rem 1.5rem; margin-bottom:1.5rem;
 }
 .mr-team { font-family:'Barlow Condensed',sans-serif; font-size:1.3rem; font-weight:700; }

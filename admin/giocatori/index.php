@@ -55,7 +55,7 @@ require_once __DIR__ . '/../_header.php';
   <!-- Filtro squadra -->
   <form method="get" style="display:flex;gap:.5rem;align-items:center;">
     <select name="squadra" onchange="this.form.submit()"
-            style="background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.2);
+            style="background:rgba(255,255,255,.06);border:1px solid rgba(231,169,50,.2);
                    border-radius:6px;color:var(--white);padding:.4rem .8rem;font-family:'Barlow',sans-serif;">
       <option value="">Tutte le squadre</option>
       <?php foreach ($squadre as $s): ?>

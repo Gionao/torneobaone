@@ -71,7 +71,9 @@ $fasiMostrate = $filtro === 'tutte'
   <title>Calendario — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
+
 </head>
 <body>
 
@@ -235,7 +237,7 @@ $fasiMostrate = $filtro === 'tutte'
 .fase-filter-btn {
   padding: .35rem 1rem;
   border-radius: 20px;
-  border: 1px solid rgba(201,168,76,.25);
+  border: 1px solid rgba(231,169,50,.25);
   color: var(--muted);
   font-family: 'Barlow Condensed', sans-serif;
   font-size: .88rem;
@@ -260,7 +262,7 @@ $fasiMostrate = $filtro === 'tutte'
 .cal-card {
   display: block;
   background: rgba(255,255,255,.04);
-  border: 1px solid rgba(201,168,76,.12);
+  border: 1px solid rgba(231,169,50,.12);
   border-radius: var(--radius);
   padding: 1rem 1.2rem;
   transition: var(--transition);
@@ -268,8 +270,8 @@ $fasiMostrate = $filtro === 'tutte'
   text-decoration: none;
 }
 .cal-card:hover {
-  border-color: rgba(201,168,76,.4);
-  background: rgba(201,168,76,.05);
+  border-color: rgba(231,169,50,.4);
+  background: rgba(231,169,50,.05);
   transform: translateY(-1px);
   color: var(--white);
 }
@@ -289,7 +291,7 @@ $fasiMostrate = $filtro === 'tutte'
 .cal-date { font-weight: 600; }
 .cal-status { border-radius: 4px; padding: .1rem .4rem; font-size: .7rem; }
 .cal-status--done    { background: rgba(76,175,125,.15); color: #6ddfab; }
-.cal-status--pending { background: rgba(201,168,76,.1);  color: var(--gold-dim); }
+.cal-status--pending { background: rgba(231,169,50,.1);  color: var(--gold-dim); }
 
 .cal-matchup {
   display: grid;

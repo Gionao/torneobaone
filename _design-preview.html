@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POS component check</title>
+<link rel="stylesheet" href="/assets/css/tokens.css?v=redesign-1">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/pos/assets/css/pos.css">
+</head>
+<body class="pos-body">
+<main class="pos-main">
+  <h1 class="pos-page-title">Verifica componenti POS</h1>
+
+  <div class="pos-operator-grid">
+    <section class="pos-panel">
+      <h2>Nuovo ordine</h2>
+      <div class="form-group pos-takeaway-row">
+        <label class="pos-toggle-label">
+          <input type="checkbox" id="isTakeaway">
+          <span class="pos-toggle-track"><span class="pos-toggle-thumb"></span></span>
+          <span>Ordine da Asporto</span>
+        </label>
+      </div>
+      <div class="form-group pos-takeaway-row">
+        <label class="pos-toggle-label">
+          <input type="checkbox" checked>
+          <span class="pos-toggle-track"><span class="pos-toggle-thumb"></span></span>
+          <span>Asporto attivo (selezionato)</span>
+        </label>
+      </div>
+
+      <ul class="pos-cart-list">
+        <li class="pos-cart-item">
+          <div class="cart-item-body">
+            <div class="item-name">Panino con la porchetta</div>
+            <div class="mods">- cipolla, + peperoni</div>
+            <div class="pos-note-row">
+              <input type="text" class="pos-item-note" placeholder="Note (opz.)" value="ben cotto">
+            </div>
+          </div>
+          <div class="cart-item-controls">
+            <div class="pos-qty-row">
+              <button type="button" class="btn-qty btn-minus" aria-label="Diminuisci">−</button>
+              <span class="qty-val">2</span>
+              <button type="button" class="btn-qty btn-plus" aria-label="Aumenta">+</button>
+            </div>
+            <span class="item-price">€ 12,00</span>
+            <button type="button" class="btn-remove" aria-label="Rimuovi">×</button>
+          </div>
+        </li>
+        <li class="pos-cart-item coupon-free">
+          <div class="cart-item-body">
+            <div class="item-name">Bibita</div>
+          </div>
+          <div class="cart-item-controls">
+            <div class="pos-qty-row">
+              <button type="button" class="btn-qty btn-minus" aria-label="Diminuisci">−</button>
+              <span class="qty-val">1</span>
+              <button type="button" class="btn-qty btn-plus" aria-label="Aumenta">+</button>
+            </div>
+            <span class="item-price">€ 0,00</span>
+            <button type="button" class="btn-remove" aria-label="Rimuovi">×</button>
+          </div>
+        </li>
+      </ul>
+
+      <div class="pos-cart-total"><span>Totale</span><span>€ 12,00</span></div>
+      <div class="pos-confirm-row">
+        <button type="button" class="btn btn-gold">Conferma ordine</button>
+      </div>
+    </section>
+
+    <section class="pos-panel">
+      <h2>Cucina · display</h2>
+      <div class="pos-kds-tabs">
+        <button class="pos-kds-tab active" data-tab="active">Ordini attivi</button>
+        <button class="pos-kds-tab" data-tab="history">Storico</button>
+      </div>
+
+      <div class="pos-kds-grid">
+        <article class="pos-kds-card all-ready">
+          <div class="kds-num">#42</div>
+          <div class="kds-time">20:14 · 6 min</div>
+          <div class="kds-customer"><strong>Mario Rossi</strong> — Tavolo 5</div>
+
+          <div class="pos-kds-item item-ready">
+            <div class="item-title">2× Panino porchetta</div>
+            <div class="kds-item-note">Senza cipolla</div>
+          </div>
+          <div class="pos-kds-item">
+            <div class="item-title">1× Patatine</div>
+            <button type="button" class="btn btn-sm btn-gold item-ready-btn">Segna pronto</button>
+          </div>
+
+          <button type="button" class="btn btn-sm btn-green btn-deliver">Consegnato</button>
+        </article>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

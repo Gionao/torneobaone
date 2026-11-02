@@ -8,23 +8,8 @@
 /* (caricati da Google Fonts in ogni pagina PHP) */
 
 /* ── Custom Properties ───────────────────────────────────── */
-:root {
-  --navy:       #0d1b2a;
-  --navy-mid:   #122338;
-  --navy-light: #1a3350;
-  --gold:       #c9a84c;
-  --gold-bright:#e8c76a;
-  --gold-dim:   #8a6f2e;
-  --white:      #f0f4f8;
-  --muted:      rgba(240,244,248,.55);
-  --red:        #d94f4f;
-  --green:      #4caf7d;
-
-  --nav-h:    64px;
-  --radius:   10px;
-  --shadow:   0 8px 32px rgba(0,0,0,.45);
-  --transition: .22s cubic-bezier(.4,0,.2,1);
-}
+/* Custom properties now live in assets/css/tokens.css.
+   This shell only composes public-page layout. */
 
 /* ── Reset & Base ────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -118,9 +103,9 @@ img { max-width: 100%; display: block; }
   top: 0;
   z-index: 100;
   height: var(--nav-h);
-  background: rgba(13,27,42,.92);
+  background: rgba(4,28,46,.92);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(201,168,76,.18);
+  border-bottom: 1px solid rgba(231,169,50,.18);
   transition: background var(--transition);
 }
 
@@ -169,7 +154,7 @@ img { max-width: 100%; display: block; }
 .nav-links a:hover,
 .nav-links a.active {
   color: var(--gold);
-  background: rgba(201,168,76,.08);
+  background: rgba(231,169,50,.08);
 }
 
 .nav-toggle {
@@ -207,8 +192,8 @@ img { max-width: 100%; display: block; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 50% 40%, rgba(201,168,76,.12) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 80%, rgba(201,168,76,.06) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 40%, rgba(231,169,50,.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 80%, rgba(231,169,50,.06) 0%, transparent 40%),
     url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   pointer-events: none;
 }
@@ -224,7 +209,7 @@ img { max-width: 100%; display: block; }
 
 .hero-logo {
   width: clamp(120px, 22vw, 200px);
-  filter: drop-shadow(0 12px 40px rgba(201,168,76,.35));
+  filter: drop-shadow(0 12px 40px rgba(231,169,50,.35));
 }
 
 .hero-title {
@@ -261,7 +246,7 @@ img { max-width: 100%; display: block; }
   align-items: center;
   min-width: 60px;
   background: rgba(255,255,255,.05);
-  border: 1px solid rgba(201,168,76,.2);
+  border: 1px solid rgba(231,169,50,.2);
   border-radius: 8px;
   padding: .5rem .8rem;
 }
@@ -331,7 +316,7 @@ img { max-width: 100%; display: block; }
 .match-card {
   display: block;
   background: rgba(255,255,255,.04);
-  border: 1px solid rgba(201,168,76,.12);
+  border: 1px solid rgba(231,169,50,.12);
   border-radius: var(--radius);
   padding: 1rem 1.2rem;
   margin-bottom: .8rem;
@@ -339,8 +324,8 @@ img { max-width: 100%; display: block; }
   color: var(--white);
 }
 .match-card:hover {
-  border-color: rgba(201,168,76,.4);
-  background: rgba(201,168,76,.05);
+  border-color: rgba(231,169,50,.4);
+  background: rgba(231,169,50,.05);
   transform: translateY(-2px);
 }
 
@@ -384,8 +369,8 @@ img { max-width: 100%; display: block; }
   font-size: 1.3rem;
   font-weight: 800;
   color: var(--gold);
-  background: rgba(201,168,76,.1);
-  border: 1px solid rgba(201,168,76,.25);
+  background: rgba(231,169,50,.1);
+  border: 1px solid rgba(231,169,50,.25);
   border-radius: 6px;
   padding: .1rem .6rem;
   min-width: 64px;
@@ -488,7 +473,7 @@ img { max-width: 100%; display: block; }
 
 .info-card {
   background: var(--navy-mid);
-  border: 1px solid rgba(201,168,76,.12);
+  border: 1px solid rgba(231,169,50,.12);
   border-radius: var(--radius);
   padding: 1.8rem 1.5rem;
   text-align: center;
@@ -588,6 +573,7 @@ img { max-width: 100%; display: block; }
   .footer-logo { width: 42px; height: 42px; }
   .footer-bottom { align-items: flex-start; flex-direction: column; gap: .3rem; }
   .footer-credit { text-align: left; }
+
 }
 
 /* ── Classifica Table ────────────────────────────────────── */
@@ -603,8 +589,8 @@ img { max-width: 100%; display: block; }
   text-transform: uppercase;
   letter-spacing: .07em;
   color: var(--gold);
-  background: rgba(201,168,76,.08);
-  border-bottom: 2px solid rgba(201,168,76,.2);
+  background: rgba(231,169,50,.08);
+  border-bottom: 2px solid rgba(231,169,50,.2);
   padding: .7rem .6rem;
   text-align: center;
   white-space: nowrap;
@@ -615,7 +601,7 @@ img { max-width: 100%; display: block; }
   border-bottom: 1px solid rgba(255,255,255,.05);
   transition: background var(--transition);
 }
-.standings-table tbody tr:hover { background: rgba(201,168,76,.05); }
+.standings-table tbody tr:hover { background: rgba(231,169,50,.05); }
 
 .standings-table td {
   padding: .65rem .6rem;
@@ -863,8 +849,8 @@ html.motion-ready [data-reveal].is-visible {
     max-height: calc(100dvh - var(--nav-h));
     margin:0;
     padding:1rem .9rem 2rem;
-    background:#122338;
-    border-top:1px solid rgba(201,168,76,.24);
+    background:var(--navy-900);
+    border-top:1px solid rgba(231,169,50,.24);
     box-shadow:0 12px 28px rgba(0,0,0,.4);
     flex-direction: column;
     align-items:stretch;
@@ -902,7 +888,7 @@ html.motion-ready [data-reveal].is-visible {
   .nav-links a.active,
   .nav-links a:hover {
     color:var(--gold);
-    background:rgba(201,168,76,.12);
+    background:rgba(231,169,50,.12);
   }
 
   .nav-backdrop {

@@ -127,6 +127,12 @@ ruoli `uploader`/`editor`: vanno prima riassegnati o rimossi.
 Dopo le migrazioni, creare o assegnare gli account dalla pagina **Utenti**.
 Gli account `uploader` devono avere almeno una edizione assegnata.
 
+Se l'archivio foto e le sue tabelle sono già installati ma la colonna
+`admin.role` non include ancora `uploader` ed `editor`, applicare una volta
+`assets/sql/migration_admin_ruoli_photo.sql` al database del sito. In
+phpMyAdmin selezionare il database corretto, aprire **Importa** e caricare
+quel file. La modifica conserva gli account e i ruoli esistenti.
+
 ## Configurazione
 
 Variabili d'ambiente lette da `includes/config.php`:

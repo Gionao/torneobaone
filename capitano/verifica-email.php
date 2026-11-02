@@ -37,10 +37,11 @@ if ($token === '') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verifica account — <?= htmlspecialchars(SITE_NAME) ?></title>
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <style>
     body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy); }
-    .card { width: min(100%, 520px); background: var(--navy-mid); border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 2rem; }
+    .card { width: min(100%, 520px); background: var(--navy-mid); border: 1px solid rgba(231,169,50,.18); border-radius: 12px; padding: 2rem; }
     h1 { font-family: 'Barlow Condensed', sans-serif; letter-spacing: .08em; color: var(--gold); text-transform: uppercase; }
   </style>
 </head>

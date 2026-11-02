@@ -211,11 +211,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Registrazione capitano — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
   <style>
     body { background: var(--navy); }
-    .auth-card { max-width: 760px; margin: 2rem auto; background: var(--navy-mid); border:1px solid rgba(201,168,76,.18); border-radius: var(--radius); padding: 2rem; }
+    .auth-card { max-width: 760px; margin: 2rem auto; background: var(--navy-mid); border:1px solid rgba(231,169,50,.18); border-radius: var(--radius); padding: 2rem; }
     .brand { text-align:center; margin-bottom: 1.2rem; }
     .brand img { width: 52px; margin:0 auto 0.7rem; }
     .brand h1 { font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.08em; color:var(--gold); }
@@ -240,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php if ($iscrizioniAperte): ?><form method="post" class="admin-form" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(capitano_csrf_token()) ?>">
 
-    <fieldset style="border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <fieldset style="border: 1px solid rgba(231,169,50,.18); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
       <legend style="padding: 0 .5rem; color: var(--gold); font-weight: 700;">Step 1 - Registrazione squadra</legend>
       <div class="grid2">
         <div class="form-group">
@@ -265,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </fieldset>
 
-    <fieldset style="border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <fieldset style="border: 1px solid rgba(231,169,50,.18); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
       <legend style="padding: 0 .5rem; color: var(--gold); font-weight: 700;">Step 2 - Registrazione capitano</legend>
       <div class="grid2">
         <div class="form-group">

@@ -84,6 +84,7 @@ if ($hasScore) {
   <title><?= htmlspecialchars($partita['nome_casa']) ?> vs <?= htmlspecialchars($partita['nome_osp']) ?> — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-4">
 </head>
 <body>
@@ -260,7 +261,7 @@ if ($hasScore) {
 .breadcrumb a { color:var(--muted); } .breadcrumb a:hover { color:var(--gold); }
 
 /* Match hero */
-.match-hero { padding: 2rem 0 3rem; background: var(--navy-mid); border-bottom: 1px solid rgba(201,168,76,.1); }
+.match-hero { padding: 2rem 0 3rem; background: var(--navy-mid); border-bottom: 1px solid rgba(231,169,50,.1); }
 .match-hero-badge { display:flex; gap:.7rem; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem; font-size:.8rem; color:var(--muted); }
 
 /* Scoreboard */
@@ -277,7 +278,7 @@ if ($hasScore) {
 .msb-name { font-family:'Barlow Condensed',sans-serif; font-size:clamp(1.1rem,3vw,1.8rem); font-weight:700; }
 .msb-logo { width:60px; height:60px; object-fit:contain; }
 .msb-dot  { width:50px; height:50px; border-radius:50%; }
-.msb-winner-badge { font-family:'Barlow Condensed',sans-serif; font-size:.7rem; letter-spacing:.1em; background:rgba(201,168,76,.15); color:var(--gold); border-radius:4px; padding:.1rem .5rem; }
+.msb-winner-badge { font-family:'Barlow Condensed',sans-serif; font-size:.7rem; letter-spacing:.1em; background:rgba(231,169,50,.15); color:var(--gold); border-radius:4px; padding:.1rem .5rem; }
 
 .msb-scorers { list-style:none; font-size:.82rem; color:var(--muted); margin-top:.3rem; }
 .msb-scorers li { display:flex; align-items:center; gap:.3rem; justify-content:flex-end; }
@@ -303,7 +304,7 @@ if ($hasScore) {
 .event-min  { font-family:'Barlow Condensed',sans-serif; font-weight:700; color:var(--muted); font-size:.85rem; white-space:nowrap; }
 
 /* MVP */
-.mvp-card { display:flex; align-items:center; gap:1rem; background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.2); border-radius:10px; padding:1rem 1.2rem; }
+.mvp-card { display:flex; align-items:center; gap:1rem; background:rgba(231,169,50,.08); border:1px solid rgba(231,169,50,.2); border-radius:10px; padding:1rem 1.2rem; }
 .mvp-star { font-size:2rem; }
 .mvp-name { font-family:'Barlow Condensed',sans-serif; font-size:1.3rem; font-weight:700; color:var(--gold); display:block; }
 .mvp-team { font-size:.82rem; }
