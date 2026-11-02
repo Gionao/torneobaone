@@ -21,6 +21,7 @@ $cssVersione = @filemtime(dirname(__DIR__) . '/assets/css/archivio.css') ?: time
   <title><?= media_h($pageTitle ?? 'Archivio') ?> — <?= media_h(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= media_h(SITE_URL) ?>/assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="<?= media_h(SITE_URL) ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= media_h(SITE_URL) ?>/assets/css/admin.css">
   <link rel="stylesheet" href="<?= media_h(MEDIA_ROOT_URL) ?>/assets/css/archivio.css?v=<?= (int) $cssVersione ?>">

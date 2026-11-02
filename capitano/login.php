@@ -49,11 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Login capitano — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
   <style>
     body { background: var(--navy); }
-    .auth-card { max-width: 430px; margin: 4rem auto; background: var(--navy-mid); border:1px solid rgba(201,168,76,.18); border-radius: var(--radius); padding: 2rem; }
+    .auth-card { max-width: 430px; margin: 4rem auto; background: var(--navy-mid); border:1px solid rgba(231,169,50,.18); border-radius: var(--radius); padding: 2rem; }
     .brand { text-align:center; margin-bottom: 1.2rem; }
     .brand img { width: 52px; margin: 0 auto 0.7rem; }
     .brand h1 { font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.08em; color:var(--gold); }

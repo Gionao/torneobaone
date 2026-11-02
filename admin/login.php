@@ -13,15 +13,9 @@ session_start_secure();
 
 // Se già loggato, vai alla dashboard corretta
 if (is_admin_logged()) {
-    $account = admin_current_account();
-    $ruolo = (string) ($account['role'] ?? '');
-    $destinazione = match ($ruolo) {
-        'uploader', 'editor' => ARCHIVIO_URL . '/index.php',
-        'telecronista' => TELECRONISTA_URL . '/index.php',
-        'operatore', 'bar', 'cucina' => POS_URL . '/login.php',
-        'admin' => 'index.php',
-        default => ADMIN_PATH . '/login.php',
-    };
+    $destinazione = in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)
+        ? ARCHIVIO_URL . '/index.php'
+        : 'index.php';
     header('Location: ' . $destinazione);
     exit;
 }
@@ -38,13 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Messaggio vago per non rivelare se l'username esiste
         $errore = 'Credenziali non valide. Riprova.';
     } else {
-        $ruolo = (string) ($_SESSION['admin_role'] ?? '');
-        $destinazione = match ($ruolo) {
-            'uploader', 'editor' => ARCHIVIO_URL . '/index.php',
-            'telecronista' => TELECRONISTA_URL . '/index.php',
-            'operatore', 'bar', 'cucina' => POS_URL . '/login.php',
-            default => 'index.php',
-        };
+        $destinazione = in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)
+            ? ARCHIVIO_URL . '/index.php'
+            : 'index.php';
         header('Location: ' . $destinazione);
         exit;
     }
@@ -57,16 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login — <?= SITE_NAME ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/tokens.css?v=redesign-1">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --navy:  #0d1b2a;
-      --gold:  #c9a84c;
-      --white: #f0f4f8;
-      --red:   #d94f4f;
-    }
+    /* Colour tokens come from assets/css/tokens.css */
 
     body {
       min-height: 100vh;
@@ -75,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       justify-content: center;
       background: var(--navy);
       background-image:
-        radial-gradient(ellipse at 20% 50%, rgba(201,168,76,.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba(201,168,76,.06) 0%, transparent 50%);
+        radial-gradient(ellipse at 20% 50%, rgba(231,169,50,.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(231,169,50,.06) 0%, transparent 50%);
       font-family: 'Barlow', sans-serif;
     }
 
@@ -85,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       max-width: 380px;
       padding: 2.5rem 2rem;
       background: rgba(255,255,255,.04);
-      border: 1px solid rgba(201,168,76,.25);
+      border: 1px solid rgba(231,169,50,.25);
       border-radius: 12px;
       box-shadow: 0 24px 60px rgba(0,0,0,.5);
     }
@@ -97,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .login-logo img {
       width: 90px;
-      filter: drop-shadow(0 4px 12px rgba(201,168,76,.3));
+      filter: drop-shadow(0 4px 12px rgba(231,169,50,.3));
     }
 
     h1 {
@@ -112,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .subtitle {
       text-align: center;
-      color: rgba(240,244,248,.45);
+      color: rgba(241,245,247,.45);
       font-size: .8rem;
       margin-bottom: 2rem;
     }
@@ -121,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       display: block;
       font-size: .78rem;
       font-weight: 500;
-      color: rgba(240,244,248,.6);
+      color: rgba(241,245,247,.6);
       text-transform: uppercase;
       letter-spacing: .06em;
       margin-bottom: .4rem;
@@ -132,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       width: 100%;
       padding: .7rem 1rem;
       background: rgba(255,255,255,.06);
-      border: 1px solid rgba(201,168,76,.2);
+      border: 1px solid rgba(231,169,50,.2);
       border-radius: 6px;
       color: var(--white);
       font-family: 'Barlow', sans-serif;
@@ -144,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     input:focus {
       border-color: var(--gold);
-      background: rgba(201,168,76,.06);
+      background: rgba(231,169,50,.06);
     }
 
     .btn-login {
@@ -181,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       display: block;
       text-align: center;
       margin-top: 1.4rem;
-      color: rgba(240,244,248,.35);
+      color: rgba(241,245,247,.35);
       font-size: .8rem;
       text-decoration: none;
       transition: color .2s;

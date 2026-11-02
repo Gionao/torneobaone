@@ -40,6 +40,7 @@ $data_torneo = '2026-07-05 21:00:00';
   <link rel="icon" type="image/x-icon" href="assets/img/logo_torneo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="assets/css/style.css?v=public-menu-4">
 </head>
 <body>

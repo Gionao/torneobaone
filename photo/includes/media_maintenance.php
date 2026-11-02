@@ -40,9 +40,19 @@ function media_pulizia_cestino(): int
 {
     $n = 0;
     foreach (media_file_eliminati_scaduti(media_retention_days()) as $file) {
-        if (media_elimina_definitivamente((int) $file['id'])) {
-            $n++;
+        $record = media_file_elimina_record((int) $file['id']);
+        if (!$record) {
+            continue;
         }
+        media_storage_delete((string) $record['percorso']);
+        if (!empty($record['miniatura'])) {
+            media_storage_delete((string) $record['miniatura']);
+        }
+        media_log('file_eliminato_definitivamente', 'media_file', (int) $record['id'], [
+            'uuid'   => $record['uuid'],
+            'sha256' => $record['sha256'],
+        ]);
+        $n++;
     }
     return $n;
 }
@@ -69,77 +79,17 @@ function media_pulizia_quarantena(int $giorni = 30): int
 /** Elimina definitivamente un singolo file dal cestino. */
 function media_elimina_definitivamente(int $id): bool
 {
-    $record = media_file($id);
-    if (!$record || empty($record['eliminato_il'])) {
+    $record = media_file_elimina_record($id);
+    if (!$record) {
         return false;
     }
-
-    $fileDaRipristinare = [];
-    try {
-        foreach (array_filter([
-            (string) $record['percorso'],
-            (string) ($record['miniatura'] ?? ''),
-        ]) as $percorso) {
-            $quarantinato = media_storage_quarantina($percorso);
-            if ($quarantinato !== null) {
-                $fileDaRipristinare[] = [
-                    'quarantinato' => $quarantinato,
-                    'originale' => $percorso,
-                ];
-            }
-        }
-    } catch (Throwable $e) {
-        media_ripristina_file_quarantinati($fileDaRipristinare, $e);
-        throw $e;
+    media_storage_delete((string) $record['percorso']);
+    if (!empty($record['miniatura'])) {
+        media_storage_delete((string) $record['miniatura']);
     }
-
-    try {
-        if (!media_file_elimina_record($id)) {
-            media_ripristina_file_quarantinati($fileDaRipristinare);
-            return false;
-        }
-    } catch (Throwable $e) {
-        media_ripristina_file_quarantinati($fileDaRipristinare, $e);
-        throw $e;
-    }
-
-    foreach ($fileDaRipristinare as $file) {
-        $path = media_storage_path($file['quarantinato']);
-        if (is_file($path) && !@unlink($path)) {
-            media_log('file_quarantena_non_eliminata', 'media_file', $id, [
-                'uuid' => $record['uuid'],
-                'percorso' => $file['quarantinato'],
-            ]);
-        }
-    }
-
     media_log('file_eliminato_definitivamente', 'media_file', $id, [
         'uuid'   => $record['uuid'],
         'sha256' => $record['sha256'],
     ]);
     return true;
-}
-
-/**
- * Ripristina i file se la cancellazione del record database non riesce.
- *
- * @param list<array{quarantinato:string, originale:string}> $file
- */
-function media_ripristina_file_quarantinati(array $file, ?Throwable $causa = null): void
-{
-    $nonRipristinati = [];
-    foreach (array_reverse($file) as $elemento) {
-        if (!media_storage_ripristina_quarantena($elemento['quarantinato'], $elemento['originale'])) {
-            $nonRipristinati[] = $elemento['originale'];
-        }
-    }
-
-    if ($nonRipristinati !== []) {
-        throw new RuntimeException(
-            'Eliminazione interrotta; non è stato possibile ripristinare tutti i file: '
-            . implode(', ', $nonRipristinati),
-            0,
-            $causa
-        );
-    }
 }

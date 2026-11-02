@@ -47,10 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Password dimenticata — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <style>
     body { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--navy); }
-    .card { width:min(100%, 440px); background:var(--navy-mid); border:1px solid rgba(201,168,76,.18); border-radius:10px; padding:2rem; }
+    .card { width:min(100%, 440px); background:var(--navy-mid); border:1px solid rgba(231,169,50,.18); border-radius:10px; padding:2rem; }
     h1 { font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; color:var(--gold); letter-spacing:.08em; }
   </style>
 </head>

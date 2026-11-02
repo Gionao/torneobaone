@@ -30,15 +30,6 @@ function db(): PDO
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
-            if (defined('POS_API') && POS_API) {
-                http_response_code(500);
-                header('Content-Type: application/json; charset=utf-8');
-                echo json_encode(
-                    ['success' => false, 'data' => null, 'error' => 'Database non disponibile'],
-                    JSON_UNESCAPED_UNICODE
-                );
-                exit;
-            }
             if (DEBUG_MODE) {
                 // Dettaglio completo in locale — mai in produzione
                 http_response_code(503);

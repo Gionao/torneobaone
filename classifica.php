@@ -59,6 +59,7 @@ $msgClassificaVuota = [
   <title>Classifica — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="assets/css/style.css?v=public-menu-4">
 </head>
 <body>
@@ -178,7 +179,7 @@ $msgClassificaVuota = [
 
 <style>
 .standings-wrap { margin-bottom: 1rem; }
-.standings-table-outer { overflow-x: auto; border-radius: var(--radius); border: 1px solid rgba(201,168,76,.12); }
+.standings-table-outer { overflow-x: auto; border-radius: var(--radius); border: 1px solid rgba(231,169,50,.12); }
 .pts-col { font-size: .95rem !important; }
 .team-name-cell { display: flex; align-items: center; gap: .5rem; }
 .team-color-dot { display:inline-block; width:10px; height:10px; border-radius:50%; flex-shrink:0; }

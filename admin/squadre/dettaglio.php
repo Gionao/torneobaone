@@ -95,8 +95,8 @@ require_once __DIR__ . '/../_header.php';
 <?php endforeach; ?></tr>
 <?php endforeach; ?></tbody></table></div><?php endif; ?>
 <style>
-.captain-check-row { background:rgba(201,168,76,.09); box-shadow:inset 4px 0 0 var(--gold); }
-.captain-check-badge { display:inline-block;margin:.15rem 0 .3rem;padding:.12rem .4rem;border-radius:4px;background:var(--gold);color:#0d1b2a;font-size:.65rem;font-weight:800;letter-spacing:.06em; }
+.captain-check-row { background:rgba(231,169,50,.09); box-shadow:inset 4px 0 0 var(--gold); }
+.captain-check-badge { display:inline-block;margin:.15rem 0 .3rem;padding:.12rem .4rem;border-radius:4px;background:var(--gold);color:var(--navy-800);font-size:.65rem;font-weight:800;letter-spacing:.06em; }
 .team-authorization { margin-bottom:1.5rem; }
 .team-authorization-label { display:flex;align-items:center;gap:.65rem;font-weight:700; }
 .team-authorization-label input { width:1.15rem;height:1.15rem;accent-color:#6ddfab; }

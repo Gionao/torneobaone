@@ -19,6 +19,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   <title>Iscrizione & Regolamento — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-4">
 </head>
 <body>
@@ -273,7 +274,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   margin: 0 auto;
   padding: 2rem;
   background: var(--navy-mid);
-  border: 1px solid rgba(201,168,76,.12);
+  border: 1px solid rgba(231,169,50,.12);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -308,7 +309,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   width: 100%;
   padding: .75rem .9rem;
   background: rgba(255,255,255,.04);
-  border: 1px solid rgba(201,168,76,.18);
+  border: 1px solid rgba(231,169,50,.18);
   border-radius: 8px;
   color: var(--white);
   font-family: 'Barlow', sans-serif;
@@ -319,7 +320,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
 
 .team-form-group input:focus {
   border-color: var(--gold);
-  background: rgba(201,168,76,.05);
+  background: rgba(231,169,50,.05);
 }
 
 .team-checklist {
@@ -333,7 +334,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   align-items: flex-start;
   gap: .7rem;
   padding: .8rem .9rem;
-  border: 1px solid rgba(201,168,76,.12);
+  border: 1px solid rgba(231,169,50,.12);
   border-radius: 8px;
   background: rgba(255,255,255,.02);
   color: var(--white);
@@ -375,7 +376,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
 .iscr-hero {
   padding: 4rem 0 3.5rem;
   background: var(--navy-mid);
-  border-bottom: 1px solid rgba(201,168,76,.1);
+  border-bottom: 1px solid rgba(231,169,50,.1);
 }
 .iscr-hero-inner {
   display: flex;
@@ -414,7 +415,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
 .iscr-hero-note {
   margin-top: .8rem;
   font-size: .75rem;
-  color: rgba(240,244,248,.3);
+  color: rgba(241,245,247,.3);
   letter-spacing: .03em;
 }
 
@@ -425,8 +426,8 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   flex-wrap: wrap;
 }
 .badge-inner {
-  background: rgba(201,168,76,.06);
-  border: 1px solid rgba(201,168,76,.2);
+  background: rgba(231,169,50,.06);
+  border: 1px solid rgba(231,169,50,.2);
   border-radius: 12px;
   padding: 1.2rem 1.5rem;
   text-align: center;
@@ -464,7 +465,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   text-transform: uppercase;
   text-decoration: none;
   transition: var(--transition);
-  box-shadow: 0 4px 24px rgba(201,168,76,.3);
+  box-shadow: 0 4px 24px rgba(231,169,50,.3);
   position: relative;
   overflow: hidden;
 }
@@ -481,7 +482,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   background: var(--gold-bright);
   color: var(--navy);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(201,168,76,.45);
+  box-shadow: 0 8px 32px rgba(231,169,50,.45);
 }
 .btn-iscriviti-icon { display: flex; align-items: center; }
 .btn-iscriviti-arrow {
@@ -507,7 +508,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   min-width: 190px;
   max-width: 240px;
   background: var(--navy-mid);
-  border: 1px solid rgba(201,168,76,.12);
+  border: 1px solid rgba(231,169,50,.12);
   border-radius: var(--radius);
   padding: 1.8rem 1.4rem;
   text-align: center;
@@ -515,10 +516,10 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   transition: var(--transition);
 }
 .step-flow-card:hover {
-  border-color: rgba(201,168,76,.35);
+  border-color: rgba(231,169,50,.35);
   transform: translateY(-3px);
 }
-.step-flow-card--last { border-color: rgba(201,168,76,.08); }
+.step-flow-card--last { border-color: rgba(231,169,50,.08); }
 
 .step-flow-num {
   position: absolute;
@@ -563,7 +564,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   text-transform: uppercase;
   color: var(--gold);
   text-decoration: none;
-  border-bottom: 1px solid rgba(201,168,76,.3);
+  border-bottom: 1px solid rgba(231,169,50,.3);
   padding-bottom: 1px;
   transition: var(--transition);
 }
@@ -601,12 +602,12 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
   align-items: center;
   gap: 1.2rem;
   background: var(--navy);
-  border: 1px solid rgba(201,168,76,.15);
+  border: 1px solid rgba(231,169,50,.15);
   border-radius: var(--radius);
   padding: 1.4rem 1.6rem;
   transition: var(--transition);
 }
-.doc-card:hover { border-color: rgba(201,168,76,.4); transform: translateY(-2px); }
+.doc-card:hover { border-color: rgba(231,169,50,.4); transform: translateY(-2px); }
 .doc-icon { font-size: 2.2rem; flex-shrink: 0; }
 .doc-body { flex: 1; }
 .doc-body h3 {
@@ -628,12 +629,12 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
 }
 .organizer-card {
   background: var(--navy-mid);
-  border: 1px solid rgba(201,168,76,.12);
+  border: 1px solid rgba(231,169,50,.12);
   border-radius: var(--radius);
   padding: 1.8rem;
   transition: var(--transition);
 }
-.organizer-card:hover { border-color: rgba(201,168,76,.3); }
+.organizer-card:hover { border-color: rgba(231,169,50,.3); }
 .org-avatar {
   width: 56px; height: 56px;
   border-radius: 50%;
@@ -673,8 +674,8 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
 .org-phone:hover { background: rgba(76,143,201,.25); color: #7bb8e8; }
 .org-whatsapp  { background: rgba(37,211,102,.1);  border: 1px solid rgba(37,211,102,.25); }
 .org-whatsapp:hover { background: rgba(37,211,102,.22); color: #4ddb7a; }
-.org-email     { background: rgba(201,168,76,.08); border: 1px solid rgba(201,168,76,.2); }
-.org-email:hover { background: rgba(201,168,76,.18); color: var(--gold); }
+.org-email     { background: rgba(231,169,50,.08); border: 1px solid rgba(231,169,50,.2); }
+.org-email:hover { background: rgba(231,169,50,.18); color: var(--gold); }
 
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 700px) {
@@ -689,7 +690,7 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
 // Navbar scroll
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').style.background =
-    window.scrollY > 40 ? 'rgba(13,27,42,.98)' : 'rgba(13,27,42,.92)';
+    window.scrollY > 40 ? 'rgba(4,28,46,.98)' : 'rgba(4,28,46,.92)';
 }, { passive: true });
 </script>
 

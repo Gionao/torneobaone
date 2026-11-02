@@ -1,21 +1,4 @@
--- Schema POS standalone: crea il database e la tabella condivisa `admin`
--- se non sono già state create dallo schema torneo.
-CREATE DATABASE IF NOT EXISTS `my_torneobaone`
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
 USE `my_torneobaone`;
-SET NAMES utf8mb4;
-
-CREATE TABLE IF NOT EXISTS `admin` (
-  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `username`      VARCHAR(60) NOT NULL,
-  `password_hash` VARCHAR(255) NOT NULL,
-  `role`          ENUM('admin','operatore','bar','cucina','telecronista','uploader','editor') NOT NULL DEFAULT 'admin',
-  `station_name`  VARCHAR(80) NULL DEFAULT NULL,
-  `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_admin_username` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
 -- TABELLE POS
@@ -96,18 +79,14 @@ CREATE TABLE IF NOT EXISTS `pos_orders` (
   `covers`        TINYINT UNSIGNED NOT NULL DEFAULT 1,
   `cover_fee`     DECIMAL(8,2) NOT NULL DEFAULT 0.00,
   `takeaway_fee`  DECIMAL(8,2) NOT NULL DEFAULT 0.00,
-  `admin_id`      INT UNSIGNED NULL DEFAULT NULL,
+  `admin_id`      INT UNSIGNED NOT NULL,
   `station_name`  VARCHAR(80) NULL DEFAULT NULL,
   `status`        ENUM('pending','preparing','ready','delivered','cancelled') NOT NULL DEFAULT 'pending',
   `total_amount`  DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_pos_orders_date` (`created_at`),
-  KEY `idx_pos_orders_status` (`status`),
-  KEY `idx_pos_orders_admin` (`admin_id`),
-  CONSTRAINT `fk_pos_orders_admin`
-    FOREIGN KEY (`admin_id`) REFERENCES `admin` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+  KEY `idx_pos_orders_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `pos_order_items` (

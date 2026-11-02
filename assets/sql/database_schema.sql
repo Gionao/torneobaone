@@ -1,14 +1,13 @@
 -- ============================================================
---  Schema combinato torneo + POS + drive (database canonico applicativo)
---  Include torneo, POS e archivio foto/video: script completo per
---  installazioni nuove. Gli schemi per modulo restano disponibili separatamente.
+--  TORNEO CALCIO A 5 - BAONE 2026
+--  Schema Database per phpMyAdmin / Altervista MySQL
 --  Charset: utf8mb4  |  Collation: utf8mb4_unicode_ci
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS `my_torneobaone`
+CREATE DATABASE IF NOT EXISTS `torneobaone`
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
-USE `my_torneobaone`;
+USE `torneobaone`;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+02:00";
 
@@ -26,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Utente admin di default  (password: admin — DA CAMBIARE subito)
-INSERT IGNORE INTO `admin` (`username`, `password_hash`) VALUES
+INSERT INTO `admin` (`username`, `password_hash`) VALUES
 ('admin', '$2y$10$ZVqAQkZ.6NVKkBofUpIj6uideKqYape41nHFimOaUtjl2qHtKvQjK');
 -- ^ hash generato con: password_hash('Admin2026!', PASSWORD_BCRYPT, ['cost'=>12])
 -- IMPORTANTE: rigenera questo hash con la tua password reale prima del deploy!
@@ -53,18 +52,12 @@ CREATE TABLE IF NOT EXISTS `fasi` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `fasi` (`nome`, `ordine`)
-SELECT d.`nome`, d.`ordine`
-FROM (
-  SELECT 'Girone' AS `nome`, 1 AS `ordine`
-  UNION ALL SELECT 'Playoff', 2
-  UNION ALL SELECT 'Semifinale', 3
-  UNION ALL SELECT 'Finale 3°/4°', 4
-  UNION ALL SELECT 'Finale 1°/2°', 5
-) d
-WHERE NOT EXISTS (
-  SELECT 1 FROM `fasi` f WHERE f.`nome` = d.`nome` OR f.`ordine` = d.`ordine`
-);
+INSERT INTO `fasi` (`nome`, `ordine`) VALUES
+('Girone',           1),
+('Playoff',          2),
+('Semifinale',       3),
+('Finale 3°/4°',     4),
+('Finale 1°/2°',     5);
 
 
 -- ------------------------------------------------------------
@@ -139,7 +132,6 @@ CREATE TABLE IF NOT EXISTS `giocatori` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DELIMITER //
-DROP TRIGGER IF EXISTS `trg_giocatori_max_nove_insert`//
 CREATE TRIGGER `trg_giocatori_max_nove_insert`
 BEFORE INSERT ON `giocatori`
 FOR EACH ROW
@@ -151,7 +143,6 @@ BEGIN
   END IF;
 END//
 
-DROP TRIGGER IF EXISTS `trg_giocatori_max_nove_update`//
 CREATE TRIGGER `trg_giocatori_max_nove_update`
 BEFORE UPDATE ON `giocatori`
 FOR EACH ROW
@@ -477,18 +468,14 @@ CREATE TABLE IF NOT EXISTS `pos_orders` (
   `covers`        TINYINT UNSIGNED NOT NULL DEFAULT 1,
   `cover_fee`     DECIMAL(8,2) NOT NULL DEFAULT 0.00,
   `takeaway_fee`  DECIMAL(8,2) NOT NULL DEFAULT 0.00,
-  `admin_id`      INT UNSIGNED NULL DEFAULT NULL,
+  `admin_id`      INT UNSIGNED NOT NULL,
   `station_name`  VARCHAR(80) NULL DEFAULT NULL,
   `status`        ENUM('pending','preparing','ready','delivered','cancelled') NOT NULL DEFAULT 'pending',
   `total_amount`  DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_pos_orders_date` (`created_at`),
-  KEY `idx_pos_orders_status` (`status`),
-  KEY `idx_pos_orders_admin` (`admin_id`),
-  CONSTRAINT `fk_pos_orders_admin`
-    FOREIGN KEY (`admin_id`) REFERENCES `admin` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+  KEY `idx_pos_orders_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `pos_order_items` (
@@ -528,222 +515,6 @@ CREATE TABLE IF NOT EXISTS `pos_order_item_modifications` (
     FOREIGN KEY (`ingredient_id`) REFERENCES `pos_ingredients` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
--- DRIVE FOTO/VIDEO
--- Le definizioni restano allineate a database_schema_photo.sql.
--- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `media_edizioni` (
-  `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `nome`         VARCHAR(120) NOT NULL,
-  `anno`         SMALLINT UNSIGNED NOT NULL,
-  `descrizione`  TEXT NULL DEFAULT NULL,
-  `data_inizio`  DATE NULL DEFAULT NULL,
-  `data_fine`    DATE NULL DEFAULT NULL,
-  `attiva`       TINYINT(1) NOT NULL DEFAULT 1,
-  `creata_da`    INT UNSIGNED NULL DEFAULT NULL,
-  `created_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_media_edizioni_anno` (`anno`),
-  KEY `idx_media_edizioni_attiva` (`attiva`),
-  CONSTRAINT `fk_media_edizioni_admin`
-    FOREIGN KEY (`creata_da`) REFERENCES `admin` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `media_giornate` (
-  `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `id_edizione`  INT UNSIGNED NOT NULL,
-  `nome`         VARCHAR(120) NOT NULL,
-  `data_evento`  DATE NULL DEFAULT NULL,
-  `ordine`       SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-  `note`         TEXT NULL DEFAULT NULL,
-  `created_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_media_giornate_edizione` (`id_edizione`, `ordine`),
-  UNIQUE KEY `uq_media_giornate_edizione_id` (`id_edizione`, `id`),
-  CONSTRAINT `fk_media_giornate_edizione`
-    FOREIGN KEY (`id_edizione`) REFERENCES `media_edizioni` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `media_album` (
-  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `id_giornata`   INT UNSIGNED NOT NULL,
-  `nome`          VARCHAR(120) NOT NULL,
-  `descrizione`   TEXT NULL DEFAULT NULL,
-  `ordine`        SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-  `copertina_id`  BIGINT UNSIGNED NULL DEFAULT NULL,
-  `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_media_album_giornata` (`id_giornata`, `ordine`),
-  UNIQUE KEY `uq_media_album_giornata_id` (`id_giornata`, `id`),
-  CONSTRAINT `fk_media_album_giornata`
-    FOREIGN KEY (`id_giornata`) REFERENCES `media_giornate` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `media_file` (
-  `id`              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `uuid`            CHAR(36) NOT NULL,
-  `id_edizione`     INT UNSIGNED NOT NULL,
-  `id_giornata`     INT UNSIGNED NOT NULL,
-  `id_album`        INT UNSIGNED NOT NULL,
-  `tipo`            ENUM('foto','video') NOT NULL,
-  `nome_originale`  VARCHAR(255) NOT NULL,
-  `nome_file`       VARCHAR(160) NOT NULL,
-  `percorso`        VARCHAR(255) NOT NULL,
-  `miniatura`       VARCHAR(255) NULL DEFAULT NULL,
-  `mime_type`       VARCHAR(100) NOT NULL,
-  `estensione`      VARCHAR(10) NOT NULL,
-  `dimensione`      BIGINT UNSIGNED NOT NULL,
-  `sha256`          CHAR(64) NOT NULL,
-  `larghezza`       INT UNSIGNED NULL DEFAULT NULL,
-  `altezza`         INT UNSIGNED NULL DEFAULT NULL,
-  `durata_sec`      INT UNSIGNED NULL DEFAULT NULL,
-  `stato`           ENUM('pronto','senza_miniatura','errore') NOT NULL DEFAULT 'pronto',
-  `id_uploader`     INT UNSIGNED NULL DEFAULT NULL,
-  `eliminato_il`    DATETIME NULL DEFAULT NULL,
-  `eliminato_da`    INT UNSIGNED NULL DEFAULT NULL,
-  `created_at`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_media_file_uuid` (`uuid`),
-  KEY `idx_media_file_album` (`id_album`, `eliminato_il`),
-  KEY `idx_media_file_giornata` (`id_giornata`),
-  KEY `idx_media_file_edizione` (`id_edizione`),
-  KEY `idx_media_file_sha256` (`sha256`),
-  KEY `idx_media_file_uploader` (`id_uploader`),
-  KEY `idx_media_file_created` (`created_at`),
-  CONSTRAINT `fk_media_file_edizione`
-    FOREIGN KEY (`id_edizione`) REFERENCES `media_edizioni` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_file_giornata`
-    FOREIGN KEY (`id_giornata`) REFERENCES `media_giornate` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_file_edizione_giornata`
-    FOREIGN KEY (`id_edizione`, `id_giornata`) REFERENCES `media_giornate` (`id_edizione`, `id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_file_album`
-    FOREIGN KEY (`id_album`) REFERENCES `media_album` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_file_giornata_album`
-    FOREIGN KEY (`id_giornata`, `id_album`) REFERENCES `media_album` (`id_giornata`, `id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_file_uploader`
-    FOREIGN KEY (`id_uploader`) REFERENCES `admin` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_file_eliminato_da`
-    FOREIGN KEY (`eliminato_da`) REFERENCES `admin` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `media_upload` (
-  `id`                   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `uuid`                 CHAR(36) NOT NULL,
-  `id_admin`             INT UNSIGNED NULL DEFAULT NULL,
-  `id_album`             INT UNSIGNED NOT NULL,
-  `nome_originale`       VARCHAR(255) NOT NULL,
-  `dimensione_totale`    BIGINT UNSIGNED NOT NULL,
-  `dimensione_ricevuta`  BIGINT UNSIGNED NOT NULL DEFAULT 0,
-  `chunk_size`           INT UNSIGNED NOT NULL,
-  `numero_chunk`         INT UNSIGNED NOT NULL,
-  `chunk_ricevuti`       INT UNSIGNED NOT NULL DEFAULT 0,
-  `sha256_finale`        CHAR(64) NULL DEFAULT NULL,
-  `stato`                ENUM('in_corso','completato','annullato','errore') NOT NULL DEFAULT 'in_corso',
-  `percorso_tmp`         VARCHAR(255) NOT NULL,
-  `errore`               VARCHAR(255) NULL DEFAULT NULL,
-  `created_at`           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `completato_il`        DATETIME NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_media_upload_uuid` (`uuid`),
-  KEY `idx_media_upload_admin` (`id_admin`, `stato`),
-  KEY `idx_media_upload_stato` (`stato`, `updated_at`),
-  KEY `idx_media_upload_album` (`id_album`),
-  CONSTRAINT `fk_media_upload_admin`
-    FOREIGN KEY (`id_admin`) REFERENCES `admin` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_upload_album`
-    FOREIGN KEY (`id_album`) REFERENCES `media_album` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `media_zip_job` (
-  `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `uuid`           CHAR(36) NOT NULL,
-  `id_admin`       INT UNSIGNED NULL DEFAULT NULL,
-  `ambito`         ENUM('edizione','giornata','album','selezione') NOT NULL,
-  `id_ambito`      INT UNSIGNED NOT NULL,
-  `file_ids`       TEXT NULL DEFAULT NULL,
-  `stato`          ENUM('in_attesa','in_corso','completato','errore','scaduto') NOT NULL DEFAULT 'in_attesa',
-  `parti`          TEXT NULL DEFAULT NULL,
-  `numero_file`    INT UNSIGNED NULL DEFAULT NULL,
-  `dimensione`     BIGINT UNSIGNED NULL DEFAULT NULL,
-  `errore`         TEXT NULL DEFAULT NULL,
-  `created_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `started_at`     DATETIME NULL DEFAULT NULL,
-  `completato_il`  DATETIME NULL DEFAULT NULL,
-  `scade_il`       DATETIME NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_media_zip_job_uuid` (`uuid`),
-  KEY `idx_media_zip_job_stato` (`stato`, `created_at`),
-  KEY `idx_media_zip_job_admin` (`id_admin`),
-  KEY `idx_media_zip_job_scadenza` (`scade_il`),
-  CONSTRAINT `fk_media_zip_job_admin`
-    FOREIGN KEY (`id_admin`) REFERENCES `admin` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `media_log` (
-  `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `id_admin`    INT UNSIGNED NULL DEFAULT NULL,
-  `azione`      VARCHAR(60) NOT NULL,
-  `entita`      VARCHAR(40) NOT NULL,
-  `id_entita`   BIGINT UNSIGNED NULL DEFAULT NULL,
-  `dettagli`    TEXT NULL DEFAULT NULL,
-  `ip`          VARCHAR(45) NULL DEFAULT NULL,
-  `user_agent`  VARCHAR(255) NULL DEFAULT NULL,
-  `created_at`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_media_log_admin` (`id_admin`),
-  KEY `idx_media_log_entita` (`entita`, `id_entita`),
-  KEY `idx_media_log_created` (`created_at`),
-  CONSTRAINT `fk_media_log_admin`
-    FOREIGN KEY (`id_admin`) REFERENCES `admin` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `media_accesso_edizione` (
-  `id_admin`     INT UNSIGNED NOT NULL,
-  `id_edizione`  INT UNSIGNED NOT NULL,
-  `creato_da`    INT UNSIGNED NULL DEFAULT NULL,
-  `created_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_admin`, `id_edizione`),
-  KEY `idx_media_accesso_edizione` (`id_edizione`),
-  CONSTRAINT `fk_media_accesso_admin`
-    FOREIGN KEY (`id_admin`) REFERENCES `admin` (`id`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_accesso_edizione`
-    FOREIGN KEY (`id_edizione`) REFERENCES `media_edizioni` (`id`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_accesso_creato_da`
-    FOREIGN KEY (`creato_da`) REFERENCES `admin` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT IGNORE INTO `impostazioni` (`chiave`, `valore`, `descrizione`) VALUES
-('media_storage_path',      '',      'Percorso archivio media (vuoto = storage/media nel progetto)'),
-('media_max_upload_mb',     '1024',  'Dimensione massima di un singolo file caricabile (MB)'),
-('media_chunk_mb',          '4',     'Dimensione dei blocchi di upload (MB)'),
-('media_thumb_max_px',      '480',   'Lato massimo delle miniature (pixel)'),
-('media_retention_giorni',  '30',    'Giorni di conservazione nel cestino prima dell''eliminazione definitiva'),
-('media_zip_max_file',      '2000',  'Numero massimo di file per archivio ZIP'),
-('media_zip_max_mb',        '5000',  'Dimensione massima totale di un archivio ZIP (MB)'),
-('media_zip_parte_mb',      '1500',  'Dimensione massima di ogni parte ZIP (MB)'),
-('media_zip_scadenza_ore',  '24',    'Ore di disponibilità di un archivio ZIP generato');
 
 -- ============================================================
 --  VISTE UTILI  (opzionali ma comode per le query della UI)

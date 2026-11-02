@@ -245,8 +245,8 @@ require_once __DIR__ . '/../_header.php';
   <!-- ── Anteprima matchup ────────────────────────────────── -->
   <div id="matchupPreview" style="
     display:none;
-    background:rgba(201,168,76,.06);
-    border:1px solid rgba(201,168,76,.15);
+    background:rgba(231,169,50,.06);
+    border:1px solid rgba(231,169,50,.15);
     border-radius:var(--radius);
     padding:.9rem 1.2rem;
     margin-bottom:1.4rem;

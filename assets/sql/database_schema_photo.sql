@@ -2,35 +2,13 @@
 -- Archivio fotografico — schema completo
 -- Crea le tabelle per il drive foto/video e le relative relazioni.
 --
--- Lo script può essere eseguito da solo: crea database e tabelle condivise
--- minime se mancano. Per un'installazione completa è preferibile
--- database_schema.sql, che crea torneo, POS e drive nello stesso database.
+-- Prerequisito: deve esistere la tabella condivisa `admin`
+-- con `id` di tipo INT UNSIGNED.
+-- I ruoli `uploader` ed `editor` e le impostazioni del drive
+-- sono gestiti dalle migrazioni media_002 e media_003.
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS `my_torneobaone`
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-USE `my_torneobaone`;
 SET NAMES utf8mb4;
-
-CREATE TABLE IF NOT EXISTS `admin` (
-  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `username`      VARCHAR(60) NOT NULL,
-  `password_hash` VARCHAR(255) NOT NULL,
-  `role`          ENUM('admin','operatore','bar','cucina','telecronista','uploader','editor') NOT NULL DEFAULT 'admin',
-  `station_name`  VARCHAR(80) NULL DEFAULT NULL,
-  `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_admin_username` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `impostazioni` (
-  `chiave`      VARCHAR(60) NOT NULL,
-  `valore`      VARCHAR(255) NOT NULL DEFAULT '',
-  `descrizione` VARCHAR(150) NULL DEFAULT NULL,
-  `updated_at`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`chiave`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
 -- Edizioni dell'archivio
@@ -68,7 +46,6 @@ CREATE TABLE IF NOT EXISTS `media_giornate` (
   `updated_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_media_giornate_edizione` (`id_edizione`, `ordine`),
-  UNIQUE KEY `uq_media_giornate_edizione_id` (`id_edizione`, `id`),
   CONSTRAINT `fk_media_giornate_edizione`
     FOREIGN KEY (`id_edizione`) REFERENCES `media_edizioni` (`id`)
     ON DELETE RESTRICT ON UPDATE CASCADE
@@ -88,7 +65,6 @@ CREATE TABLE IF NOT EXISTS `media_album` (
   `updated_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_media_album_giornata` (`id_giornata`, `ordine`),
-  UNIQUE KEY `uq_media_album_giornata_id` (`id_giornata`, `id`),
   CONSTRAINT `fk_media_album_giornata`
     FOREIGN KEY (`id_giornata`) REFERENCES `media_giornate` (`id`)
     ON DELETE RESTRICT ON UPDATE CASCADE
@@ -135,14 +111,8 @@ CREATE TABLE IF NOT EXISTS `media_file` (
   CONSTRAINT `fk_media_file_giornata`
     FOREIGN KEY (`id_giornata`) REFERENCES `media_giornate` (`id`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_file_edizione_giornata`
-    FOREIGN KEY (`id_edizione`, `id_giornata`) REFERENCES `media_giornate` (`id_edizione`, `id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_media_file_album`
     FOREIGN KEY (`id_album`) REFERENCES `media_album` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_media_file_giornata_album`
-    FOREIGN KEY (`id_giornata`, `id_album`) REFERENCES `media_album` (`id_giornata`, `id`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_media_file_uploader`
     FOREIGN KEY (`id_uploader`) REFERENCES `admin` (`id`)
@@ -257,14 +227,3 @@ CREATE TABLE IF NOT EXISTS `media_accesso_edizione` (
     FOREIGN KEY (`creato_da`) REFERENCES `admin` (`id`)
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT IGNORE INTO `impostazioni` (`chiave`, `valore`, `descrizione`) VALUES
-('media_storage_path',      '',      'Percorso archivio media (vuoto = storage/media nel progetto)'),
-('media_max_upload_mb',     '1024',  'Dimensione massima di un singolo file caricabile (MB)'),
-('media_chunk_mb',          '4',     'Dimensione dei blocchi di upload (MB)'),
-('media_thumb_max_px',      '480',  'Lato massimo delle miniature (pixel)'),
-('media_retention_giorni',  '30',   'Giorni di conservazione nel cestino prima dell''eliminazione definitiva'),
-('media_zip_max_file',      '2000', 'Numero massimo di file per archivio ZIP'),
-('media_zip_max_mb',        '5000', 'Dimensione massima totale di un archivio ZIP (MB)'),
-('media_zip_parte_mb',      '1500', 'Dimensione massima di ogni parte ZIP (MB)'),
-('media_zip_scadenza_ore',  '24',   'Ore di disponibilità di un archivio ZIP generato');

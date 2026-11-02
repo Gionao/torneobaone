@@ -1,7 +1,7 @@
 /* pos/assets/css/pos.css — Stili modulo POS (affiancato a style.css / admin.css) */
 
 body.pos-body {
-  background: #080f17;
+  background: var(--campo-950);
   min-height: 100vh;
 }
 
@@ -372,7 +372,7 @@ body.pos-body {
 
 /* ── Display cucina / bar ─────────────────────────────────── */
 .pos-display-body {
-  background: #080f17;
+  background: var(--campo-950);
   min-height: 100vh;
   padding: 1.5rem;
 }
@@ -403,7 +403,7 @@ body.pos-body {
 }
 
 .pos-kds-card.all-ready {
-  background: #0a1520;
+  background: var(--campo-950);
   border-color: rgba(76, 175, 125, .35);
   opacity: .85;
 }
@@ -674,7 +674,7 @@ body.pos-body {
 
 /* ── Login POS ──────────────────────────────────────────── */
 .pos-login-body {
-  background: #080f17;
+  background: var(--campo-950);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -872,4 +872,251 @@ body.pos-body {
   text-transform: uppercase;
   color: var(--gold);
   margin: 2rem 0 1rem;
+}
+
+/* ============================================================
+   MIGRATION ADDITIONS
+   Components used by the POS markup that had no rule in any
+   stylesheet (audit P2): the takeaway switch, the cart stepper,
+   the cart row layout, the KDS station tabs and the "Consegnato"
+   action. Colours come from assets/css/tokens.css.
+   Fold these into assets/css/components.css at roadmap phase 6.
+   ============================================================ */
+
+/* ── Asporto switch ────────────────────────────────────── */
+.pos-takeaway-row { margin-bottom: .85rem; }
+
+.pos-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: .92rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--chalk);
+}
+
+.pos-toggle-label input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+
+.pos-toggle-track {
+  position: relative;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(241,245,247,.10);
+  border: 1px solid var(--campo-line-strong);
+  transition: background .18s var(--ease-standard), border-color .18s var(--ease-standard);
+}
+
+.pos-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--chalk-dim);
+  transition: transform .18s var(--ease-out), background .18s var(--ease-standard);
+}
+
+.pos-toggle-label input:checked + .pos-toggle-track {
+  background: var(--gold-500);
+  border-color: var(--gold-500);
+}
+
+.pos-toggle-label input:checked + .pos-toggle-track .pos-toggle-thumb {
+  transform: translateX(20px);
+  background: var(--navy-950);
+}
+
+.pos-toggle-label input:focus-visible + .pos-toggle-track {
+  box-shadow: 0 0 0 3px rgba(231,169,50,.28);
+}
+
+/* ── Cart row ──────────────────────────────────────────── */
+.cart-item-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cart-item-controls {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .35rem;
+}
+
+.pos-note-row { margin-top: .4rem; }
+
+.pos-item-note {
+  width: 100%;
+  height: 30px;
+  padding: 0 .5rem;
+  font-family: inherit;
+  font-size: .78rem;
+  color: var(--chalk);
+  background: var(--campo-950);
+  border: 1px solid var(--campo-line);
+  border-radius: 4px;
+}
+
+.pos-item-note::placeholder { color: var(--chalk-faint); }
+
+.pos-item-note:focus {
+  outline: none;
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 3px rgba(231,169,50,.22);
+}
+
+/* ── Quantity stepper ──────────────────────────────────── */
+.pos-qty-row {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.btn-qty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--chalk);
+  background: var(--campo-950);
+  border: 1px solid var(--campo-line-strong);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .12s var(--ease-standard), border-color .12s var(--ease-standard);
+}
+
+.btn-qty:hover {
+  background: var(--navy-700);
+  border-color: var(--gold-500);
+}
+
+.btn-qty:active { transform: scale(.96); }
+
+.btn-qty:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(231,169,50,.28);
+}
+
+.qty-val {
+  min-width: 24px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk);
+}
+
+@media (pointer: coarse) {
+  .btn-qty { width: 44px; height: 44px; }
+}
+
+/* ── KDS station tabs ──────────────────────────────────── */
+.pos-kds-tabs {
+  display: flex;
+  gap: .4rem;
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--campo-line);
+}
+
+.pos-kds-tab {
+  position: relative;
+  padding: .6rem .95rem;
+  border: 0;
+  background: none;
+  color: var(--chalk-dim);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pos-kds-tab:hover { color: var(--chalk); }
+
+.pos-kds-tab.active { color: var(--chalk); }
+
+.pos-kds-tab.active::after {
+  content: "";
+  position: absolute;
+  left: .5rem;
+  right: .5rem;
+  bottom: -1px;
+  height: 2px;
+  background: var(--gold-500);
+}
+
+/* ── KDS ticket extras ─────────────────────────────────── */
+.kds-customer {
+  margin-bottom: .35rem;
+  font-size: .82rem;
+  color: var(--chalk-dim);
+}
+
+.kds-customer strong {
+  color: var(--chalk);
+  font-weight: 600;
+}
+
+.kds-item-note {
+  margin-top: .15rem;
+  font-size: .78rem;
+  color: var(--gold-300);
+}
+
+/* ── "Consegnato" — the primary KDS action ─────────────── */
+.btn-green {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  margin-top: .9rem;
+  padding: 0 1rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--navy-950);
+  background: var(--gold-500);
+  border: 1px solid var(--gold-500);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .12s var(--ease-standard);
+}
+
+.btn-green:hover {
+  background: var(--gold-400);
+  border-color: var(--gold-400);
+}
+
+.btn-green:active { transform: scale(.99); }
+
+.btn-green:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(231,169,50,.28);
+}
+
+.btn-green:disabled {
+  opacity: .5;
+  cursor: not-allowed;
 }

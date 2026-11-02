@@ -14,6 +14,7 @@ $pageTitle = 'Traccia il tuo ordine';
   <title><?= htmlspecialchars($pageTitle) ?> — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/tokens.css?v=redesign-1">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= POS_URL ?>/assets/css/pos.css">
   <style>
@@ -24,7 +25,7 @@ $pageTitle = 'Traccia il tuo ordine';
       align-items: center;
       justify-content: flex-start;
       padding: 3rem 1rem 4rem;
-      background: #080f17;
+      background: var(--campo-950);
     }
     .track-logo {
       font-family: 'Barlow Condensed', sans-serif;
@@ -38,7 +39,7 @@ $pageTitle = 'Traccia il tuo ordine';
     }
     .track-box {
       background: var(--navy-mid);
-      border: 1px solid rgba(201,168,76,.15);
+      border: 1px solid rgba(231,169,50,.15);
       border-radius: var(--radius);
       padding: 2rem;
       width: 100%;
@@ -71,7 +72,7 @@ $pageTitle = 'Traccia il tuo ordine';
     }
     .order-track-card {
       background: rgba(255,255,255,.03);
-      border: 1px solid rgba(201,168,76,.12);
+      border: 1px solid rgba(231,169,50,.12);
       border-radius: 10px;
       padding: 1.25rem;
     }
@@ -115,7 +116,7 @@ $pageTitle = 'Traccia il tuo ordine';
     .order-track-items li:last-child { border-bottom: none; }
     .item-dept-badge {
       font-size: .72rem;
-      background: rgba(201,168,76,.1);
+      background: rgba(231,169,50,.1);
       color: var(--gold);
       border-radius: 3px;
       padding: .1rem .4rem;
@@ -159,7 +160,7 @@ $pageTitle = 'Traccia il tuo ordine';
       align-items: center;
       gap: .25rem;
       z-index: 1;
-      background: #080f17;
+      background: var(--campo-950);
       padding: 0 .25rem;
     }
     .step-dot {

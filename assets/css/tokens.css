@@ -1,0 +1,257 @@
+/* ============================================================
+   TOKENS — Torneo Baone
+   Single source of truth for colour, type, space, radius,
+   depth and motion. No component may hard-code a colour.
+
+   Loaded BEFORE every shell stylesheet.
+
+   Brand values are sampled from assets/img/logo_torneo.png:
+     navy #093759 (dominant), gold #E7A932
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* ── Brand ramps ───────────────────────────────────────── */
+  --navy-950:#041C2E;  --navy-900:#062640;  --navy-800:#093759;
+  --navy-700:#0C4468;  --navy-600:#12557F;  --navy-500:#1B6A9B;
+  --navy-400:#3D8DBB;  --navy-300:#79B2D3;  --navy-200:#B4D2E4;
+  --navy-100:#DDEAF3;  --navy-50:#F0F6FA;
+
+  /* Gold sampled from the same file (#E7A932)                */
+  --gold-800:#6F4C10;  --gold-700:#8A5F14;  --gold-600:#B07C1C;
+  --gold-500:#E7A932;  --gold-400:#F0BC5C;  --gold-300:#F6D391;
+  --gold-200:#FAE6BF;  --gold-100:#FDF2DC;  --gold-50:#FEFAF2;
+
+  /* ── Paper (light surfaces) ────────────────────────────── */
+  --paper-0:#FFFFFF;   --paper-1:#FBF9F5;   --paper-2:#F4F0E8;
+  --paper-3:#EBE5DA;
+  --line-soft:#E9E4D9; --line:#DDD7CA;      --line-strong:#C4BCAA;
+
+  /* ── Ink (light text) ──────────────────────────────────── */
+  --ink-900:#0C1B26;   --ink-800:#162934;   --ink-700:#2A3B46;
+  --ink-600:#4C5C66;   --ink-500:#68767E;   --ink-400:#8A969D;
+  --ink-300:#B3BCC1;
+
+  /* ── Campo (dark surfaces) ─────────────────────────────── */
+  --campo-950:#03141F; --campo-900:#041C2E; --campo-800:#062640;
+  --campo-700:#093759; --campo-600:#0C4468;
+  --chalk:#F1F5F7;     --chalk-dim:rgba(241,245,247,.64);
+  --chalk-faint:rgba(241,245,247,.38);
+  --campo-line:rgba(241,245,247,.12);
+  --campo-line-strong:rgba(241,245,247,.24);
+  --campo-gold-line:rgba(231,169,50,.30);
+
+  /* ── Semantic (light) ──────────────────────────────────── */
+  --ok-text:#2E6B4F;   --ok-surface:#E6F2EC;   --ok-border:#B4D6C4;   --ok-solid:#2E8B63;
+  --warn-text:#8A5A0C; --warn-surface:#FBF0D8; --warn-border:#E9CE92; --warn-solid:#C98F22;
+  --bad-text:#A62D26;  --bad-surface:#F8E7E4;  --bad-border:#E5B7B1;  --bad-solid:#BC4038;
+  --info-text:#1B5C8A; --info-surface:#E6F0F7; --info-border:#B7D1E3; --info-solid:#2B7BB0;
+
+  /* ── Roles (light) — components read ONLY these ─────────── */
+  --bg:var(--paper-1);
+  --surface:var(--paper-0);
+  --surface-2:var(--paper-2);
+  --surface-3:var(--paper-3);
+  --surface-ink:var(--ink-900);
+
+  --text:var(--ink-900);
+  --text-2:var(--ink-600);
+  --text-3:var(--ink-500);
+  --text-disabled:var(--ink-400);
+  --text-inverse:var(--chalk);
+
+  --border:var(--line);
+  --border-soft:var(--line-soft);
+  --border-strong:var(--line-strong);
+  --rule:var(--navy-800);
+
+  --accent:var(--gold-500);
+  --accent-ink:var(--gold-700);
+  --accent-surface:var(--gold-50);
+
+  --action:var(--navy-800);
+  --action-hover:var(--navy-900);
+  --action-text:#FFFFFF;
+
+  --link:var(--navy-700);
+  --link-hover:var(--navy-900);
+  --focus:var(--gold-600);
+  --focus-ring:0 0 0 3px rgba(176,124,28,.22);
+
+  /* ── Typography ────────────────────────────────────────── */
+  --font-ui:'Barlow',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-display:'Barlow Condensed','Barlow',system-ui,sans-serif;
+
+  --fs-display-xl:clamp(2.75rem,3vw + 2rem,4.5rem);   /* 44 → 72  hero */
+  --fs-display:clamp(2rem,2vw + 1.25rem,3rem);        /* 32 → 48  sheet-on-field title */
+  --fs-h1:clamp(1.5rem,1vw + 1.15rem,2rem);           /* 24 → 32  page title */
+  --fs-h2:1.25rem;      /* 20 */
+  --fs-h3:1.0625rem;    /* 17 */
+  --fs-body-lg:1rem;    /* 16 */
+  --fs-body:0.9375rem;  /* 15 */
+  --fs-sm:0.875rem;     /* 14 */
+  --fs-xs:0.8125rem;    /* 13 */
+  --fs-label:0.75rem;   /* 12 */
+  --fs-micro:0.6875rem; /* 11 */
+
+  --lh-display:1.02;
+  --lh-tight:1.12;
+  --lh-snug:1.3;
+  --lh-body:1.55;
+
+  --ls-display:-0.01em;
+  --ls-tight:0.01em;
+  --ls-label:0.08em;
+  --ls-label-wide:0.12em;
+
+  --fw-regular:400; --fw-medium:500; --fw-semibold:600;
+  --fw-bold:700;    --fw-black:800;
+
+  /* ── Space (4px base) ──────────────────────────────────── */
+  --sp-1:4px;   --sp-2:8px;   --sp-3:12px;  --sp-4:16px;
+  --sp-5:20px;  --sp-6:24px;  --sp-7:32px;  --sp-8:40px;
+  --sp-9:48px;  --sp-10:64px; --sp-11:80px; --sp-12:120px;
+
+  /* ── Radius ────────────────────────────────────────────── */
+  --r-xs:3px; --r-sm:4px; --r-md:6px; --r-lg:8px; --r-xl:12px; --r-pill:999px;
+
+  /* ── Depth (borders first; shadow only for floating) ───── */
+  --shadow-1:0 1px 2px rgba(12,27,38,.05);
+  --shadow-2:0 4px 12px -2px rgba(12,27,38,.10),0 1px 3px rgba(12,27,38,.06);
+  --shadow-3:0 16px 40px -12px rgba(12,27,38,.22),0 4px 10px -4px rgba(12,27,38,.10);
+  --shadow-4:0 32px 80px -20px rgba(4,28,46,.45);
+  --shadow-inset-top:inset 0 1px 0 rgba(255,255,255,.06);
+
+  /* ── Layout ────────────────────────────────────────────── */
+  --w-page:1240px;
+  --w-prose:68ch;
+  --w-form:640px;
+  --w-rail:232px;
+  --w-rail-mini:72px;
+  --h-topbar:56px;
+  --h-public-nav:64px;
+
+  /* ── Motion ────────────────────────────────────────────── */
+  --dur-1:120ms;  /* state: hover, focus, press */
+  --dur-2:180ms;  /* enter: menu, tooltip */
+  --dur-3:240ms;  /* overlay: dialog, drawer */
+  --dur-4:320ms;  /* sheet: large surface */
+  --ease-out:cubic-bezier(.2,.7,.3,1);
+  --ease-in:cubic-bezier(.4,0,.9,.4);
+  --ease-standard:cubic-bezier(.2,0,.2,1);
+
+  /* ── Layers ────────────────────────────────────────────── */
+  --z-rail:40; --z-topbar:50; --z-drawer:60; --z-menu:70;
+  --z-dialog:80; --z-toast:90;
+}
+
+/* ============================================================
+   THEME: CAMPO — dark surfaces (public chrome, POS, KDS, auth panel)
+   Apply to <body> or to any block that must sit on the field.
+   ============================================================ */
+.theme-campo {
+  color-scheme: dark;
+
+  --bg:var(--campo-900);
+  --surface:var(--campo-800);
+  --surface-2:var(--campo-700);
+  --surface-3:var(--campo-600);
+  --surface-ink:var(--campo-950);
+
+  --text:var(--chalk);
+  --text-2:var(--chalk-dim);
+  --text-3:var(--chalk-dim);
+  --text-disabled:var(--chalk-faint);
+  --text-inverse:var(--ink-900);
+
+  --border:var(--campo-line);
+  --border-soft:rgba(241,245,247,.07);
+  --border-strong:var(--campo-line-strong);
+  --rule:var(--gold-500);
+
+  --accent:var(--gold-500);
+  --accent-ink:var(--gold-500);
+  --accent-surface:rgba(231,169,50,.10);
+
+  --action:var(--gold-500);
+  --action-hover:var(--gold-400);
+  --action-text:var(--navy-950);
+
+  --link:var(--gold-500);
+  --link-hover:var(--gold-300);
+  --focus:var(--gold-500);
+  --focus-ring:0 0 0 3px rgba(231,169,50,.28);
+
+  --ok-text:#6FD3A3;   --ok-surface:rgba(111,211,163,.14); --ok-border:rgba(111,211,163,.36); --ok-solid:#6FD3A3;
+  --warn-text:#F2C46A; --warn-surface:rgba(242,196,106,.14); --warn-border:rgba(242,196,106,.36); --warn-solid:#F2C46A;
+  --bad-text:#F2928A;  --bad-surface:rgba(242,146,138,.14); --bad-border:rgba(242,146,138,.36); --bad-solid:#F2928A;
+  --info-text:#8BC4E8; --info-surface:rgba(139,196,232,.14); --info-border:rgba(139,196,232,.36); --info-solid:#8BC4E8;
+
+  --shadow-2:0 8px 24px -6px rgba(0,0,0,.45);
+  --shadow-3:0 20px 48px -12px rgba(0,0,0,.55);
+}
+
+/* ============================================================
+   THEME: PAPER — a light sheet placed inside a dark context
+   (standings table on the public site, match detail, receipts)
+   ============================================================ */
+.theme-paper {
+  color-scheme: light;
+  --bg:var(--paper-0);
+  --surface:var(--paper-0);
+  --surface-2:var(--paper-2);
+  --surface-3:var(--paper-3);
+  --text:var(--ink-900);
+  --text-2:var(--ink-600);
+  --text-3:var(--ink-500);
+  --text-disabled:var(--ink-400);
+  --text-inverse:var(--chalk);
+  --border:var(--line);
+  --border-soft:var(--line-soft);
+  --border-strong:var(--line-strong);
+  --rule:var(--navy-800);
+  --accent:var(--gold-500);
+  --accent-ink:var(--gold-700);
+  --accent-surface:var(--gold-50);
+  --action:var(--navy-800);
+  --action-hover:var(--navy-900);
+  --action-text:#FFFFFF;
+  --link:var(--navy-700);
+  --link-hover:var(--navy-900);
+  --focus:var(--gold-600);
+  --focus-ring:0 0 0 3px rgba(176,124,28,.22);
+  --ok-text:#2E6B4F;   --ok-surface:#E6F2EC;   --ok-border:#B4D6C4;
+  --warn-text:#8A5A0C; --warn-surface:#FBF0D8; --warn-border:#E9CE92;
+  --bad-text:#A62D26;  --bad-surface:#F8E7E4;  --bad-border:#E5B7B1;
+  --info-text:#1B5C8A; --info-surface:#E6F0F7; --info-border:#B7D1E3;
+}
+
+/* ============================================================
+   LEGACY ALIASES — every variable the pre-migration stylesheets
+   reference, pointed at the new scale. Remove at the end of the
+   migration (roadmap phase 6) once no shell declares its own.
+   ============================================================ */
+:root {
+  /* `--navy` was the page/background tone (#0d1b2a) and `--navy-mid` the
+     raised surface (#122338) in the legacy sheets. The mapping below keeps
+     that relationship: background stays the deepest step, surfaces sit above
+     it. Mapping --navy to --navy-800 inverted it and made every page body
+     lighter than its own footer. */
+  --navy:var(--campo-900);
+  --navy-mid:var(--navy-800);
+  --navy-light:var(--navy-700);
+  --gold:var(--gold-500);
+  --gold-bright:var(--gold-400);
+  --gold-dim:var(--gold-600);
+  --white:var(--chalk);
+  --muted:var(--chalk-dim);
+  --red:var(--bad-solid);
+  --green:var(--ok-solid);
+
+  /* layout + shape aliases still used by style.css / admin.css */
+  --nav-h:64px;
+  --radius:var(--r-lg);
+  --shadow:var(--shadow-3);
+  --transition:var(--dur-3) var(--ease-standard);
+}
