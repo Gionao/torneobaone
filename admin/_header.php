@@ -16,28 +16,41 @@
 </head>
 <body class="admin-body">
 
-<nav class="admin-navbar">
-  <div class="admin-nav-inner">
-    <div class="admin-brand">
-      <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="admin-logo">
-      <span><?= is_telecronista() ? 'Telecronista' : 'Admin' ?> <em>Baone</em></span>
-    </div>
-    <div class="admin-nav-links">
-      <?php if (is_telecronista()): ?>
-      <a href="<?= TELECRONISTA_URL ?>/index.php">Partite</a>
-      <?php else: ?>
-      <a href="<?= ADMIN_PATH ?>/index.php">Dashboard</a>
-      <a href="<?= ADMIN_PATH ?>/partite/index.php">Partite</a>
-      <a href="<?= ADMIN_PATH ?>/squadre/index.php">Squadre</a>
-      <a href="<?= ADMIN_PATH ?>/giocatori/index.php">Giocatori</a>
-      <a href="<?= ADMIN_PATH ?>/iscrizioni/index.php"> Iscrizioni</a>
-      <a href="<?= ADMIN_PATH ?>/pagamenti/transazioni.php">Pagamenti</a>
-      <a href="<?= ARCHIVIO_URL ?>/index.php">Archivio media</a>
-      <?php endif; ?>
-      <a href="<?= ADMIN_PATH ?>/logout.php" class="admin-logout">Esci</a>
-    </div>
-  </div>
-</nav>
+<?php
+$adminNavPath = trim((string)(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: ''), '/');
+$isTelecronistaArea = is_telecronista();
+$adminNavCurrent = static fn(string $section): bool => match ($section) {
+    'dashboard' => preg_match('~^(?:(?:admin|telecronista)/)?(?:index(?:\.php)?)?$~', $adminNavPath) === 1,
+    'partite' => str_contains($adminNavPath, '/partite') || str_starts_with($adminNavPath, 'partite'),
+    'squadre' => str_contains($adminNavPath, '/squadre') || str_starts_with($adminNavPath, 'squadre'),
+    'giocatori' => str_contains($adminNavPath, '/giocatori'),
+    'iscrizioni' => str_contains($adminNavPath, '/iscrizioni'),
+    'pagamenti' => str_contains($adminNavPath, '/pagamenti'),
+    default => false,
+};
+$siteNavConfig = [
+    'id' => 'admin-navigation',
+    'dense' => true,
+    'brand_href' => $isTelecronistaArea ? TELECRONISTA_URL . '/' : ADMIN_PATH . '/',
+    'brand_name' => $isTelecronistaArea ? 'Telecronista' : 'Admin',
+    'brand_year' => 'BAONE 2026',
+    'brand_label' => ($isTelecronistaArea ? 'Telecronista' : 'Amministrazione') . ' Baone',
+    'label' => $isTelecronistaArea ? 'Navigazione telecronista' : 'Navigazione amministrazione',
+    'primary' => $isTelecronistaArea ? [
+        ['label' => 'Partite', 'href' => TELECRONISTA_URL . '/partite/', 'current' => $adminNavCurrent('partite')],
+    ] : [
+        ['label' => 'Dashboard', 'href' => ADMIN_PATH . '/', 'current' => $adminNavCurrent('dashboard')],
+        ['label' => 'Partite', 'href' => ADMIN_PATH . '/partite/', 'current' => $adminNavCurrent('partite')],
+        ['label' => 'Squadre', 'href' => ADMIN_PATH . '/squadre/', 'current' => $adminNavCurrent('squadre')],
+        ['label' => 'Giocatori', 'href' => ADMIN_PATH . '/giocatori/', 'current' => $adminNavCurrent('giocatori')],
+        ['label' => 'Iscrizioni', 'href' => ADMIN_PATH . '/iscrizioni/', 'current' => $adminNavCurrent('iscrizioni')],
+        ['label' => 'Pagamenti', 'href' => ADMIN_PATH . '/pagamenti/transazioni', 'current' => $adminNavCurrent('pagamenti')],
+        ['label' => 'Archivio media', 'href' => ARCHIVIO_URL . '/', 'current' => false],
+    ],
+    'actions' => [['label' => 'Esci', 'href' => ADMIN_PATH . '/logout', 'danger' => true]],
+];
+require __DIR__ . '/../shared/site_nav.php';
+?>
 
 <main class="admin-main">
 <div class="admin-container">

@@ -235,9 +235,6 @@ $pageTitle = 'Storico ordini POS';
 
 </div></main>
 <script>
-document.getElementById('posNavToggle')?.addEventListener('click', () => {
-  document.getElementById('posNavLinks')?.classList.toggle('open');
-});
 document.querySelectorAll('.pos-history-row').forEach(row => {
   row.addEventListener('click', () => {
     const detail = document.getElementById('detail-' + row.dataset.orderId);

@@ -12,6 +12,7 @@ require_role(['admin', 'bar']);
 $department   = 'bar';
 $displayTitle = 'Bar';
 $apiDept      = 'bar';
+$posNavActive = 'bar';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -26,7 +27,7 @@ $apiDept      = 'bar';
 </head>
 <body class="pos-display-body">
 
-  <a href="<?= POS_URL ?>/logout.php" class="pos-display-logout">Logout</a>
+  <?php require __DIR__ . '/includes/navbar.php'; ?>
   <h1 class="pos-display-title"><?= htmlspecialchars($displayTitle) ?></h1>
 
   <!-- Tab switch -->

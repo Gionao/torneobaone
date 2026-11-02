@@ -11,6 +11,7 @@ require_role(['admin', 'cucina']);
 $department   = 'kitchen';
 $displayTitle = 'Cucina';
 $apiDept      = 'kitchen';
+$posNavActive = 'kitchen';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -25,7 +26,7 @@ $apiDept      = 'kitchen';
 </head>
 <body class="pos-display-body">
 
-  <a href="<?= POS_URL ?>/logout.php" class="pos-display-logout">Logout</a>
+  <?php require __DIR__ . '/includes/navbar.php'; ?>
   <h1 class="pos-display-title"><?= htmlspecialchars($displayTitle) ?></h1>
 
   <div class="pos-kds-tabs" id="kdsTabs">

@@ -226,9 +226,6 @@ $pageTitle = 'Utenti POS';
 
 </div></main>
 <script>
-document.getElementById('posNavToggle')?.addEventListener('click', () => {
-  document.getElementById('posNavLinks')?.classList.toggle('open');
-});
 const roleSel = document.getElementById('userRole');
 const stationGrp = document.getElementById('stationGroup');
 const stationInp = document.getElementById('stationName');

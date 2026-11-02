@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </style>
 </head>
 <body>
+<?php require_once __DIR__ . '/../shared/header.php'; ?>
 <div class="auth-card">
   <div class="brand">
     <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo">
@@ -95,9 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <a href="<?= SITE_URL ?>/capitano/richiedi-verifica.php">Verifica account</a>
     <a href="<?= SITE_URL ?>/capitano/registrati.php">Registrati</a>
   </div>
-  <div class="muted-links">
-    <a href="<?= SITE_URL ?>">Torna al sito</a>
-  </div>
 </div>
+<?php require_once __DIR__ . '/../shared/footer.php'; ?>
 </body>
 </html>

@@ -11,24 +11,24 @@ $navActive = match ($currentPage) {
     'login.php' => 'login',
     default => '',
 };
-?>
-<nav class="navbar public-navbar" id="navbar">
-  <div class="nav-container">
-    <a href="<?php echo SITE_URL; ?>/index.php" class="nav-brand">
-      <img src="<?php echo SITE_URL; ?>/assets/img/logo_torneo.png" alt="Logo" class="nav-logo">
-      <span>Torneo Baone <em>2026</em></span>
-    </a>
-    <button class="nav-toggle" id="navMenuToggle" type="button" aria-label="Apri il menu" aria-controls="navLinks" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="<?php echo SITE_URL; ?>/index.php" class="<?= $navActive === 'home' ? 'active' : '' ?>">Home</a></li>
-      <li><a href="<?php echo SITE_URL; ?>/calendario.php" class="<?= $navActive === 'calendario' ? 'active' : '' ?>">Calendario</a></li>
-      <li><a href="<?php echo SITE_URL; ?>/classifica.php" class="<?= $navActive === 'classifica' ? 'active' : '' ?>">Classifica</a></li>
-      <li><a href="<?php echo SITE_URL; ?>/squadre" class="<?= $navActive === 'squadre' ? 'active' : '' ?>">Squadre</a></li>
-      <li><a href="<?php echo SITE_URL; ?>/iscrizione.php" class="<?= $navActive === 'iscrizione' ? 'active' : '' ?>">Iscrizione</a></li>
-      <li><a href="<?php echo SITE_URL; ?>/capitano/login.php" class="<?= $navActive === 'login' ? 'active' : '' ?>">Login</a></li>
-    </ul>
-  </div>
-</nav>
-<div class="nav-backdrop" id="navBackdrop" aria-hidden="true"></div>
+
+$siteNavConfig = [
+    'id' => 'public-navigation',
+    'brand_href' => SITE_URL . '/',
+    'brand_name' => 'Torneo Baone',
+    'brand_year' => '2026',
+    'brand_label' => 'Torneo Baone 2026 — Home',
+    'label' => 'Navigazione principale',
+    'primary' => [
+        ['label' => 'Home', 'href' => SITE_URL . '/', 'current' => $navActive === 'home'],
+        ['label' => 'Calendario', 'href' => SITE_URL . '/calendario', 'current' => $navActive === 'calendario'],
+        ['label' => 'Classifica', 'href' => SITE_URL . '/classifica', 'current' => $navActive === 'classifica'],
+        ['label' => 'Squadre', 'href' => SITE_URL . '/squadre', 'current' => $navActive === 'squadre'],
+    ],
+    'actions' => [
+        ['label' => 'Iscrizione', 'href' => SITE_URL . '/iscrizione', 'primary' => true, 'current' => $navActive === 'iscrizione'],
+        ['label' => 'Login', 'href' => SITE_URL . '/capitano/login', 'current' => $navActive === 'login'],
+    ],
+];
+
+require __DIR__ . '/site_nav.php';

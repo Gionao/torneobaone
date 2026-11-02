@@ -132,12 +132,6 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
 <div id="modalRoot"></div>
 
 <script>
-document.getElementById('posNavToggle')?.addEventListener('click', () => {
-  document.getElementById('posNavLinks')?.classList.toggle('open');
-});
-</script>
-
-<script>
 (function () {
   'use strict';
 

@@ -197,9 +197,6 @@ $pageTitle = 'Coupon POS';
 
 </div></main>
 <script>
-document.getElementById('posNavToggle')?.addEventListener('click', () => {
-  document.getElementById('posNavLinks')?.classList.toggle('open');
-});
 function updateDiscountLabel() {
   const type = document.getElementById('discountType').value;
   const inp  = document.getElementById('discountValue');

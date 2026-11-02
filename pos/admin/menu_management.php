@@ -386,9 +386,6 @@ document.querySelectorAll('.btn-edit-prod').forEach(btn => {
 
 </div></main>
 <script>
-document.getElementById('posNavToggle')?.addEventListener('click', () => {
-  document.getElementById('posNavLinks')?.classList.toggle('open');
-});
 </script>
 </body>
 </html>

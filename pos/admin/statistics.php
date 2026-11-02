@@ -236,9 +236,6 @@ $pageTitle = 'Statistiche POS';
 
 </div></main>
 <script>
-document.getElementById('posNavToggle')?.addEventListener('click', () => {
-  document.getElementById('posNavLinks')?.classList.toggle('open');
-});
 </script>
 </body>
 </html>

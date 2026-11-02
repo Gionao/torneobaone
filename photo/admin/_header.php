@@ -27,35 +27,38 @@ $cssVersione = @filemtime(dirname(__DIR__) . '/assets/css/archivio.css') ?: time
 </head>
 <body class="admin-body archivio-body">
 
-<nav class="admin-navbar archivio-navbar">
-  <div class="admin-nav-inner">
-    <a class="admin-brand" href="<?= media_h(ARCHIVIO_URL) ?>/index.php">
-      <img src="<?= media_h(SITE_URL) ?>/assets/img/logo_torneo.png" alt="Logo Torneo" class="admin-logo">
-      <span>Archivio <em>Baone</em></span>
-    </a>
-    <button type="button" class="archivio-nav-toggle" id="archivioNavToggle"
-            aria-controls="archivioNavLinks" aria-expanded="false" aria-label="Apri il menu">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="admin-nav-links archivio-nav-links" id="archivioNavLinks">
-      <a href="<?= media_h(ARCHIVIO_URL) ?>/index.php" class="<?= $paginaAttiva === 'dashboard' ? 'attivo' : '' ?>">Panoramica</a>
-      <a href="<?= media_h(ARCHIVIO_URL) ?>/galleria.php" class="<?= $paginaAttiva === 'galleria' ? 'attivo' : '' ?>">Galleria</a>
-      <?php if (in_array(media_ruolo(), ['uploader', 'admin'], true)): ?>
-      <a href="<?= media_h(ARCHIVIO_URL) ?>/upload.php" class="<?= $paginaAttiva === 'upload' ? 'attivo' : '' ?>">Carica</a>
-      <?php endif; ?>
-      <?php if (media_is_editor()): ?>
-      <a href="<?= media_h(ARCHIVIO_URL) ?>/edizioni/index.php" class="<?= $paginaAttiva === 'edizioni' ? 'attivo' : '' ?>">Edizioni</a>
-      <?php endif; ?>
-      <?php if (media_is_admin()): ?>
-      <a href="<?= media_h(ARCHIVIO_URL) ?>/cestino.php" class="<?= $paginaAttiva === 'cestino' ? 'attivo' : '' ?>">Cestino</a>
-      <a href="<?= media_h(ARCHIVIO_URL) ?>/utenti.php" class="<?= $paginaAttiva === 'utenti' ? 'attivo' : '' ?>">Utenti</a>
-      <a href="<?= media_h(ARCHIVIO_URL) ?>/impostazioni.php" class="<?= $paginaAttiva === 'impostazioni' ? 'attivo' : '' ?>">Impostazioni</a>
-      <a href="<?= media_h(ADMIN_PATH) ?>/index.php">Pannello</a>
-      <?php endif; ?>
-      <a href="<?= media_h(ARCHIVIO_URL) ?>/logout.php" class="admin-logout">Esci</a>
-    </div>
-  </div>
-</nav>
+<?php
+$archivioNavPrimary = [
+    ['label' => 'Panoramica', 'href' => ARCHIVIO_URL . '/', 'current' => $paginaAttiva === 'dashboard'],
+    ['label' => 'Galleria', 'href' => ARCHIVIO_URL . '/galleria', 'current' => $paginaAttiva === 'galleria'],
+];
+if (in_array(media_ruolo(), ['uploader', 'admin'], true)) {
+    $archivioNavPrimary[] = ['label' => 'Carica', 'href' => ARCHIVIO_URL . '/upload', 'current' => $paginaAttiva === 'upload'];
+}
+if (media_is_editor()) {
+    $archivioNavPrimary[] = ['label' => 'Edizioni', 'href' => ARCHIVIO_URL . '/edizioni/', 'current' => $paginaAttiva === 'edizioni'];
+}
+if (media_is_admin()) {
+    $archivioNavPrimary[] = ['label' => 'Cestino', 'href' => ARCHIVIO_URL . '/cestino', 'current' => $paginaAttiva === 'cestino'];
+    $archivioNavPrimary[] = ['label' => 'Utenti', 'href' => ARCHIVIO_URL . '/utenti', 'current' => $paginaAttiva === 'utenti'];
+    $archivioNavPrimary[] = ['label' => 'Impostazioni', 'href' => ARCHIVIO_URL . '/impostazioni', 'current' => $paginaAttiva === 'impostazioni'];
+}
+$siteNavConfig = [
+    'id' => 'archive-navigation',
+    'dense' => true,
+    'brand_href' => ARCHIVIO_URL . '/',
+    'brand_name' => 'Archivio',
+    'brand_year' => 'BAONE 2026',
+    'brand_label' => 'Archivio foto e video Baone',
+    'label' => 'Navigazione archivio',
+    'primary' => $archivioNavPrimary,
+    'actions' => array_merge(
+        media_is_admin() ? [['label' => 'Pannello admin', 'href' => ADMIN_PATH . '/', 'primary' => true]] : [],
+        [['label' => 'Esci', 'href' => ARCHIVIO_URL . '/logout', 'danger' => true]]
+    ),
+];
+require __DIR__ . '/../../shared/site_nav.php';
+?>
 
 <main class="admin-main">
 <div class="admin-container archivio-container">

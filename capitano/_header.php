@@ -23,25 +23,23 @@ if (!isset($pageTitle)) {
 </head>
 <body class="admin-body">
 
-<nav class="navbar navbar-expand-lg navbar-dark captain-navbar">
-  <div class="container-fluid captain-nav-inner">
-    <a class="navbar-brand admin-brand" href="<?= SITE_URL ?>/capitano/dashboard.php">
-      <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="admin-logo">
-      <span>Capitano <em>Baone</em></span>
-    </a>
-    <button class="navbar-toggler captain-nav-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#captainNavigation" aria-controls="captainNavigation" aria-expanded="false" aria-label="Apri o chiudi il menu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse captain-nav-collapse" id="captainNavigation">
-      <div class="navbar-nav captain-nav-links">
-        <a class="nav-link" href="<?= SITE_URL ?>/capitano/dashboard.php">Dashboard</a>
-        <a class="nav-link" href="<?= SITE_URL ?>/capitano/giocatori.php">Giocatori</a>
-        <a class="nav-link" href="<?= SITE_URL ?>/capitano/pagamenti.php">Pagamenti</a>
-        <a class="nav-link captain-nav-logout" href="<?= SITE_URL ?>/capitano/logout.php">Esci</a>
-      </div>
-    </div>
-  </div>
-</nav>
+<?php
+$capitanoNavPath = trim((string)(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: ''), '/');
+$siteNavConfig = [
+    'id' => 'captain-navigation',
+    'brand_href' => SITE_URL . '/capitano/dashboard',
+    'brand_name' => 'Capitano',
+    'brand_year' => 'BAONE 2026',
+    'brand_label' => 'Area capitano Baone',
+    'primary' => [
+        ['label' => 'Dashboard', 'href' => SITE_URL . '/capitano/dashboard', 'current' => str_contains($capitanoNavPath, 'dashboard')],
+        ['label' => 'Giocatori', 'href' => SITE_URL . '/capitano/giocatori', 'current' => str_contains($capitanoNavPath, 'giocatori')],
+        ['label' => 'Pagamenti', 'href' => SITE_URL . '/capitano/pagamenti', 'current' => str_contains($capitanoNavPath, 'pagamenti')],
+    ],
+    'actions' => [['label' => 'Esci', 'href' => SITE_URL . '/capitano/logout', 'danger' => true]],
+];
+require __DIR__ . '/../shared/site_nav.php';
+?>
 
 <main class="admin-main">
   <div class="admin-container">

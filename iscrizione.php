@@ -9,7 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/config.php';
 
 // !! Inserisci qui il link al tuo Google Form !!
-define('GOOGLE_FORM_URL', './capitano/registrati.php');
+define('GOOGLE_FORM_URL', SITE_URL . '/capitano/registrati');
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -23,24 +23,6 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
 </head>
 <body>
 
-<!-- NAVBAR 
-<nav class="navbar" id="navbar">
-  <div class="nav-container">
-    <a href="<?= SITE_URL ?>" class="nav-brand">
-      <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo" class="nav-logo">
-      <span>Torneo <em>Baone</em> 2026</span>
-    </a>
-    <button class="nav-toggle" id="navToggle" aria-label="Apri menu">
-      <span></span><span></span><span></span>
-    </button>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="<?= SITE_URL ?>">Home</a></li>
-      <li><a href="<?= SITE_URL ?>/calendario.php">Calendario</a></li>
-      <li><a href="<?= SITE_URL ?>/classifica.php">Classifica</a></li>
-      <li><a href="<?= SITE_URL ?>/iscrizione.php" class="active">Iscrizione</a></li>
-    </ul>
-  </div>
-</nav>-->
 <?php require_once __DIR__ . '/shared/header.php'; ?>
 
 <!-- HERO -->
@@ -143,7 +125,6 @@ define('GOOGLE_FORM_URL', './capitano/registrati.php');
         Iscriviti Ora — È Gratuito e Veloce
         <span class="btn-iscriviti-arrow">→</span>
       </a>
-      <p style="color:var(--muted);font-size:.8rem;margin-top:.8rem">Dopo l'invio del form verrai ricontattato entro 48 ore.</p>
     </div>
 
   </div>
