@@ -34,15 +34,34 @@ $stmt = $pdo->query("
     ORDER BY f.ordine ASC, p.data_ora ASC, p.id ASC
 ");
 $partite = $stmt->fetchAll();
+$totalePartite = count($partite);
+
+// Filtri rapidi per stato, combinabili con il filtro fase
+$faseRichiesta = $_GET['fase'] ?? 'tutte';
+$filtro = is_string($faseRichiesta) ? $faseRichiesta : 'tutte';
+$fasiDisponibili = array_values(array_unique(array_column($partite, 'fase_nome')));
+$statoRichiesto = $_GET['stato'] ?? 'tutte';
+$stato = is_string($statoRichiesto) && in_array($statoRichiesto, ['tutte', 'programmate', 'giocate'], true)
+    ? $statoRichiesto
+    : 'tutte';
+
+if ($stato !== 'tutte') {
+    $partite = array_values(array_filter($partite, static function (array $partita) use ($stato): bool {
+        return $stato === 'giocate'
+            ? (bool)$partita['giocata']
+            : !(bool)$partita['giocata'];
+    }));
+}
 
 // Raggruppa per fase
 $per_fase = [];
 foreach ($partite as $p) {
     $per_fase[$p['fase_nome']][] = $p;
 }
+$fasiMostrate = $filtro === 'tutte'
+    ? $per_fase
+    : (isset($per_fase[$filtro]) ? [$filtro => $per_fase[$filtro]] : []);
 
-// Filtro fase attivo (query string)
-$filtro = $_GET['fase'] ?? 'tutte';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -52,7 +71,7 @@ $filtro = $_GET['fase'] ?? 'tutte';
   <title>Calendario — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-4">
+  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
 </head>
 <body>
 
@@ -64,16 +83,24 @@ $filtro = $_GET['fase'] ?? 'tutte';
     <div class="section-title centered">📅 Calendario Partite</div>
 
     <!-- Filtri fase -->
-    <?php if (!empty($per_fase)): ?>
+    <?php if ($totalePartite > 0): ?>
     <div class="fase-filter">
-      <a href="?fase=tutte" class="fase-filter-btn <?= $filtro === 'tutte' ? 'active' : '' ?>">Tutte</a>
-      <?php foreach (array_keys($per_fase) as $faseNome): ?>
-        <a href="?fase=<?= urlencode($faseNome) ?>"
-           class="fase-filter-btn <?= $filtro === $faseNome ? 'active' : '' ?>">
+      <a href="?fase=tutte&amp;stato=<?= urlencode($stato) ?>" class="fase-filter-btn <?= $filtro === 'tutte' ? 'active' : '' ?>" <?= $filtro === 'tutte' ? 'aria-current="page"' : '' ?>>Tutte</a>
+      <?php foreach ($fasiDisponibili as $faseNome): ?>
+        <a href="?fase=<?= urlencode($faseNome) ?>&amp;stato=<?= urlencode($stato) ?>"
+           class="fase-filter-btn <?= $filtro === $faseNome ? 'active' : '' ?>" <?= $filtro === $faseNome ? 'aria-current="page"' : '' ?>>
           <?= htmlspecialchars($faseNome) ?>
         </a>
       <?php endforeach; ?>
     </div>
+    <nav class="status-filter" aria-label="Filtra le partite per stato">
+      <?php foreach (['tutte' => 'Tutte le partite', 'programmate' => 'In programma', 'giocate' => 'Risultati'] as $statoKey => $statoLabel): ?>
+        <a href="?fase=<?= urlencode($filtro) ?>&amp;stato=<?= urlencode($statoKey) ?>"
+           class="fase-filter-btn <?= $stato === $statoKey ? 'active' : '' ?>" <?= $stato === $statoKey ? 'aria-current="page"' : '' ?>>
+          <?= htmlspecialchars($statoLabel) ?>
+        </a>
+      <?php endforeach; ?>
+    </nav>
     <?php endif; ?>
   </div>
 </section>
@@ -82,14 +109,13 @@ $filtro = $_GET['fase'] ?? 'tutte';
 <section class="section" style="padding-top:1rem;">
   <div class="container">
 
-    <?php if (empty($partite)): ?>
+    <?php if ($totalePartite === 0): ?>
       <p class="empty-msg centered">Il calendario non è ancora stato pubblicato. Torna presto!</p>
+    <?php elseif (empty($partite) || empty($fasiMostrate)): ?>
+      <p class="empty-msg centered">Nessuna partita corrisponde ai filtri selezionati.</p>
     <?php else: ?>
 
-    <?php foreach ($per_fase as $faseNome => $matches):
-      // Rispetta il filtro
-      if ($filtro !== 'tutte' && $filtro !== $faseNome) continue;
-
+    <?php foreach ($fasiMostrate as $faseNome => $matches):
       // Badge css class
       $badgeClass = match(strtolower($faseNome)) {
           'girone'      => 'fase-girone',
@@ -198,6 +224,13 @@ $filtro = $_GET['fase'] ?? 'tutte';
   justify-content: center;
   margin-top: 1rem;
   margin-bottom: .5rem;
+}
+.status-filter {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: .75rem;
 }
 .fase-filter-btn {
   padding: .35rem 1rem;

@@ -5,14 +5,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 
-// Prossime partite (max 3)
+// Prossima partita in evidenza e successive (max 4)
 $prossime = db()->query(
     "SELECT p.*, sc.nome AS casa, so.nome AS ospite
      FROM partite p
      JOIN squadre sc ON sc.id = p.id_squadra_casa
      JOIN squadre so ON so.id = p.id_squadra_osp
-     WHERE p.giocata = 0 AND p.data_ora IS NOT NULL
-     ORDER BY p.data_ora ASC LIMIT 3"
+     WHERE p.giocata = 0 AND p.data_ora >= NOW()
+     ORDER BY p.data_ora ASC LIMIT 4"
 )->fetchAll();
 
 // Ultimi risultati (max 3)
@@ -24,6 +24,19 @@ $ultimi = db()->query(
      WHERE p.giocata = 1
      ORDER BY p.data_ora DESC LIMIT 3"
 )->fetchAll();
+
+// Prossima partita con orario ancora futuro, se disponibile
+$partitaInEvidenza = null;
+$adesso = time();
+foreach ($prossime as $partita) {
+    if (strtotime($partita['data_ora']) >= $adesso) {
+        $partitaInEvidenza = $partita;
+        break;
+    }
+}
+$altreProssime = array_values(array_filter($prossime, static function (array $partita) use ($partitaInEvidenza): bool {
+    return !$partitaInEvidenza || (int)$partita['id'] !== (int)$partitaInEvidenza['id'];
+}));
 
 // Data fine torneo per countdown (modifica se necessario)
 $data_torneo = '2026-07-05 21:00:00';
@@ -40,7 +53,7 @@ $data_torneo = '2026-07-05 21:00:00';
   <link rel="icon" type="image/x-icon" href="assets/img/logo_torneo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-4">
+  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
 </head>
 <body>
 
@@ -79,6 +92,34 @@ $data_torneo = '2026-07-05 21:00:00';
   </div>
 </header>
 
+<?php if ($partitaInEvidenza): ?>
+<section class="featured-match-section" aria-labelledby="featured-match-title">
+  <div class="container">
+    <div class="featured-match-card" data-reveal="from-left">
+      <div class="featured-match-heading">
+        <span class="featured-match-kicker">La prossima sfida</span>
+        <h2 id="featured-match-title">Prossima partita</h2>
+      </div>
+      <div class="featured-matchup">
+        <span><?= htmlspecialchars($partitaInEvidenza['casa']) ?></span>
+        <span class="featured-match-vs">VS</span>
+        <span><?= htmlspecialchars($partitaInEvidenza['ospite']) ?></span>
+      </div>
+      <div class="featured-match-details">
+        <span>📅 <?= date('d/m/Y · H:i', strtotime($partitaInEvidenza['data_ora'])) ?></span>
+        <?php if (!empty($partitaInEvidenza['campo'])): ?>
+          <span>📍 <?= htmlspecialchars($partitaInEvidenza['campo']) ?></span>
+        <?php endif; ?>
+      </div>
+      <p class="featured-countdown" id="next-match-countdown"
+         data-target="<?= htmlspecialchars(date(DATE_ATOM, strtotime($partitaInEvidenza['data_ora'])), ENT_QUOTES, 'UTF-8') ?>"
+         aria-live="off">Calcolo del conto alla rovescia…</p>
+      <a class="featured-match-link" href="calendario.php">Apri il calendario <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
 <!-- ═══════════════ PROSSIME PARTITE + ULTIMI RISULTATI ══════════════════ -->
 <section class="section partite-strip">
   <div class="container two-col">
@@ -86,10 +127,10 @@ $data_torneo = '2026-07-05 21:00:00';
     <!-- Prossime -->
     <div class="col-block">
       <h2 class="section-title">⚽ Prossime Partite</h2>
-      <?php if (empty($prossime)): ?>
-        <p class="empty-msg">Il calendario sarà pubblicato presto.</p>
+      <?php if (empty($altreProssime)): ?>
+        <p class="empty-msg">Nessun'altra partita in programma al momento.</p>
       <?php else: ?>
-        <?php foreach ($prossime as $p): ?>
+        <?php foreach ($altreProssime as $p): ?>
           <div class="match-card">
             <div class="match-meta">
               <?php if ($p['data_ora']): ?>

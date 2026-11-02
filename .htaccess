@@ -1,7 +1,41 @@
 Options -Indexes
+DirectoryIndex index.php
 RewriteEngine On
 
 RewriteRule ^(?:\.git|includes|pos/includes|storage|tests|tools|vendor|assets/sql|photo/includes|photo/tools|photo/storage)(?:/|$) - [F,L,NC]
+RewriteRule (?:^|/)_[^/]*\.php$ - [F,L,NC]
+RewriteRule ^shared/(?:header|footer)(?:\.php)?$ - [F,L,NC]
+RewriteRule ^(?:admin_header|classifica_engine)\.php$ - [F,L,NC]
+
+# URL puliti per le schede squadra e il relativo elenco.
+RewriteRule ^squadra/([0-9]+)/?$ squadra.php?id=$1 [L,NC]
+RewriteRule ^(?:squadre|squadra)/?$ squadre.php [QSA,L,NC]
+
+# L'URL /iscrizione collide con una cartella che contiene i flussi di verifica.
+RewriteRule ^iscrizione/?$ iscrizione.php [L,NC]
+
+# Canonicalizza le pagine index.php sulle directory (index.php -> /cartella/).
+RewriteCond %{REQUEST_URI} !^/(?:pos/api|pos/admin/settings\.php|photo/api|photo/upload|tests|tools|photo/tools|admin_header\.php|classifica_engine\.php|squadra\.php)(?:/|$) [NC]
+RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.php(?:[?\s]) [NC]
+RewriteRule ^(.*/)?index\.php$ /$1 [R=301,L,NE]
+
+# Elimina .php dagli URL richiesti direttamente, mantenendo metodo e query string.
+RewriteCond %{REQUEST_URI} !^/(?:pos/api|pos/admin/settings\.php|photo/api|photo/upload|tests|tools|photo/tools|admin_header\.php|classifica_engine\.php|squadra\.php)(?:/|$) [NC]
+RewriteCond %{THE_REQUEST} \s/+[^?\s]+\.php(?:[?\s]) [NC]
+RewriteCond %{REQUEST_METHOD} ^(?:GET|HEAD)$
+RewriteRule ^(.+)\.php$ /$1 [R=301,L,NE]
+
+RewriteCond %{REQUEST_URI} !^/(?:pos/api|pos/admin/settings\.php|photo/api|photo/upload|tests|tools|photo/tools|admin_header\.php|classifica_engine\.php|squadra\.php)(?:/|$) [NC]
+RewriteCond %{THE_REQUEST} \s/+[^?\s]+\.php(?:[?\s]) [NC]
+RewriteCond %{REQUEST_METHOD} !^(?:GET|HEAD)$
+RewriteRule ^(.+)\.php$ /$1 [R=308,L,NE]
+
+# Risolve /percorso in /percorso.php quando non esistono file o directory omonimi.
+RewriteCond %{REQUEST_URI} !^/(?:pos/api|pos/admin/settings|photo/api|photo/upload|tests|tools|photo/tools|admin_header|classifica_engine)(?:/|$) [NC]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+?)/?$ $1.php [L,NC]
 
 <FilesMatch "^(?:config(?:\.local)?\.php|\.env(?:\..*)?)$">
   Require all denied

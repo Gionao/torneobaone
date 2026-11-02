@@ -59,7 +59,7 @@ $msgClassificaVuota = [
   <title>Classifica — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-4">
+  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
 </head>
 <body>
 
@@ -113,7 +113,7 @@ $msgClassificaVuota = [
                   <?php else: ?>
                     <span class="team-color-dot" style="background:<?= htmlspecialchars($r['colore_squadra']) ?>;"></span>
                   <?php endif; ?>
-                  <strong><?= htmlspecialchars($r['nome_squadra']) ?></strong>
+                  <strong><a class="standing-team-link" href="<?= SITE_URL ?>/squadra/<?= (int)$r['id_squadra'] ?>"><?= htmlspecialchars($r['nome_squadra']) ?></a></strong>
                 </div>
               </td>
               <td><?= $r['giocate'] ?></td>

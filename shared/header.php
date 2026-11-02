@@ -6,6 +6,7 @@ $navActive = match ($currentPage) {
     'index.php' => 'home',
     'calendario.php' => 'calendario',
     'classifica.php' => 'classifica',
+    'squadre.php', 'squadra.php' => 'squadre',
     'iscrizione.php' => 'iscrizione',
     'login.php' => 'login',
     default => '',
@@ -24,6 +25,7 @@ $navActive = match ($currentPage) {
       <li><a href="<?php echo SITE_URL; ?>/index.php" class="<?= $navActive === 'home' ? 'active' : '' ?>">Home</a></li>
       <li><a href="<?php echo SITE_URL; ?>/calendario.php" class="<?= $navActive === 'calendario' ? 'active' : '' ?>">Calendario</a></li>
       <li><a href="<?php echo SITE_URL; ?>/classifica.php" class="<?= $navActive === 'classifica' ? 'active' : '' ?>">Classifica</a></li>
+      <li><a href="<?php echo SITE_URL; ?>/squadre" class="<?= $navActive === 'squadre' ? 'active' : '' ?>">Squadre</a></li>
       <li><a href="<?php echo SITE_URL; ?>/iscrizione.php" class="<?= $navActive === 'iscrizione' ? 'active' : '' ?>">Iscrizione</a></li>
       <li><a href="<?php echo SITE_URL; ?>/capitano/login.php" class="<?= $navActive === 'login' ? 'active' : '' ?>">Login</a></li>
     </ul>
