@@ -1,0 +1,16 @@
+/* Torneo Baone — Brand Tokens v1.0 — no Bootstrap required */
+:root {
+  --tb-navy: #0D1B2A;
+  --tb-steel: #122338;
+  --tb-gold: #C9A84C;
+  --tb-gold-light: #E8C76A;
+  --tb-white: #F0F4F8;
+  --tb-slate: #6B7A8F;
+  --tb-danger: #E4572E;
+  --tb-success: #2E7D32;
+  --tb-radius-sm: 8px;
+  --tb-radius-md: 12px;
+  --tb-radius-lg: 18px;
+  --tb-font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --tb-font-body: 'Barlow', Arial, sans-serif;
+}

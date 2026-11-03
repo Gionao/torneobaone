@@ -1,0 +1,29 @@
+/* Dialog nativo: showModal() fornisce focus trapping e backdrop al browser. */
+.tb-ui .tb-dialog {
+  width: min(calc(100% - 2rem), 34rem);
+  max-width: none;
+  max-height: min(85dvh, 48rem);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--tb-border-strong);
+  border-radius: var(--tb-radius-lg);
+  color: var(--tb-text);
+  background: var(--tb-surface);
+  box-shadow: var(--tb-shadow-lg);
+}
+
+.tb-ui .tb-dialog::backdrop { background: rgba(3, 9, 15, .78); backdrop-filter: blur(3px); }
+.tb-ui .tb-dialog__content { padding: var(--tb-space-6); }
+.tb-ui .tb-dialog__header { display: flex; align-items: start; justify-content: space-between; gap: var(--tb-space-4); margin-block-end: var(--tb-space-4); }
+.tb-ui .tb-dialog__title { font-size: var(--tb-heading-sm); }
+.tb-ui .tb-dialog__body { color: var(--tb-text-muted); }
+.tb-ui .tb-dialog__actions { display: flex; flex-wrap: wrap; justify-content: end; gap: var(--tb-space-3); margin-block-start: var(--tb-space-6); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tb-ui *, .tb-ui *::before, .tb-ui *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -1,0 +1,11 @@
+/* Entry point Baone UI. Importare esplicitamente solo nelle pagine migrate. */
+@import url("brand/tokens.css");
+@import url("brand/foundation.css");
+@import url("components/layout.css");
+@import url("components/actions.css");
+@import url("components/forms.css");
+@import url("components/surfaces.css");
+@import url("components/data.css");
+@import url("components/feedback.css");
+@import url("components/navigation.css");
+@import url("components/overlays.css");

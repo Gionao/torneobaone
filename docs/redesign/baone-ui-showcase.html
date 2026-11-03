@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Baone UI — Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/baone-ui.css">
+</head>
+<body>
+<div class="tb-ui">
+  <a class="tb-skip-link" href="#contenuto">Salta al contenuto</a>
+
+  <div class="tb-container tb-stack" style="--tb-stack-gap: var(--tb-space-8); padding-block: var(--tb-space-5) var(--tb-space-16);">
+    <header>
+      <nav class="tb-navigation" aria-label="Navigazione demo">
+        <a class="tb-navigation__brand" href="#inizio" aria-label="Baone UI, inizio showcase">
+          <img class="tb-navigation__logo" src="../../assets/img/logo_torneo.png" alt="">
+          <span>BAONE <span style="color: var(--tb-gold-light);">UI</span></span>
+        </a>
+        <details class="tb-navigation__menu">
+          <summary class="tb-navigation__toggle">Apri navigazione</summary>
+          <ul class="tb-navigation__items">
+            <li><a class="tb-navigation__link" href="#componenti">Componenti</a></li>
+            <li><a class="tb-navigation__link" href="#dati">Dati</a></li>
+            <li><a class="tb-navigation__link" href="#stati">Stati</a></li>
+          </ul>
+        </details>
+        <ul class="tb-navigation__items" aria-label="Sezioni showcase">
+          <li><a class="tb-navigation__link" href="#componenti">Componenti</a></li>
+          <li><a class="tb-navigation__link" href="#dati">Dati</a></li>
+          <li><a class="tb-navigation__link" href="#stati">Stati</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="contenuto" class="tb-stack" style="--tb-stack-gap: var(--tb-space-12);">
+      <section class="tb-page-header" id="inizio">
+        <div class="tb-page-header__intro">
+          <p class="tb-page-header__eyebrow">Sistema visivo · Edizione Baone</p>
+          <h1 class="tb-page-header__title tb-stripe-mark">Il gioco, con una nuova identità.</h1>
+          <p class="tb-page-header__description">Fondazioni UI riutilizzabili, accessibili e progettate per crescere insieme alle aree del torneo.</p>
+        </div>
+        <div class="tb-page-header__actions">
+          <a class="tb-button" href="#componenti">Esplora i componenti <span aria-hidden="true">→</span></a>
+          <span class="tb-badge tb-badge--live">Demo Baone UI</span>
+        </div>
+      </section>
+
+      <section id="componenti" class="tb-stack" style="--tb-stack-gap: var(--tb-space-5);" aria-labelledby="titolo-componenti">
+        <div class="tb-section-heading">
+          <div><p class="tb-eyebrow">Fondamenta riutilizzabili</p><h2 id="titolo-componenti">Componenti essenziali</h2></div>
+          <p>Gerarchia sportiva, contrasti leggibili e azioni con target adatti anche al touch.</p>
+        </div>
+
+        <div class="tb-grid tb-grid--2">
+          <article class="tb-card tb-card--raised">
+            <div class="tb-card__header"><h3 class="tb-card__title">Azioni</h3><span class="tb-badge tb-badge--success">Pronto</span></div>
+            <div class="tb-cluster">
+              <button class="tb-button" type="button">Primaria <span aria-hidden="true">→</span></button>
+              <button class="tb-button tb-button--secondary" type="button">Secondaria</button>
+              <button class="tb-button tb-button--quiet" type="button">Neutra</button>
+              <button class="tb-button tb-button--danger" type="button">Elimina</button>
+              <button class="tb-button" type="button" disabled>Disabilitata</button>
+            </div>
+            <div class="tb-card__footer"><button class="tb-button tb-button--small" type="button">Compatta</button><button class="tb-button tb-button--large" type="button">In evidenza</button></div>
+          </article>
+
+          <article class="tb-card tb-card--accent">
+            <div class="tb-card__header"><h3 class="tb-card__title">Superficie statistica</h3><span class="tb-badge tb-badge--info">Girone A</span></div>
+            <div class="tb-stat-card"><span class="tb-stat-card__label">Partite disputate</span><strong class="tb-stat-card__value">24</strong><span class="tb-stat-card__note">Aggiornato dopo l’ultima giornata</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="tb-grid tb-grid--2" aria-label="Esempi partita e campi">
+        <article class="tb-card tb-stack">
+          <div class="tb-card__header"><div><p class="tb-eyebrow">Risultato finale</p><h2 class="tb-card__title">Tabellone partita</h2></div><span class="tb-badge tb-badge--success">Conclusa</span></div>
+          <div class="tb-match-card" aria-label="Squadra A 3, Squadra B 1">
+            <div class="tb-match-card__team"><span class="tb-match-card__name">Squadra A</span></div>
+            <div><div class="tb-match-card__score">3 – 1</div><span class="tb-match-card__versus">Finale</span></div>
+            <div class="tb-match-card__team"><span class="tb-match-card__name">Squadra B</span></div>
+          </div>
+          <p class="tb-card__body">Sabato · Campo centrale · Semifinale</p>
+        </article>
+
+        <article class="tb-card">
+          <div class="tb-card__header"><h2 class="tb-card__title">Campi e consensi</h2></div>
+          <form class="tb-form" action="#" method="get" onsubmit="return false">
+            <div class="tb-form-row tb-form-row--2">
+              <div class="tb-field"><label class="tb-label" for="demo-nome">Nome squadra</label><input class="tb-input" id="demo-nome" name="demo_nome" type="text" placeholder="Es. Baone United"><span class="tb-field__hint">Testo di supporto al campo.</span></div>
+              <div class="tb-field"><label class="tb-label" for="demo-fase">Fase torneo</label><select class="tb-select" id="demo-fase" name="demo_fase"><option>Seleziona una fase</option><option>Gironi</option><option>Finale</option></select></div>
+            </div>
+            <label class="tb-check"><input type="checkbox" name="demo-consenso"><span>Confermo la presa visione delle informazioni.</span></label>
+            <div class="tb-field"><label class="tb-label" for="demo-note">Note</label><textarea class="tb-textarea" id="demo-note" name="demo_note" placeholder="Aggiungi una nota"></textarea></div>
+            <button class="tb-button" type="submit">Salva esempio</button>
+          </form>
+        </article>
+      </section>
+
+      <section id="dati" class="tb-stack" style="--tb-stack-gap: var(--tb-space-5);" aria-labelledby="titolo-dati">
+        <div class="tb-section-heading"><div><p class="tb-eyebrow">Informazioni in primo piano</p><h2 id="titolo-dati">Classifica · esempio responsive</h2></div><span class="tb-badge tb-badge--warning">Girone A</span></div>
+        <div class="tb-table-wrap">
+          <table class="tb-table tb-table--stack">
+            <caption>Classifica dimostrativa, dati non collegati al torneo.</caption>
+            <thead><tr><th scope="col">Pos.</th><th scope="col">Squadra</th><th scope="col" class="tb-table__numeric">PG</th><th scope="col" class="tb-table__numeric">Diff.</th><th scope="col" class="tb-table__numeric">Punti</th></tr></thead>
+            <tbody>
+              <tr><td data-label="Posizione"><span class="tb-rank">1</span></td><td data-label="Squadra"><span class="tb-table__team">Baone United</span></td><td data-label="Partite giocate" class="tb-table__numeric">6</td><td data-label="Differenza reti" class="tb-table__numeric">+12</td><td data-label="Punti" class="tb-table__numeric"><strong>18</strong></td></tr>
+              <tr><td data-label="Posizione"><span class="tb-rank">2</span></td><td data-label="Squadra"><span class="tb-table__team">Atletico Colli</span></td><td data-label="Partite giocate" class="tb-table__numeric">6</td><td data-label="Differenza reti" class="tb-table__numeric">+7</td><td data-label="Punti" class="tb-table__numeric"><strong>15</strong></td></tr>
+              <tr><td data-label="Posizione"><span class="tb-rank">3</span></td><td data-label="Squadra"><span class="tb-table__team">Real Baone</span></td><td data-label="Partite giocate" class="tb-table__numeric">6</td><td data-label="Differenza reti" class="tb-table__numeric">+2</td><td data-label="Punti" class="tb-table__numeric"><strong>12</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="stati" class="tb-stack" style="--tb-stack-gap: var(--tb-space-5);" aria-labelledby="titolo-stati">
+        <div class="tb-section-heading"><div><p class="tb-eyebrow">Feedback e stati UI</p><h2 id="titolo-stati">Messaggi chiari, non solo colore</h2></div></div>
+        <div class="tb-grid tb-grid--2">
+          <div class="tb-stack">
+            <div class="tb-alert tb-alert--success" role="status"><span aria-hidden="true">✓</span><div><p class="tb-alert__title">Operazione completata</p><p class="tb-alert__body">La squadra è stata aggiornata correttamente.</p></div></div>
+            <div class="tb-alert tb-alert--warning" role="status"><span aria-hidden="true">!</span><div><p class="tb-alert__title">Controlla i dati</p><p class="tb-alert__body">Ci sono informazioni da verificare prima di proseguire.</p></div></div>
+            <div class="tb-alert tb-alert--error" role="alert"><span aria-hidden="true">×</span><div><p class="tb-alert__title">Impossibile completare l’azione</p><p class="tb-alert__body">Riprova oppure contatta un amministratore.</p></div></div>
+          </div>
+          <div class="tb-stack">
+            <div class="tb-state" role="status"><span class="tb-state__icon" aria-hidden="true">◎</span><h3 class="tb-state__title">Nessuna partita trovata</h3><p class="tb-state__description">Non ci sono incontri per i filtri selezionati. Prova a cambiare fase o stato.</p><button class="tb-button tb-button--secondary" type="button">Azzera filtri</button></div>
+            <div class="tb-card tb-cluster" role="status" aria-live="polite"><span class="tb-spinner" aria-hidden="true"></span><span>Caricamento del calendario…</span></div>
+          </div>
+        </div>
+        <div class="tb-cluster" aria-label="Esempi badge stato"><span class="tb-badge tb-badge--live">In diretta</span><span class="tb-badge tb-badge--success">Completato</span><span class="tb-badge tb-badge--info">In programma</span><span class="tb-badge tb-badge--neutral">In attesa</span></div>
+      </section>
+
+      <section class="tb-card tb-card--raised tb-cluster" aria-labelledby="titolo-dialogo">
+        <div style="flex: 1 1 18rem;"><p class="tb-eyebrow">Conferma esplicita</p><h2 id="titolo-dialogo" class="tb-card__title">Dialogo nativo accessibile</h2><p class="tb-card__body">Il componente usa l’elemento HTML dialog e showModal(), senza librerie esterne.</p></div>
+        <button class="tb-button" type="button" data-apri-dialogo>Apri anteprima</button>
+      </section>
+
+      <dialog class="tb-dialog" aria-labelledby="dialogo-titolo" aria-describedby="dialogo-testo" data-dialogo>
+        <div class="tb-dialog__content">
+          <div class="tb-dialog__header"><h2 id="dialogo-titolo" class="tb-dialog__title">Confermi questa azione?</h2><button class="tb-icon-button" type="button" aria-label="Chiudi" data-chiudi-dialogo>×</button></div>
+          <p id="dialogo-testo" class="tb-dialog__body">Questa è solo un’anteprima: nessun dato viene salvato o modificato.</p>
+          <div class="tb-dialog__actions"><button class="tb-button tb-button--secondary" type="button" data-chiudi-dialogo>Annulla</button><button class="tb-button" type="button" data-chiudi-dialogo>Ho capito</button></div>
+        </div>
+      </dialog>
+    </main>
+
+    <footer class="tb-cluster" style="justify-content: space-between; padding-block-start: var(--tb-space-4); border-top: 1px solid var(--tb-border); color: var(--tb-text-muted);">
+      <span>Baone UI · Fondazioni condivise</span><a href="../../assets/brand/README.md">Linee guida brand</a>
+    </footer>
+  </div>
+</div>
+<script>
+  (() => {
+    const dialog = document.querySelector('[data-dialogo]');
+    document.querySelector('[data-apri-dialogo]')?.addEventListener('click', () => dialog?.showModal());
+    document.querySelectorAll('[data-chiudi-dialogo]').forEach((button) => button.addEventListener('click', () => dialog?.close()));
+    dialog?.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  })();
+</script>
+</body>
+</html>

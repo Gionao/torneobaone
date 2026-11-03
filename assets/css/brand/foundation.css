@@ -1,0 +1,87 @@
+/* Fondazioni Baone UI: tutte le regole sono confinate al wrapper .tb-ui. */
+.tb-ui {
+  min-height: 100vh;
+  min-width: 0;
+  color: var(--tb-text);
+  background-color: var(--tb-canvas);
+  font-family: var(--tb-font-body);
+  font-size: var(--tb-text-md);
+  line-height: var(--tb-leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.tb-ui *,
+.tb-ui *::before,
+.tb-ui *::after {
+  box-sizing: border-box;
+}
+
+.tb-ui :where(h1, h2, h3, h4, p, ul, ol, figure) {
+  margin: 0;
+}
+
+.tb-ui :where(h1, h2, h3, h4) {
+  color: var(--tb-text);
+  font-family: var(--tb-font-display);
+  font-weight: 800;
+  line-height: var(--tb-leading-tight);
+  text-wrap: balance;
+}
+
+.tb-ui :where(a) {
+  color: var(--tb-gold-light);
+  text-underline-offset: .18em;
+}
+
+.tb-ui :where(a:hover) {
+  color: var(--tb-white);
+}
+
+.tb-ui :where(img, svg) {
+  max-width: 100%;
+}
+
+.tb-ui :where(img) {
+  height: auto;
+}
+
+.tb-ui :where(code, kbd, samp) {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.tb-ui :where(.tb-visually-hidden) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.tb-ui .tb-skip-link {
+  position: fixed;
+  z-index: 1000;
+  inset: var(--tb-space-3) auto auto var(--tb-space-3);
+  padding: .7rem 1rem;
+  transform: translateY(calc(-100% - 1rem));
+  border-radius: var(--tb-radius-sm);
+  color: var(--tb-navy);
+  background: var(--tb-gold-light);
+  font-weight: 700;
+}
+
+.tb-ui .tb-skip-link:focus-visible { transform: translateY(0); }
+
+.tb-ui :where(:focus-visible) {
+  outline: 3px solid var(--tb-focus);
+  outline-offset: 3px;
+  border-radius: var(--tb-radius-sm);
+}
+
+.tb-ui :where([hidden]) {
+  display: none !important;
+}

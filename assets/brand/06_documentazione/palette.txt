@@ -1,0 +1,11 @@
+TORNEO BAONE — PALETTE NAVY & ORO
+Blu notte   #0D1B2A
+Blu acciaio #122338
+Oro torneo  #C9A84C
+Oro chiaro  #E8C76A
+Bianco      #F0F4F8
+Grigio      #6B7A8F
+Arancione (avviso) #E4572E
+Verde (successo) #2E7D32
+Font titoli: Barlow Condensed
+Font testo: Barlow

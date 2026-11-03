@@ -1,0 +1,62 @@
+/* Campi Baone UI. Gli input nativi legacy non vengono selezionati globalmente. */
+.tb-ui .tb-form { display: grid; gap: var(--tb-space-5); }
+.tb-ui .tb-form-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--tb-space-4); }
+.tb-ui .tb-field { display: grid; min-width: 0; gap: var(--tb-space-2); }
+
+.tb-ui .tb-label {
+  color: var(--tb-text);
+  font-size: var(--tb-text-sm);
+  font-weight: 700;
+}
+
+.tb-ui .tb-hint,
+.tb-ui .tb-field__hint {
+  color: var(--tb-text-muted);
+  font-size: var(--tb-text-sm);
+}
+
+.tb-ui .tb-input,
+.tb-ui .tb-select,
+.tb-ui .tb-textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--tb-control-height);
+  padding: .65rem .8rem;
+  border: 1px solid rgba(184, 195, 207, .36);
+  border-radius: var(--tb-radius-sm);
+  color: var(--tb-text);
+  background: #0C1A29;
+  font: 500 1rem/1.4 var(--tb-font-body);
+}
+
+.tb-ui .tb-textarea { min-height: 7rem; resize: vertical; }
+.tb-ui .tb-input::placeholder, .tb-ui .tb-textarea::placeholder { color: #A6B3C1; opacity: 1; }
+.tb-ui .tb-input:hover, .tb-ui .tb-select:hover, .tb-ui .tb-textarea:hover { border-color: rgba(232, 199, 106, .65); }
+.tb-ui .tb-input:focus-visible, .tb-ui .tb-select:focus-visible, .tb-ui .tb-textarea:focus-visible { border-color: var(--tb-focus); }
+.tb-ui .tb-input[aria-invalid="true"], .tb-ui .tb-select[aria-invalid="true"], .tb-ui .tb-textarea[aria-invalid="true"] { border-color: #FF9A86; }
+.tb-ui .tb-input:disabled, .tb-ui .tb-select:disabled, .tb-ui .tb-textarea:disabled { cursor: not-allowed; opacity: .62; }
+
+.tb-ui .tb-check,
+.tb-ui .tb-radio {
+  display: flex;
+  min-height: var(--tb-touch-target);
+  align-items: flex-start;
+  gap: var(--tb-space-3);
+  color: var(--tb-text);
+  cursor: pointer;
+}
+
+.tb-ui .tb-check input,
+.tb-ui .tb-radio input {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex: 0 0 1.2rem;
+  margin: .12rem 0 0;
+  accent-color: var(--tb-gold);
+}
+
+.tb-ui .tb-field__error { color: #FFB6A7; font-size: var(--tb-text-sm); font-weight: 600; }
+
+@media (min-width: 40rem) {
+  .tb-ui .tb-form-row--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
