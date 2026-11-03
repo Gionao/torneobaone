@@ -16,15 +16,17 @@ $posNavActive = 'kitchen';
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/assets/brand/02_favicon/favicon.ico">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= htmlspecialchars($displayTitle) ?> — POS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css">
   <link rel="stylesheet" href="<?= POS_URL ?>/assets/css/pos.css">
 </head>
-<body class="pos-display-body">
+<body class="pos-display-body tb-ui">
 
   <?php require __DIR__ . '/includes/navbar.php'; ?>
   <h1 class="pos-display-title"><?= htmlspecialchars($displayTitle) ?></h1>

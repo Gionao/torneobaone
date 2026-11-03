@@ -30,7 +30,9 @@ if (!$row || ($row['tipo'] ?? '') !== 'consenso_genitore' || empty($row['id_geni
     }
 }
 ?>
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Conferma iscrizione — <?= htmlspecialchars(SITE_NAME) ?></title><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/iscrizioni.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/registration-portal.css?v=1"></head><body class="registration-form-page"><main class="app-shell"><section class="card-shell">
+<!doctype html><html lang="it"><head>
+  <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/assets/brand/02_favicon/favicon.ico">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Conferma iscrizione — <?= htmlspecialchars(SITE_NAME) ?></title><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/iscrizioni.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/registration-portal.css?v=1"></head><body class="registration-form-page"><main class="app-shell"><section class="card-shell">
 <div class="brand-row"><img src="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_scudetto_compatto.png" alt=""><h1>Conferma iscrizione</h1></div>
 <?php foreach ($errors as $error): ?><div class="alert alert-error" role="alert"><?= htmlspecialchars($error) ?></div><?php endforeach; ?>
 <?php if ($success): ?><div class="alert alert-success" role="status"><?= htmlspecialchars($success) ?></div><?php elseif ($row): ?>

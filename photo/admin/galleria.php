@@ -358,5 +358,6 @@ $anteprimabile = static function (array $f): bool {
 
 <?php if ($vista === 'album' && media_is_editor()): ?>
 <script src="<?= media_h(MEDIA_ROOT_URL) ?>/assets/js/galleria.js?v=<?= (int) (@filemtime(dirname(__DIR__) . '/assets/js/galleria.js') ?: time()) ?>"></script>
+<script src="<?= media_h(MEDIA_ROOT_URL) ?>/assets/js/anteprima.js?v=<?= (int) (@filemtime(dirname(__DIR__) . '/assets/js/anteprima.js') ?: time()) ?>"></script>
 <?php endif; ?>
 <?php require_once __DIR__ . '/_footer.php'; ?>
