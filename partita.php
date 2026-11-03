@@ -126,6 +126,7 @@ if ($hasScore) {
           <div class="msb-dot" style="background:<?= htmlspecialchars($partita['colore_casa']) ?>"></div>
         <?php endif; ?>
         <span class="msb-name"><?= htmlspecialchars($partita['nome_casa']) ?></span>
+        <a class="msb-team-details" href="<?= SITE_URL ?>/squadra/<?= (int) $partita['id_squadra_casa'] ?>" aria-label="Dettagli della squadra <?= htmlspecialchars($partita['nome_casa'], ENT_QUOTES, 'UTF-8') ?>">Dettagli squadra <span aria-hidden="true">→</span></a>
         <?php if ($winner === 'casa'): ?>
           <span class="msb-winner-badge">VINCITORE</span>
         <?php endif; ?>
@@ -169,6 +170,7 @@ if ($hasScore) {
           <div class="msb-dot" style="background:<?= htmlspecialchars($partita['colore_osp']) ?>"></div>
         <?php endif; ?>
         <span class="msb-name"><?= htmlspecialchars($partita['nome_osp']) ?></span>
+        <a class="msb-team-details" href="<?= SITE_URL ?>/squadra/<?= (int) $partita['id_squadra_osp'] ?>" aria-label="Dettagli della squadra <?= htmlspecialchars($partita['nome_osp'], ENT_QUOTES, 'UTF-8') ?>">Dettagli squadra <span aria-hidden="true">→</span></a>
         <?php if ($winner === 'osp'): ?>
           <span class="msb-winner-badge">VINCITORE</span>
         <?php endif; ?>

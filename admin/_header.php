@@ -66,7 +66,7 @@ $siteNavConfig = [
 <div class="admin-shell">
   <aside class="admin-sidebar" aria-label="Navigazione pannello">
     <a class="admin-sidebar-brand" href="<?= htmlspecialchars($siteNavConfig['brand_href'], ENT_QUOTES, 'UTF-8') ?>">
-      <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="" width="42" height="42">
+      <img src="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_principale.png" alt="" width="42" height="42">
       <span><strong><?= htmlspecialchars($siteNavConfig['brand_name'], ENT_QUOTES, 'UTF-8') ?></strong><small><?= htmlspecialchars($siteNavConfig['brand_year'], ENT_QUOTES, 'UTF-8') ?></small></span>
     </a>
     <div class="admin-sidebar-label"><?= $isTelecronistaArea ? 'Strumenti gara' : 'Gestione torneo' ?></div>

@@ -3,5 +3,7 @@ Options -Indexes
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  # Le destinazioni pulite della navbar devono risolvere i file admin reali.
+  RewriteRule ^admin/(galleria|upload|cestino|utenti|impostazioni)/?$ admin/$1.php [L,NC]
   RewriteRule ^(?:includes|tools)(?:/|$) - [F,L,NC]
 </IfModule>

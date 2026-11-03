@@ -5,6 +5,21 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/config.php';
 
 $pageTitle = 'Traccia il tuo ordine';
+$siteNavConfig = [
+    'id' => 'pos-tracking-navigation',
+    'brand_href' => SITE_URL . '/',
+    'brand_name' => 'Torneo Baone',
+    'brand_year' => '2026',
+    'brand_label' => 'Torneo Baone 2026',
+    'label' => 'Navigazione principale',
+    'primary' => [
+        ['label' => 'Home', 'href' => SITE_URL . '/'],
+        ['label' => 'Calendario', 'href' => SITE_URL . '/calendario'],
+        ['label' => 'Classifica', 'href' => SITE_URL . '/classifica'],
+        ['label' => 'Squadre', 'href' => SITE_URL . '/squadre'],
+    ],
+    'actions' => [['label' => 'Traccia ordine', 'href' => '#tracciamento', 'primary' => true, 'current' => true]],
+];
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -16,34 +31,27 @@ $pageTitle = 'Traccia il tuo ordine';
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/public-redesign.css">
   <link rel="stylesheet" href="<?= POS_URL ?>/assets/css/pos.css">
   <style>
     .track-wrap {
-      min-height: 100vh;
+      min-height: calc(100vh - 76px);
+      min-height: calc(100svh - 76px);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      padding: 3rem 1rem 4rem;
-      background: #080f17;
-    }
-    .track-logo {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      margin-bottom: 2rem;
-      text-align: center;
+      justify-content: center;
+      padding: clamp(2rem, 5vw, 4rem) 1rem;
+      background: var(--public-bg, #080f17);
     }
     .track-box {
-      background: var(--navy-mid);
-      border: 1px solid rgba(201,168,76,.15);
+      background: var(--public-surface, var(--navy-mid));
+      border: 1px solid rgba(201,168,76,.24);
       border-radius: var(--radius);
-      padding: 2rem;
+      padding: clamp(1.2rem, 5vw, 2rem);
       width: 100%;
       max-width: 480px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.28);
     }
     .track-box h1 {
       font-family: 'Barlow Condensed', sans-serif;
@@ -160,7 +168,7 @@ $pageTitle = 'Traccia il tuo ordine';
       align-items: center;
       gap: .25rem;
       z-index: 1;
-      background: #080f17;
+      background: var(--public-bg, #080f17);
       padding: 0 .25rem;
     }
     .step-dot {
@@ -185,11 +193,11 @@ $pageTitle = 'Traccia il tuo ordine';
     .step.done  .step-label  { color: #4caf82; }
   </style>
 </head>
-<body>
+<body class="public-site pos-track-body">
+<?php require dirname(__DIR__) . '/shared/site_nav.php'; ?>
 <div class="track-wrap">
-  <div class="track-logo">🥪 <?= htmlspecialchars(SITE_NAME) ?> — Festa dei Panini</div>
 
-  <div class="track-box">
+  <main class="track-box" id="tracciamento">
     <h1>Traccia il tuo ordine</h1>
 
     <div class="track-input-row">
@@ -203,7 +211,7 @@ $pageTitle = 'Traccia il tuo ordine';
     </div>
 
     <div id="trackResult" class="track-result"></div>
-  </div>
+  </main>
 
   <a class="track-back" href="<?= SITE_URL ?>">← Torna al sito del torneo</a>
 </div>

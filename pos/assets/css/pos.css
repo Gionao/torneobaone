@@ -674,16 +674,22 @@ body.pos-body {
 
 /* ── Login POS ──────────────────────────────────────────── */
 .pos-login-body {
-  background: #080f17;
+  background: var(--public-bg, #080f17);
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
+  display: block;
+  padding: 0;
+}
+
+.pos-login-main {
+  display: grid;
+  min-height: calc(100vh - 76px);
+  min-height: calc(100svh - 76px);
+  place-items: center;
+  padding: clamp(1.5rem, 5vw, 3.5rem) 1rem;
 }
 
 .pos-login-wrap {
-  width: min(100%, 400px);
+  width: min(100%, 440px);
   text-align: center;
 }
 
@@ -710,11 +716,12 @@ body.pos-body {
 }
 
 .pos-login-card {
-  background: var(--navy-mid);
-  border: 1px solid rgba(201, 168, 76, .12);
+  background: var(--public-surface, var(--navy-mid));
+  border: 1px solid rgba(201, 168, 76, .24);
   border-radius: var(--radius);
-  padding: 2rem;
+  padding: clamp(1.3rem, 5vw, 2rem);
   text-align: left;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .28);
 }
 
 .pos-login-btn {
@@ -1079,4 +1086,32 @@ body.admin-body.tb-ui .coupon-badge-free { display: inline-block; padding: .25re
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
+}
+
+/* Pagina pubblica di tracciamento ordine: completa la shell condivisa del sito. */
+body.pos-track-body :focus-visible { outline: 3px solid #ffe08a; outline-offset: 3px; }
+body.pos-track-body .btn { transition: color .16s ease, background-color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+body.pos-track-body .btn:active { transform: translateY(1px); }
+body.pos-track-body .track-input-row input[type="number"] {
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid rgba(240,244,248,.18);
+  border-radius: 6px;
+  color: #f4f6f8;
+  background: #0a1928;
+}
+body.pos-track-body .track-input-row input[type="number"]:focus {
+  border-color: #e8c76a;
+  box-shadow: 0 0 0 3px rgba(232,199,106,.13);
+}
+body.pos-track-body #btnTrack { min-height: 48px; touch-action: manipulation; }
+body.pos-track-body .track-box h1 { color: #f1d47e; }
+body.pos-track-body .track-back { min-height: 44px; display: inline-flex; align-items: center; }
+
+@media (max-width: 480px) {
+  body.pos-track-body .track-input-row { gap: .5rem; }
+  body.pos-track-body .track-input-row input[type="number"] { width: 100%; font-size: 1.2rem; }
+  body.pos-track-body .track-input-row .btn { flex: 0 0 auto; padding-inline: 1rem; }
+  body.pos-track-body .progress-steps { gap: .15rem; }
+  body.pos-track-body .step-label { font-size: .58rem; }
 }

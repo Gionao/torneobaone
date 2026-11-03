@@ -106,7 +106,6 @@ if ($logoSquadra !== '' && !preg_match('~^(?:https?:)?//|^/~i', $logoSquadra)) {
   <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/assets/brand/02_favicon/favicon.ico">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  /assets/brand/01_loghi/png/logo_principale.png">
   <link rel="apple-touch-icon" sizes="180x180" href="<?= SITE_URL ?>/assets/brand/02_favicon/favicon-180.png">
   <title><?= $squadra ? htmlspecialchars($squadra['nome']) . ' — ' : '' ?>Squadre — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">

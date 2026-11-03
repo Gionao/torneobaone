@@ -47,6 +47,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errore = 'Credenziali non valide';
     }
 }
+
+$siteNavConfig = [
+    'id' => 'pos-login-navigation',
+    'brand_href' => SITE_URL . '/',
+    'brand_name' => 'Torneo Baone',
+    'brand_year' => '2026',
+    'brand_label' => 'Torneo Baone 2026',
+    'label' => 'Navigazione principale',
+    'primary' => [
+        ['label' => 'Home', 'href' => SITE_URL . '/'],
+        ['label' => 'Calendario', 'href' => SITE_URL . '/calendario'],
+        ['label' => 'Classifica', 'href' => SITE_URL . '/classifica'],
+        ['label' => 'Squadre', 'href' => SITE_URL . '/squadre'],
+    ],
+    'actions' => [['label' => 'Area staff', 'href' => '#accesso', 'primary' => true, 'current' => true]],
+];
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -59,13 +75,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/public-redesign.css">
   <link rel="stylesheet" href="<?= POS_URL ?>/assets/css/pos.css">
 </head>
-<body class="pos-login-body">
+<body class="pos-login-body public-site">
+<?php require dirname(__DIR__) . '/shared/site_nav.php'; ?>
 
+<main class="pos-login-main" id="accesso">
 <div class="pos-login-wrap">
   <div class="pos-login-header">
-    <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo torneo" class="pos-login-logo">
     <h1 class="pos-login-title">Area gestione</h1>
     <p class="pos-login-sub">Accesso riservato allo staff</p>
   </div>
@@ -96,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     Torneo Calcio a 5 — Baone 2026
   </footer>
 </div>
+</main>
 
 <script>
 document.getElementById('togglePassword').addEventListener('click', function () {

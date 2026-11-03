@@ -59,7 +59,7 @@ $altreProssime = array_values(array_filter($prossime, static function (array $pa
 }));
 
 // Data fine torneo per countdown (modifica se necessario)
-$data_torneo = '2027-07-12Ins 21:00:00';
+$data_torneo = '2027-07-12 21:00:00';
 ?>
 <!DOCTYPE html>
 <html lang="it">
