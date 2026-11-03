@@ -50,8 +50,8 @@ require_once __DIR__ . '/../_header.php';
   <p class="empty-msg">Nessuna partita inserita. Usa il pulsante qui sopra per aggiungerne una.</p>
 <?php else: ?>
 
-<div class="admin-table-wrap">
-  <table class="admin-table">
+<div class="admin-table-wrap tb-table-wrap">
+  <table class="admin-table tb-table">
     <thead>
       <tr>
         <th>#</th>

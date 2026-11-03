@@ -28,8 +28,8 @@ require_once __DIR__ . '/../_header.php';
   <div class="alert alert-<?= htmlspecialchars($flash['type']) ?>"><?= htmlspecialchars($flash['text']) ?></div>
 <?php endif; ?>
 
-<div class="admin-table-wrap">
-  <table class="admin-table">
+<div class="admin-table-wrap tb-table-wrap">
+  <table class="admin-table tb-table">
     <thead>
       <tr>
         <th>Squadra</th>
@@ -42,6 +42,7 @@ require_once __DIR__ . '/../_header.php';
       </tr>
     </thead>
     <tbody>
+      <?php if (!$rows): ?><tr><td colspan="7" class="admin-table-empty">Non sono ancora state registrate transazioni.</td></tr><?php endif; ?>
       <?php foreach ($rows as $row): ?>
         <tr>
           <td><?= htmlspecialchars($row['squadra']) ?></td>

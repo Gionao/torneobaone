@@ -35,12 +35,15 @@ unset($squadra);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_principale.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="<?= SITE_URL ?>/assets/brand/02_favicon/favicon-180.png">
   <title>Squadre — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-squadre-1">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-squadre-2">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/public-redesign.css?v=1">
 </head>
-<body>
+<body class="public-site public-team-directory">
 <?php include __DIR__ . '/shared/header.php'; ?>
 <main class="team-directory-page">
   <div class="container">

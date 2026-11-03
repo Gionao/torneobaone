@@ -230,8 +230,8 @@ require_once __DIR__ . '/../_header.php';
     <?php if (empty($eventi)): ?>
       <p class="empty-msg">Nessun evento ancora aggiunto.</p>
     <?php else: ?>
-    <div class="admin-table-wrap">
-      <table class="admin-table">
+    <div class="admin-table-wrap tb-table-wrap">
+      <table class="admin-table tb-table">
         <thead>
           <tr>
             <th>Tipo</th>

@@ -10,7 +10,6 @@ $siteNavPrimary = is_array($siteNavConfig['primary'] ?? null) ? $siteNavConfig['
 $siteNavActions = is_array($siteNavConfig['actions'] ?? null) ? $siteNavConfig['actions'] : [];
 $siteNavContext = trim((string)($siteNavConfig['context'] ?? ''));
 $siteNavLabel = (string)($siteNavConfig['label'] ?? 'Navigazione principale');
-$siteNavUseOfficialShield = !empty($isPublicRedesign) || !empty($isRegistrationInfoLayout) || !empty($isCaptainPortalLayout) || !empty($isCaptainAuthLayout);
 $siteNavRenderLink = static function (array $item, bool $action = false): void {
     $href = (string)($item['href'] ?? '#');
     $label = (string)($item['label'] ?? '');
@@ -34,7 +33,7 @@ $siteNavRenderLink = static function (array $item, bool $action = false): void {
 <header class="site-header<?= $siteNavIsDense ? ' site-header--dense' : '' ?>" data-site-nav data-nav-breakpoint="<?= $siteNavIsDense ? '1060' : '820' ?>">
   <div class="nav-shell">
     <a class="brand" href="<?= htmlspecialchars($siteNavBrandHref, ENT_QUOTES, 'UTF-8') ?>" aria-label="<?= htmlspecialchars($siteNavBrandLabel, ENT_QUOTES, 'UTF-8') ?>">
-      <img class="brand-logo" src="<?= SITE_URL ?>/<?= $siteNavUseOfficialShield ? 'assets/brand/01_loghi/png/logo_scudetto_compatto.png' : 'assets/img/logo_torneo.png' ?>" alt="" width="48" height="48">
+      <img class="brand-logo" src="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_principale.png" alt="" width="48" height="48">
       <span class="brand-copy">
         <span class="brand-name"><?= htmlspecialchars($siteNavBrandName, ENT_QUOTES, 'UTF-8') ?></span>
         <span class="brand-year"><?= htmlspecialchars($siteNavBrandYear, ENT_QUOTES, 'UTF-8') ?></span>

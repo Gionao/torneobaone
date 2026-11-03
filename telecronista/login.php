@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Login Telecronista — <?= SITE_NAME ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -172,8 +173,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .back-link:hover { color: var(--gold); }
   </style>
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin-workspace.css?v=1">
 </head>
-<body>
+<body class="tb-ui telecronista-login-page">
 
 <div class="login-card">
   <div class="login-logo">
@@ -184,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <p class="subtitle">Accesso per la gestione delle partite</p>
 
   <?php if ($errore): ?>
-    <div class="errore"><?= htmlspecialchars($errore) ?></div>
+    <div class="errore tb-alert tb-alert--error" role="alert"><?= htmlspecialchars($errore) ?></div>
   <?php endif; ?>
 
   <form method="post" autocomplete="off" novalidate>
@@ -196,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <label for="password">Password</label>
     <input type="password" id="password" name="password" required>
 
-    <button type="submit" class="btn-login">Accedi</button>
+    <button type="submit" class="btn-login tb-button">Accedi</button>
   </form>
 
   <a href="<?= SITE_URL ?>" class="back-link">← Torna al sito</a>

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
 
-$publicRedesignPages = ['index.php', 'calendario.php', 'classifica.php', 'partita.php', 'live.php'];
+$publicRedesignPages = ['index.php', 'calendario.php', 'classifica.php', 'partita.php', 'squadre.php', 'squadra.php', 'live.php'];
 $isPublicRedesign = in_array(basename($_SERVER['PHP_SELF'] ?? ''), $publicRedesignPages, true);
 
 $currentPage = basename($_SERVER['PHP_SELF'] ?? 'index.php');

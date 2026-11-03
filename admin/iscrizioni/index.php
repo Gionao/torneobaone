@@ -19,8 +19,8 @@ require_once __DIR__ . '/../_header.php';
   <p>Panoramica delle squadre, stati iscrizione e pagamenti.</p>
 </div>
 
-<div class="admin-table-wrap">
-  <table class="admin-table">
+<div class="admin-table-wrap tb-table-wrap">
+  <table class="admin-table tb-table">
     <thead>
       <tr>
         <th>Squadra</th>
@@ -31,6 +31,7 @@ require_once __DIR__ . '/../_header.php';
       </tr>
     </thead>
     <tbody>
+      <?php if (!$squadre): ?><tr><td colspan="5" class="admin-table-empty">Non ci sono iscrizioni da mostrare.</td></tr><?php endif; ?>
       <?php foreach ($squadre as $s): ?>
         <tr>
           <td><?= htmlspecialchars($s['nome']) ?></td>

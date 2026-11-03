@@ -17,8 +17,8 @@ require_once __DIR__ . '/../_header.php';
   <p>Configurazione dei canali di pagamento disponibili.</p>
 </div>
 
-<div class="admin-table-wrap">
-  <table class="admin-table">
+<div class="admin-table-wrap tb-table-wrap">
+  <table class="admin-table tb-table">
     <thead>
       <tr>
         <th>Nome</th>
@@ -28,6 +28,7 @@ require_once __DIR__ . '/../_header.php';
       </tr>
     </thead>
     <tbody>
+      <?php if (!$methods): ?><tr><td colspan="4" class="admin-table-empty">Non sono configurati metodi di pagamento.</td></tr><?php endif; ?>
       <?php foreach ($methods as $m): ?>
         <tr>
           <td><?= htmlspecialchars($m['nome']) ?></td>

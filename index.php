@@ -59,7 +59,7 @@ $altreProssime = array_values(array_filter($prossime, static function (array $pa
 }));
 
 // Data fine torneo per countdown (modifica se necessario)
-$data_torneo = '2026-07-05 21:00:00';
+$data_torneo = '2027-07-12Ins 21:00:00';
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -69,8 +69,7 @@ $data_torneo = '2026-07-05 21:00:00';
   <meta name="description" content="Torneo di Calcio a 5 - Baone 2026. Segui gironi, classifiche e risultati in tempo reale.">
   <title><?= SITE_NAME ?></title>
 
-  <link rel="icon" type="image/png" href="assets/img/logo_torneo.png">
-  <link rel="icon" type="image/x-icon" href="assets/img/logo_torneo.png">
+  <link rel="icon" type="image/png" href="assets/brand/01_loghi/png/logo_principale.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
@@ -84,7 +83,7 @@ $data_torneo = '2026-07-05 21:00:00';
 <section class="hero" aria-labelledby="home-title">
   <div class="hero-bg"></div>
   <div class="hero-content">
-      <img src="assets/brand/01_loghi/png/logo_scudetto_compatto.png" alt="Scudetto ufficiale del Torneo Baone" class="hero-logo animate-drop" fetchpriority="high">
+      <img src="assets/brand/01_loghi/png/logo_principale.png" alt="Scudetto ufficiale del Torneo Baone" class="hero-logo animate-drop" fetchpriority="high">
       <h1 class="hero-title animate-fade" id="home-title">
       TORNEO<br><span class="gold">CALCIO A 5</span><br>BAONE
     </h1>

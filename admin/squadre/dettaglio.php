@@ -78,7 +78,7 @@ require_once __DIR__ . '/../_header.php';
 </section>
 <h2>Capitano e giocatori</h2>
 <?php if (!$giocatori && empty($squadra['id_capitano'])): ?><p class="empty-msg">Capitano non assegnato e nessun giocatore in rosa.</p><?php else: ?>
-<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Persona</th><th>Registrazione</th><?php foreach ($documenti as $doc): ?><th><?= htmlspecialchars($doc['nome']) ?><?= $doc['codice'] === 'liberatoria_foto' ? ' (se richiesta)' : '' ?></th><?php endforeach; ?></tr></thead><tbody>
+<div class="admin-table-wrap tb-table-wrap"><table class="admin-table tb-table"><thead><tr><th>Persona</th><th>Registrazione</th><?php foreach ($documenti as $doc): ?><th><?= htmlspecialchars($doc['nome']) ?><?= $doc['codice'] === 'liberatoria_foto' ? ' (se richiesta)' : '' ?></th><?php endforeach; ?></tr></thead><tbody>
 <?php if (!empty($squadra['id_capitano'])): ?>
 <tr class="captain-check-row"><td><strong>👑 <?= htmlspecialchars(trim((string) $squadra['capitano_nome'] . ' ' . (string) $squadra['capitano_cognome'])) ?></strong><br><span class="captain-check-badge">CAPITANO</span><br><small><?= htmlspecialchars($squadra['capitano_email'] ?? 'Email mancante') ?></small></td>
 <td><span class="state-pill <?= !empty($squadra['capitano_email_verificata_at']) ? 'ok' : 'bad' ?>"><?= !empty($squadra['capitano_email_verificata_at']) ? 'Registrato' : 'Email non verificata' ?></span></td>

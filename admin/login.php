@@ -46,8 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login — <?= SITE_NAME ?></title>
+  <link rel="icon" type="image/png" href="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_principale.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/public-redesign.css?v=1">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -61,8 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     body {
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
       background: var(--navy);
       background-image:
         radial-gradient(ellipse at 20% 50%, rgba(201,168,76,.08) 0%, transparent 60%),
@@ -73,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .login-card {
       width: 100%;
       max-width: 380px;
+      margin: auto;
       padding: 2.5rem 2rem;
       background: rgba(255,255,255,.04);
       border: 1px solid rgba(201,168,76,.25);
@@ -179,7 +184,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .back-link:hover { color: var(--gold); }
   </style>
 </head>
-<body>
+<body class="public-site admin-login-page">
+
+<?php include __DIR__ . '/../shared/header.php'; ?>
 
 <div class="login-card">
   <div class="login-logo">
@@ -208,5 +215,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <a href="<?= SITE_URL ?>" class="back-link">← Torna al sito</a>
 </div>
 
-</body>
-</html>
+<?php include __DIR__ . '/../shared/footer.php'; ?>
