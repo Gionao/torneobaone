@@ -146,67 +146,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/iscrizioni.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/registration-portal.css?v=1">
 </head>
-<body>
+<body class="registration-form-page">
   <div class="app-shell">
     <div class="card-shell">
       <div class="brand-row">
-        <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo">
+        <img src="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_scudetto_compatto.png" alt="">
         <h1>Iscrizione</h1>
       </div>
       <p class="subtle">Completa i tuoi dati personali per proseguire con l'iscrizione.</p>
 
       <?php if ($errors): foreach ($errors as $err): ?>
-        <div class="alert alert-error"><?= htmlspecialchars($err) ?></div>
+        <div class="alert alert-error" role="alert"><?= htmlspecialchars($err) ?></div>
       <?php endforeach; endif; ?>
       <?php if ($success): ?>
-        <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+        <div class="alert alert-success" role="status"><?= htmlspecialchars($success) ?></div>
       <?php endif; ?>
 
       <?php if ($token !== '' && !$success): ?>
         <form method="post" class="player-form" novalidate>
           <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+          <p class="required-note">I campi contrassegnati con <span aria-hidden="true">*</span> sono obbligatori.</p>
           <div class="form-row">
             <div class="form-group">
-              <label>Nome</label>
-              <input type="text" name="nome" maxlength="100" value="<?= htmlspecialchars($_POST['nome'] ?? '') ?>" required>
+              <label for="nome">Nome <span class="required-mark" aria-hidden="true">*</span></label>
+              <input id="nome" type="text" name="nome" maxlength="100" value="<?= htmlspecialchars($_POST['nome'] ?? '') ?>" required>
             </div>
             <div class="form-group">
-              <label>Cognome</label>
-              <input type="text" name="cognome" maxlength="100" value="<?= htmlspecialchars($_POST['cognome'] ?? '') ?>" required>
+              <label for="cognome">Cognome <span class="required-mark" aria-hidden="true">*</span></label>
+              <input id="cognome" type="text" name="cognome" maxlength="100" value="<?= htmlspecialchars($_POST['cognome'] ?? '') ?>" required>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Email</label>
-              <input type="email" name="email" maxlength="190" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+              <label for="email">Email <span class="required-mark" aria-hidden="true">*</span></label>
+              <input id="email" type="email" name="email" maxlength="190" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
             </div>
             <div class="form-group">
-              <label>Telefono</label>
-              <input type="text" name="telefono" maxlength="30" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>" required>
+              <label for="telefono">Telefono <span class="required-mark" aria-hidden="true">*</span></label>
+              <input id="telefono" type="text" name="telefono" maxlength="30" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>" required>
             </div>
           </div>
           <div class="form-group">
-            <label>Data di nascita</label>
-            <input type="date" name="data_nascita" value="<?= htmlspecialchars($_POST['data_nascita'] ?? '') ?>" required>
+            <label for="data_nascita">Data di nascita <span class="required-mark" aria-hidden="true">*</span></label>
+            <input id="data_nascita" type="date" name="data_nascita" value="<?= htmlspecialchars($_POST['data_nascita'] ?? '') ?>" required>
           </div>
           <div class="form-group">
-            <label>Indirizzo (via/piazza - civico - paese)</label>
-            <input type="text" name="indirizzo" maxlength="255" placeholder="Via Roma - 10 - Baone" value="<?= htmlspecialchars($_POST['indirizzo'] ?? '') ?>" required>
+            <label for="indirizzo">Indirizzo (via/piazza - civico - paese) <span class="required-mark" aria-hidden="true">*</span></label>
+            <input id="indirizzo" type="text" name="indirizzo" maxlength="255" placeholder="Via Roma - 10 - Baone" value="<?= htmlspecialchars($_POST['indirizzo'] ?? '') ?>" required>
           </div>
           <section class="parent-fields" id="parent-fields" hidden>
             <h2>Iscrizione minorenne</h2>
             <p>Inserisci i dati del genitore, che riceverà il link per completare e confermare l’iscrizione.</p>
             <div class="form-row">
-              <div class="form-group"><label>Nome genitore</label><input type="text" name="genitore_nome" maxlength="100" value="<?= htmlspecialchars($_POST['genitore_nome'] ?? '') ?>"></div>
-              <div class="form-group"><label>Cognome genitore</label><input type="text" name="genitore_cognome" maxlength="100" value="<?= htmlspecialchars($_POST['genitore_cognome'] ?? '') ?>"></div>
+              <div class="form-group"><label for="genitore_nome">Nome genitore</label><input id="genitore_nome" type="text" name="genitore_nome" maxlength="100" value="<?= htmlspecialchars($_POST['genitore_nome'] ?? '') ?>"></div>
+              <div class="form-group"><label for="genitore_cognome">Cognome genitore</label><input id="genitore_cognome" type="text" name="genitore_cognome" maxlength="100" value="<?= htmlspecialchars($_POST['genitore_cognome'] ?? '') ?>"></div>
             </div>
-            <div class="form-group"><label>Email genitore</label><input type="email" name="genitore_email" maxlength="190" value="<?= htmlspecialchars($_POST['genitore_email'] ?? '') ?>"></div>
+            <div class="form-group"><label for="genitore_email">Email genitore</label><input id="genitore_email" type="email" name="genitore_email" maxlength="190" value="<?= htmlspecialchars($_POST['genitore_email'] ?? '') ?>"></div>
           </section>
           <section class="consent-fields">
             <h2>Consensi</h2>
-            <label class="check-item"><input type="checkbox" name="accetta_privacy" value="1" required <?= !empty($_POST['accetta_privacy']) ? 'checked' : '' ?>> Accetto l’informativa privacy.</label>
-            <label class="check-item"><input type="checkbox" name="accetta_regolamento" value="1" required <?= !empty($_POST['accetta_regolamento']) ? 'checked' : '' ?>> Accetto il regolamento del torneo.</label>
+            <label class="check-item"><input type="checkbox" name="accetta_privacy" value="1" required <?= !empty($_POST['accetta_privacy']) ? 'checked' : '' ?>> Accetto l’informativa privacy. <span class="required-mark" aria-hidden="true">*</span></label>
+            <label class="check-item"><input type="checkbox" name="accetta_regolamento" value="1" required <?= !empty($_POST['accetta_regolamento']) ? 'checked' : '' ?>> Accetto il regolamento del torneo. <span class="required-mark" aria-hidden="true">*</span></label>
             <label class="check-item"><input type="checkbox" name="accetta_foto" value="1" <?= !empty($_POST['accetta_foto']) ? 'checked' : '' ?>> Acconsento all’uso di foto e video (facoltativo).</label>
           </section>
           <div class="inline-actions">

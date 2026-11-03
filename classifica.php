@@ -60,15 +60,16 @@ $msgClassificaVuota = [
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
+  <link rel="stylesheet" href="assets/css/public-redesign.css?v=1">
 </head>
-<body>
+<body class="public-site public-standings">
 
 <?php include 'shared/header.php'; ?>
 
 <!-- CLASSIFICA HERO -->
 <section class="section" style="padding-top:3rem;padding-bottom:1.5rem;">
   <div class="container">
-    <div class="section-title centered">🏆 Classifica Girone</div>
+    <h1 class="section-title centered">Classifica Girone</h1>
     <p class="centered empty-msg" style="margin-bottom:2.5rem;">
       Aggiornata in tempo reale dopo ogni partita
     </p>
@@ -144,7 +145,7 @@ $msgClassificaVuota = [
 <?php if (!empty($cannonieri)): ?>
 <section class="section partite-strip" style="padding-top:2.5rem;">
   <div class="container">
-    <div class="section-title">⚽ Capocannonieri</div>
+    <h2 class="section-title">Capocannonieri</h2>
     <div class="standings-table-outer">
       <table class="standings-table">
         <thead>
@@ -175,15 +176,6 @@ $msgClassificaVuota = [
 <?php endif; ?>
 
 <?php include 'shared/footer.php'; ?>
-
-<style>
-.standings-wrap { margin-bottom: 1rem; }
-.standings-table-outer { overflow-x: auto; border-radius: var(--radius); border: 1px solid rgba(201,168,76,.12); }
-.pts-col { font-size: .95rem !important; }
-.team-name-cell { display: flex; align-items: center; gap: .5rem; }
-.team-color-dot { display:inline-block; width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.team-mini-logo { width:20px; height:20px; object-fit:contain; border-radius:3px; }
-</style>
 
 </body>
 </html>

@@ -25,6 +25,26 @@ $ultimi = db()->query(
      ORDER BY p.data_ora DESC LIMIT 3"
 )->fetchAll();
 
+// Anteprima classifica: usa lo stesso ordinamento pubblico della pagina classifica.
+try {
+    $anteprimaClassifica = db()->query("SELECT c.*, s.nome AS nome_squadra, s.logo_url
+        FROM classifica c JOIN squadre s ON s.id = c.id_squadra
+        ORDER BY c.punti DESC, c.diff_reti DESC, c.gol_fatti DESC,
+                 c.gol_subiti ASC, c.ammonizioni ASC, c.espulsioni ASC, s.nome ASC
+        LIMIT 4")->fetchAll();
+} catch (Throwable $e) {
+    if (DEBUG_MODE) error_log('Errore anteprima classifica: ' . $e->getMessage());
+    $anteprimaClassifica = [];
+}
+
+// Gara iniziata e non conclusa: l'indicazione live non altera la selezione di live.php.
+$partitaLiveHome = db()->query("SELECT p.id, p.data_ora, sc.nome AS casa, so.nome AS ospite
+    FROM partite p
+    JOIN squadre sc ON sc.id = p.id_squadra_casa
+    JOIN squadre so ON so.id = p.id_squadra_osp
+    WHERE p.giocata = 0 AND p.data_ora <= NOW()
+    ORDER BY p.data_ora ASC LIMIT 1")->fetch();
+
 // Prossima partita con orario ancora futuro, se disponibile
 $partitaInEvidenza = null;
 $adesso = time();
@@ -54,17 +74,18 @@ $data_torneo = '2026-07-05 21:00:00';
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
+  <link rel="stylesheet" href="assets/css/public-redesign.css?v=1">
 </head>
-<body>
+<body class="public-site public-home">
 
 <?php include __DIR__ . '/shared/header.php'; ?>
 
 <!-- ═══════════════════════════════ HERO ════════════════════════════════ -->
-<header class="hero">
+<section class="hero" aria-labelledby="home-title">
   <div class="hero-bg"></div>
   <div class="hero-content">
-    <img src="assets/img/logo_torneo.png" alt="Torneo Calcio a 5 Baone" class="hero-logo animate-drop">
-    <h1 class="hero-title animate-fade">
+      <img src="assets/brand/01_loghi/png/logo_scudetto_compatto.png" alt="Scudetto ufficiale del Torneo Baone" class="hero-logo animate-drop" fetchpriority="high">
+      <h1 class="hero-title animate-fade" id="home-title">
       TORNEO<br><span class="gold">CALCIO A 5</span><br>BAONE
     </h1>
     <p class="hero-sub animate-fade delay-1">Campetto di Baone &bull; Estate 2026</p>
@@ -90,7 +111,17 @@ $data_torneo = '2026-07-05 21:00:00';
     <span>Scorri</span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5 5 5-5"/></svg>
   </div>
-</header>
+</section>
+
+<?php if ($partitaLiveHome): ?>
+<section class="home-live-band" aria-label="Partita in corso">
+  <div class="container home-live-inner">
+    <span class="live-pill"><span aria-hidden="true"></span> In corso</span>
+    <p><strong><?= htmlspecialchars($partitaLiveHome['casa']) ?></strong><span aria-hidden="true"> — </span><strong><?= htmlspecialchars($partitaLiveHome['ospite']) ?></strong></p>
+    <a href="live.php">Segui la diretta <span aria-hidden="true">→</span></a>
+  </div>
+</section>
+<?php endif; ?>
 
 <?php if ($partitaInEvidenza): ?>
 <section class="featured-match-section" aria-labelledby="featured-match-title">
@@ -116,6 +147,27 @@ $data_torneo = '2026-07-05 21:00:00';
          aria-live="off">Calcolo del conto alla rovescia…</p>
       <a class="featured-match-link" href="calendario.php">Apri il calendario <span aria-hidden="true">→</span></a>
     </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if (!empty($anteprimaClassifica)): ?>
+<section class="section home-standings" aria-labelledby="home-standings-title">
+  <div class="container">
+    <div class="public-section-heading">
+      <div><span class="eyebrow">La corsa al titolo</span><h2 id="home-standings-title">Classifica</h2></div>
+      <a class="text-link" href="classifica.php">Tutta la classifica <span aria-hidden="true">→</span></a>
+    </div>
+    <ol class="home-standings-list">
+      <?php foreach ($anteprimaClassifica as $i => $r): ?>
+      <li>
+        <span class="home-rank"><?= $i + 1 ?></span>
+        <?php if (!empty($r['logo_url'])): ?><img src="<?= htmlspecialchars($r['logo_url']) ?>" alt="" loading="lazy"><?php endif; ?>
+        <strong><?= htmlspecialchars($r['nome_squadra']) ?></strong>
+        <span class="home-points"><?= (int)$r['punti'] ?> <small>pti</small></span>
+      </li>
+      <?php endforeach; ?>
+    </ol>
   </div>
 </section>
 <?php endif; ?>
@@ -195,16 +247,16 @@ $data_torneo = '2026-07-05 21:00:00';
         <h3>Playoff & Finali</h3>
         <p>Le prime 7 accedono ai playoff. Semifinali, finale 3°/4° e finale 1°/2°.</p>
       </div>
-      <!--<div class="info-card">
+      <!----><div class="info-card">
         <div class="info-icon">🍔</div>
         <h3>2 Coupon</h3>
         <p>Ogni giocatore ha 2 coupon gratuiti per lo stand panini al Patronato San Lorenzo.</p>
       </div>
-    </div>-->
+    </div>
   </div>
 </section>
 
-<!-- ════════════════════════ TRACCIA ORDINE ════════════════════════ 
+<!-- ════════════════════════ TRACCIA ORDINE ════════════════════════ -->
 <section class="section track-order-section">
   <div class="container centered">
     <h2 class="section-title">🍔 Traccia il tuo Ordine</h2>
@@ -218,7 +270,7 @@ $data_torneo = '2026-07-05 21:00:00';
       </a>
     </div>
   </div>
-</section>-->
+</section>
 
 <!-- ═══════════════════════════════ SOCIAL ═══════════════════════════════ -->
 <section class="section social-section">

@@ -43,19 +43,20 @@ if ($token === '') {
     .card { width: min(100%, 520px); background: var(--navy-mid); border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 2rem; }
     h1 { font-family: 'Barlow Condensed', sans-serif; letter-spacing: .08em; color: var(--gold); text-transform: uppercase; }
   </style>
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=1">
 </head>
-<body>
-  <div class="card">
+<body class="captain-auth-flow">
+  <main class="card">
     <h1>Verifica account</h1>
     <?php if ($errors): foreach ($errors as $error): ?>
-      <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+      <div class="alert alert-error" role="alert"><?= htmlspecialchars($error) ?></div>
     <?php endforeach; endif; ?>
     <?php if ($success): ?>
-      <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+      <div class="alert alert-success" role="status"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
     <div style="margin-top: 1.5rem; text-align: center;">
       <a href="<?= SITE_URL ?>/capitano/login.php" class="btn btn-gold">Vai al login</a>
     </div>
-  </div>
+  </main>
 </body>
 </html>

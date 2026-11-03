@@ -72,15 +72,16 @@ $fasiMostrate = $filtro === 'tutte'
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
+  <link rel="stylesheet" href="assets/css/public-redesign.css?v=1">
 </head>
-<body>
+<body class="public-site public-calendar">
 
 <?php include __DIR__ . '/shared/header.php'; ?>
 
 <!-- HEADER -->
 <section class="section" style="padding-top:3rem;padding-bottom:1rem;">
   <div class="container">
-    <div class="section-title centered">📅 Calendario Partite</div>
+    <h1 class="section-title">Calendario partite</h1>
 
     <!-- Filtri fase -->
     <?php if ($totalePartite > 0): ?>
@@ -214,125 +215,6 @@ $fasiMostrate = $filtro === 'tutte'
 
 <!-- FOOTER -->
 <?php include 'shared/footer.php'; ?>
-
-<style>
-/* ── Fase filter tabs ─────────────────── */
-.fase-filter {
-  display: flex;
-  gap: .5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 1rem;
-  margin-bottom: .5rem;
-}
-.status-filter {
-  display: flex;
-  gap: .5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: .75rem;
-}
-.fase-filter-btn {
-  padding: .35rem 1rem;
-  border-radius: 20px;
-  border: 1px solid rgba(201,168,76,.25);
-  color: var(--muted);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: .88rem;
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  transition: var(--transition);
-}
-.fase-filter-btn:hover, .fase-filter-btn.active {
-  background: var(--gold);
-  color: var(--navy);
-  border-color: var(--gold);
-}
-
-/* ── Fase block ────────────────────────── */
-.cal-fase-block { margin-bottom: 3rem; }
-.cal-fase-title { margin-bottom: 1.2rem; }
-
-/* ── Match cards ───────────────────────── */
-.cal-cards { display: flex; flex-direction: column; gap: .7rem; }
-
-.cal-card {
-  display: block;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(201,168,76,.12);
-  border-radius: var(--radius);
-  padding: 1rem 1.2rem;
-  transition: var(--transition);
-  color: var(--white);
-  text-decoration: none;
-}
-.cal-card:hover {
-  border-color: rgba(201,168,76,.4);
-  background: rgba(201,168,76,.05);
-  transform: translateY(-1px);
-  color: var(--white);
-}
-.cal-card--played { border-left: 3px solid var(--gold); }
-
-.cal-card-meta {
-  display: flex;
-  gap: .8rem;
-  font-size: .73rem;
-  color: var(--muted);
-  margin-bottom: .6rem;
-  flex-wrap: wrap;
-  align-items: center;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-}
-.cal-date { font-weight: 600; }
-.cal-status { border-radius: 4px; padding: .1rem .4rem; font-size: .7rem; }
-.cal-status--done    { background: rgba(76,175,125,.15); color: #6ddfab; }
-.cal-status--pending { background: rgba(201,168,76,.1);  color: var(--gold-dim); }
-
-.cal-matchup {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 1rem;
-}
-
-.cal-team { display: flex; align-items: center; gap: .5rem; }
-.cal-team--home { justify-content: flex-end; text-align: right; }
-.cal-team--away { justify-content: flex-start; text-align: left; }
-.cal-team--winner .cal-team-name { color: var(--gold); font-weight: 700; }
-
-.cal-team-name {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-.cal-team-dot {
-  display: inline-block;
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.cal-team-logo { width: 24px; height: 24px; object-fit: contain; }
-
-.cal-score { text-align: center; }
-.cal-vs {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: .8rem;
-  font-weight: 700;
-  color: var(--gold-dim);
-  letter-spacing: .1em;
-}
-.cal-shootout { display: block; font-size: .72rem; color: var(--muted); margin-top: .2rem; }
-
-.cal-detail-hint {
-  margin-top: .5rem;
-  font-size: .75rem;
-  color: var(--gold-dim);
-  text-align: right;
-}
-</style>
 
 </body>
 </html>

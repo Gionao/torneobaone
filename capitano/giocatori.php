@@ -143,31 +143,32 @@ require_once __DIR__ . '/_header.php';
 </div>
 
 <?php if ($errors): foreach ($errors as $error): ?>
-  <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+  <div class="alert alert-error" role="alert"><?= htmlspecialchars($error) ?></div>
 <?php endforeach; endif; ?>
 <?php if ($success): ?>
-  <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+  <div class="alert alert-success" role="status"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 <?php if ($shareUrl): ?><div class="share-link"><label for="share-link">Link da condividere</label><input id="share-link" readonly value="<?= htmlspecialchars($shareUrl) ?>"><button type="button" class="btn btn-outline" onclick="copyInviteLink(this)">Copia link</button></div><script>function copyInviteLink(button){const field=document.getElementById('share-link');field.select();if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(field.value).then(()=>button.textContent='Copiato');}else{document.execCommand('copy');button.textContent='Copiato';}}</script><?php endif; ?>
 
-<form method="post" class="admin-form player-add-form" style="margin-bottom:2rem;">
+<form method="post" class="admin-form player-add-form captain-panel" style="margin-bottom:2rem;">
   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['capitano_csrf_token'] ?? capitano_csrf_token()) ?>">
+  <p class="required-note">Tutti i campi sono obbligatori.</p>
   <div class="form-group">
-    <label>Nome</label>
-  <input type="text" name="nome" value="<?= $success ? '' : htmlspecialchars($_POST['nome'] ?? '') ?>" required>
+    <label for="player_nome">Nome <span class="required-mark" aria-hidden="true">*</span></label>
+  <input id="player_nome" type="text" name="nome" value="<?= $success ? '' : htmlspecialchars($_POST['nome'] ?? '') ?>" required>
   </div>
   <div class="form-group">
-    <label>Cognome</label>
-  <input type="text" name="cognome" value="<?= $success ? '' : htmlspecialchars($_POST['cognome'] ?? '') ?>" required>
+    <label for="player_cognome">Cognome <span class="required-mark" aria-hidden="true">*</span></label>
+  <input id="player_cognome" type="text" name="cognome" value="<?= $success ? '' : htmlspecialchars($_POST['cognome'] ?? '') ?>" required>
   </div>
   <div class="form-group">
-    <label>Email</label>
-  <input type="email" name="email" value="<?= $success ? '' : htmlspecialchars($_POST['email'] ?? '') ?>" required>
+    <label for="player_email">Email <span class="required-mark" aria-hidden="true">*</span></label>
+  <input id="player_email" type="email" name="email" value="<?= $success ? '' : htmlspecialchars($_POST['email'] ?? '') ?>" required>
   </div>
   <button type="submit" class="btn btn-gold">Aggiungi giocatore</button>
 </form>
 
-<div class="admin-form">
+<div class="admin-form captain-panel">
   <h2 style="margin-bottom:1rem; font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.08em; color:var(--gold);">Elenco</h2>
   <?php if (!$rows): ?>
     <p class="empty-msg">Nessun giocatore inserito.</p>

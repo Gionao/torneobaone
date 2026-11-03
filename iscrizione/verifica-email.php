@@ -72,17 +72,18 @@ if ($token === '') {
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/iscrizioni.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/registration-portal.css?v=1">
 </head>
-<body>
+<body class="registration-form-page">
   <div class="app-shell">
     <div class="card-shell">
       <div class="brand-row">
-        <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo">
+        <img src="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_scudetto_compatto.png" alt="">
         <h1>Verifica</h1>
       </div>
-      <?php if ($errors): foreach ($errors as $err): ?><div class="alert alert-error"><?= htmlspecialchars($err) ?></div><?php endforeach; endif; ?>
-      <?php if ($success): ?><div class="alert alert-success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
-      <?php if ($warning): ?><div class="alert alert-error"><?= htmlspecialchars($warning) ?></div><?php endif; ?>
+      <?php if ($errors): foreach ($errors as $err): ?><div class="alert alert-error" role="alert"><?= htmlspecialchars($err) ?></div><?php endforeach; endif; ?>
+      <?php if ($success): ?><div class="alert alert-success" role="status"><?= htmlspecialchars($success) ?></div><?php endif; ?>
+      <?php if ($warning): ?><div class="alert alert-error" role="alert"><?= htmlspecialchars($warning) ?></div><?php endif; ?>
       <div class="inline-actions" style="justify-content:center;">
         <a href="<?= SITE_URL ?>" class="btn btn-gold">Torna al sito</a>
       </div>

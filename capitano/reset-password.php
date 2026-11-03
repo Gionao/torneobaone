@@ -54,24 +54,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .card { width:min(100%, 440px); background:var(--navy-mid); border:1px solid rgba(201,168,76,.18); border-radius:10px; padding:2rem; }
     h1 { font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; color:var(--gold); letter-spacing:.08em; }
   </style>
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=1">
 </head>
-<body>
-  <div class="card">
+<body class="captain-auth-flow">
+  <main class="card">
     <h1>Reimposta password</h1>
-    <?php if ($errors): foreach ($errors as $error): ?><div class="alert alert-error"><?= htmlspecialchars($error) ?></div><?php endforeach; endif; ?>
-    <?php if ($success): ?><div class="alert alert-success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
+    <?php if ($errors): foreach ($errors as $error): ?><div class="alert alert-error" role="alert"><?= htmlspecialchars($error) ?></div><?php endforeach; endif; ?>
+    <?php if ($success): ?><div class="alert alert-success" role="status"><?= htmlspecialchars($success) ?></div><?php endif; ?>
     <?php if ($token !== ''): ?>
       <form method="post" class="admin-form" style="margin-top:1rem;">
         <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
         <div class="form-group">
-          <label>Nuova password</label>
-          <input type="password" name="password" required>
+          <label for="nuova_password">Nuova password <span class="required-mark" aria-hidden="true">*</span></label>
+          <input id="nuova_password" type="password" name="password" required>
         </div>
         <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center;">Salva</button>
       </form>
     <?php else: ?>
       <div style="margin-top:1rem; text-align:center;"><a href="<?= SITE_URL ?>/capitano/login.php">Vai al login</a></div>
     <?php endif; ?>
-  </div>
+  </main>
 </body>
 </html>

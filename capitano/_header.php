@@ -20,11 +20,13 @@ if (!isset($pageTitle)) {
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=1">
 </head>
-<body class="admin-body">
+<body class="admin-body captain-portal">
 
 <?php
 $capitanoNavPath = trim((string)(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: ''), '/');
+$isCaptainPortalLayout = true;
 $siteNavConfig = [
     'id' => 'captain-navigation',
     'brand_href' => SITE_URL . '/capitano/dashboard',

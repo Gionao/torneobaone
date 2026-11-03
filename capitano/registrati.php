@@ -222,41 +222,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .grid2 { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap: 1rem; }
     @media (max-width: 640px) { .grid2 { grid-template-columns:1fr; } }
   </style>
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=1">
 </head>
-<body>
+<body class="captain-auth-flow captain-signup-flow">
 <div class="auth-card">
   <div class="brand">
-    <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo">
+    <img src="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_scudetto_compatto.png" alt="">
     <h1>Registrazione Capitano</h1>
   </div>
 
   <?php if ($errors): foreach ($errors as $error): ?>
-    <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+    <div class="alert alert-error" role="alert"><?= htmlspecialchars($error) ?></div>
   <?php endforeach; endif; ?>
   <?php if (!$iscrizioniAperte): ?>
-    <div class="alert alert-error">Le iscrizioni hanno raggiunto il limite di <?= MAX_SQUADRE ?> squadre.</div>
+    <div class="alert alert-error" role="alert">Le iscrizioni hanno raggiunto il limite di <?= MAX_SQUADRE ?> squadre.</div>
   <?php endif; ?>
 
   <?php if ($iscrizioniAperte): ?><form method="post" class="admin-form" novalidate>
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(capitano_csrf_token()) ?>">
 
-    <fieldset style="border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-      <legend style="padding: 0 .5rem; color: var(--gold); font-weight: 700;">Step 1 - Registrazione squadra</legend>
+    <p class="required-note">I campi contrassegnati con <span aria-hidden="true">*</span> sono obbligatori. Il consenso a foto e video è facoltativo.</p>
+    <fieldset class="captain-step-fieldset">
+      <legend style="padding: 0 .5rem; color: var(--gold); font-weight: 700;">Passaggio 1 — Dati della squadra</legend>
       <div class="grid2">
         <div class="form-group">
-          <label>Nome squadra</label>
-          <input type="text" name="nome_squadra" value="<?= htmlspecialchars($_POST['nome_squadra'] ?? '') ?>" required>
+          <label for="nome_squadra">Nome squadra <span class="required-mark" aria-hidden="true">*</span></label>
+          <input id="nome_squadra" type="text" name="nome_squadra" value="<?= htmlspecialchars($_POST['nome_squadra'] ?? '') ?>" required>
         </div>
         <div class="form-group">
-          <label>Colore squadra</label>
-          <input type="color" name="colore_squadra" value="<?= htmlspecialchars($_POST['colore_squadra'] ?? '#1a3a5c') ?>" style="min-height:44px; width:100%; padding:0.2rem;">
+          <label for="colore_squadra">Colore squadra</label>
+          <input id="colore_squadra" type="color" name="colore_squadra" value="<?= htmlspecialchars($_POST['colore_squadra'] ?? '#1a3a5c') ?>" style="min-height:44px; width:100%; padding:0.2rem;">
         </div>
       </div>
 
       <div class="grid2">
         <div class="form-group">
-          <label>Numero giocatori previsti (escluso il capitano)</label>
-          <input type="number" name="numero_giocatori_previsto" min="1" max="9" value="<?= htmlspecialchars((string) ($_POST['numero_giocatori_previsto'] ?? 9)) ?>" required>
+          <label for="numero_giocatori_previsto">Numero giocatori previsti (escluso il capitano) <span class="required-mark" aria-hidden="true">*</span></label>
+          <input id="numero_giocatori_previsto" type="number" name="numero_giocatori_previsto" min="1" max="9" value="<?= htmlspecialchars((string) ($_POST['numero_giocatori_previsto'] ?? 9)) ?>" required>
         </div>
         <!--<div class="form-group">
           <label>Logo URL</label>
@@ -265,49 +267,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </fieldset>
 
-    <fieldset style="border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-      <legend style="padding: 0 .5rem; color: var(--gold); font-weight: 700;">Step 2 - Registrazione capitano</legend>
+    <fieldset class="captain-step-fieldset">
+      <legend style="padding: 0 .5rem; color: var(--gold); font-weight: 700;">Passaggio 2 — Dati del capitano</legend>
       <div class="grid2">
         <div class="form-group">
-          <label>Nome</label>
-          <input type="text" name="nome" value="<?= htmlspecialchars($_POST['nome'] ?? '') ?>" required>
+          <label for="capitano_nome">Nome <span class="required-mark" aria-hidden="true">*</span></label>
+          <input id="capitano_nome" type="text" name="nome" value="<?= htmlspecialchars($_POST['nome'] ?? '') ?>" required>
         </div>
         <div class="form-group">
-          <label>Cognome</label>
-          <input type="text" name="cognome" value="<?= htmlspecialchars($_POST['cognome'] ?? '') ?>" required>
+          <label for="capitano_cognome">Cognome <span class="required-mark" aria-hidden="true">*</span></label>
+          <input id="capitano_cognome" type="text" name="cognome" value="<?= htmlspecialchars($_POST['cognome'] ?? '') ?>" required>
         </div>
       </div>
 
       <div class="grid2">
         <div class="form-group">
-          <label>Data di nascita</label>
-          <input type="date" name="data_nascita" value="<?= htmlspecialchars($_POST['data_nascita'] ?? '') ?>" required>
+          <label for="capitano_data_nascita">Data di nascita <span class="required-mark" aria-hidden="true">*</span></label>
+          <input id="capitano_data_nascita" type="date" name="data_nascita" value="<?= htmlspecialchars($_POST['data_nascita'] ?? '') ?>" required>
         </div>
         <div class="form-group">
-          <label>Telefono</label>
-          <input type="text" name="telefono" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
+          <label for="capitano_telefono">Telefono</label>
+          <input id="capitano_telefono" type="text" name="telefono" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
         </div>
       </div>
 
       <div class="form-group">
-        <label>Indirizzo</label>
-        <input type="text" name="indirizzo" value="<?= htmlspecialchars($_POST['indirizzo'] ?? '') ?>" required>
+        <label for="capitano_indirizzo">Indirizzo <span class="required-mark" aria-hidden="true">*</span></label>
+        <input id="capitano_indirizzo" type="text" name="indirizzo" value="<?= htmlspecialchars($_POST['indirizzo'] ?? '') ?>" required>
       </div>
 
       <div class="grid2">
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+          <label for="capitano_email">Email <span class="required-mark" aria-hidden="true">*</span></label>
+          <input id="capitano_email" type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
         </div>
         <div class="form-group">
-          <label>Password</label>
-          <input type="password" name="password" minlength="8" required>
+          <label for="capitano_password">Password <span class="required-mark" aria-hidden="true">*</span></label>
+          <input id="capitano_password" type="password" name="password" minlength="8" required>
         </div>
       </div>
 
       <div class="checklist">
-        <label class="check-item"><input type="checkbox" name="accetta_regolamento" value="1" required> Accetto il regolamento del torneo.</label><br>
-        <label class="check-item"><input type="checkbox" name="accetta_privacy" value="1" required> Accetto l'informativa privacy.</label><br>
+        <label class="check-item"><input type="checkbox" name="accetta_regolamento" value="1" required> Accetto il regolamento del torneo. <span class="required-mark" aria-hidden="true">*</span></label><br>
+        <label class="check-item"><input type="checkbox" name="accetta_privacy" value="1" required> Accetto l'informativa privacy. <span class="required-mark" aria-hidden="true">*</span></label><br>
         <label class="check-item"><input type="checkbox" name="accetta_foto" value="1"> Acconsento all’uso di foto e video (facoltativo).</label>
       </div>
     </fieldset>

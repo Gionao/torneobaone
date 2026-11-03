@@ -127,118 +127,20 @@ if ($partita) {
 <title>Live | Torneo Baone 2026</title>
 
 <meta http-equiv="refresh" content="10">
-
-<style>
-
-body{
-    background:#07131f;
-    color:#fff;
-    font-family:Arial,Helvetica,sans-serif;
-}
-
-.live-container{
-    max-width:1200px;
-    margin:auto;
-    padding:40px 20px;
-}
-
-.live-title{
-    text-align:center;
-    font-size:42px;
-    margin-bottom:50px;
-}
-
-.scoreboard{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:40px;
-}
-
-.team{
-    flex:1;
-    text-align:center;
-}
-
-.team img{
-    width:180px;
-    height:180px;
-    object-fit:contain;
-    margin-bottom:20px;
-}
-
-.team-name{
-    font-size:34px;
-    font-weight:bold;
-}
-
-.score{
-    min-width:280px;
-    text-align:center;
-}
-
-.score-number{
-    font-size:110px;
-    font-weight:bold;
-    line-height:1;
-}
-
-.phase{
-    margin-top:20px;
-    font-size:20px;
-    opacity:.8;
-}
-
-.info{
-    margin-top:50px;
-    text-align:center;
-    font-size:22px;
-    opacity:.8;
-}
-
-.refresh{
-    margin-top:60px;
-    text-align:center;
-    font-size:15px;
-    opacity:.5;
-}
-
-.events{
-    margin-top:50px;
-    display:flex;
-    gap:40px;
-}
-
-.events div{
-    flex:1;
-}
-
-.events h3{
-    border-bottom:1px solid rgba(255,255,255,0.2);
-    padding-bottom:10px;
-    margin-bottom:10px;
-}
-
-.event-item{
-    margin-bottom:6px;
-    font-size:16px;
-    opacity:.9;
-}
-
-.empty-msg{
-    font-size:14px;
-    opacity:.5;
-}
-
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
+<link rel="stylesheet" href="assets/css/public-redesign.css?v=1">
 
 </head>
 
-<body>
+<body class="public-site public-live">
+
+<?php include __DIR__ . '/shared/header.php'; ?>
 
 <div class="live-container">
 
-<h1 class="live-title">⚽ LIVE MATCH</h1>
+<h1 class="live-title"><span class="live-pill"><span aria-hidden="true"></span> Diretta</span><br>Partita live</h1>
 
 <?php if($partita): ?>
 
@@ -247,7 +149,7 @@ body{
     <div class="team">
 
         <?php if(!empty($partita['logo_casa'])): ?>
-            <img src="<?= htmlspecialchars($partita['logo_casa']) ?>">
+            <img src="<?= htmlspecialchars($partita['logo_casa']) ?>" alt="" width="180" height="180">
         <?php endif; ?>
 
         <div class="team-name">
@@ -271,7 +173,7 @@ body{
     <div class="team">
 
         <?php if(!empty($partita['logo_ospite'])): ?>
-            <img src="<?= htmlspecialchars($partita['logo_ospite']) ?>">
+            <img src="<?= htmlspecialchars($partita['logo_ospite']) ?>" alt="" width="180" height="180">
         <?php endif; ?>
 
         <div class="team-name">

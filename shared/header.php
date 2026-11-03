@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
 
+$publicRedesignPages = ['index.php', 'calendario.php', 'classifica.php', 'partita.php', 'live.php'];
+$isPublicRedesign = in_array(basename($_SERVER['PHP_SELF'] ?? ''), $publicRedesignPages, true);
+
 $currentPage = basename($_SERVER['PHP_SELF'] ?? 'index.php');
 $navActive = match ($currentPage) {
     'index.php' => 'home',
@@ -30,5 +33,9 @@ $siteNavConfig = [
         ['label' => 'Login', 'href' => SITE_URL . '/capitano/login', 'current' => $navActive === 'login'],
     ],
 ];
+
+if ($isPublicRedesign) {
+    $siteNavConfig['brand_label'] = 'Torneo Baone 2026 — Home';
+}
 
 require __DIR__ . '/site_nav.php';

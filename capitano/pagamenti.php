@@ -40,13 +40,13 @@ require_once __DIR__ . '/_header.php';
 <?php if (!$squadra): ?>
   <div class="alert alert-info">Non risulta una squadra associata al tuo account.</div>
 <?php else: ?>
-  <div class="stat-grid">
+  <div class="stat-grid captain-overview-grid">
     <div class="stat-card"><div class="stat-num">€<?= number_format((float) $squadra['quota_iscrizione'], 2, ',', '.') ?></div><div class="stat-lbl">Quota totale</div></div>
     <div class="stat-card"><div class="stat-num">€<?= number_format($totalePagato, 2, ',', '.') ?></div><div class="stat-lbl">Pagato</div></div>
     <div class="stat-card"><div class="stat-num">€<?= number_format($quotaResidua, 2, ',', '.') ?></div><div class="stat-lbl">Quota da pagare</div></div>
   </div>
 
-  <div class="admin-form">
+  <div class="admin-form captain-panel">
     <h2 style="margin-bottom:1rem; font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.08em; color:var(--gold);">Storico pagamenti</h2>
     <?php if (!$pagamenti): ?>
       <p class="empty-msg">Non risultano pagamenti registrati.</p>

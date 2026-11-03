@@ -1,0 +1,130 @@
+/* Esperienza pubblica di iscrizione e completamento invito. */
+body.registration-info-page,
+body.registration-form-page {
+  --reg-surface: #122338;
+  --reg-surface-raised: #172b40;
+  --reg-line: rgba(240, 244, 248, .14);
+  --reg-muted: #c1cbd5;
+  background: #091521;
+  color: #f0f4f8;
+  font-family: 'Barlow', Arial, sans-serif;
+}
+
+body.registration-info-page :focus-visible,
+body.registration-form-page :focus-visible {
+  outline: 3px solid #ffe08a;
+  outline-offset: 3px;
+}
+
+body.registration-info-page .iscr-hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(3rem, 8vw, 6rem);
+  background: radial-gradient(ellipse at 82% 30%, rgba(201,168,76,.18), transparent 34%),
+    linear-gradient(135deg, #122338, #091521 76%);
+}
+
+body.registration-info-page .iscr-hero::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 0 auto;
+  width: min(42vw, 520px);
+  background: url('../brand/03_pattern/strisce_diagonali_blu.png') center / cover no-repeat;
+  opacity: .3;
+  content: '';
+  pointer-events: none;
+}
+
+body.registration-info-page .iscr-hero-inner,
+body.registration-info-page .iscr-hero-inner > * { position: relative; z-index: 1; }
+body.registration-info-page .iscr-hero-inner { gap: clamp(1.5rem, 5vw, 4rem); }
+body.registration-info-page .iscr-hero-text { flex: 1 1 320px; }
+body.registration-info-page .iscr-hero-title { max-width: 11ch; font-size: clamp(3rem, 9vw, 6rem); line-height: .92; letter-spacing: 0; }
+body.registration-info-page .iscr-hero-sub { max-width: 48ch; color: #d1dae2; font-size: clamp(1rem, 2vw, 1.15rem); }
+body.registration-info-page .iscr-hero-badge { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+body.registration-info-page .badge-inner { min-width: 0; padding: 1rem; border-color: rgba(232,199,106,.24); background: rgba(9,21,33,.68); }
+body.registration-info-page .badge-num { font-size: clamp(1.5rem, 4vw, 2rem); }
+body.registration-info-page .badge-lbl { color: #c1cbd5; }
+body.registration-info-page .btn-iscriviti { min-height: 52px; justify-content: center; padding: .85rem 1.2rem; border-radius: 6px; }
+
+body.registration-info-page .section { padding-block: clamp(3rem, 7vw, 5rem); }
+body.registration-info-page .section-title { color: #f0f4f8; font-size: clamp(1.8rem, 5vw, 2.7rem); letter-spacing: 0; text-transform: none; }
+body.registration-info-page .section-title::after { display: block; width: 2.5rem; height: 3px; margin-top: .55rem; background: #c9a84c; content: ''; }
+body.registration-info-page .section-title.centered::after { margin-inline: auto; }
+body.registration-info-page .steps-flow { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+body.registration-info-page .step-flow-card { width: 100%; max-width: none; min-width: 0; padding: 1.4rem; border-color: var(--reg-line); background: var(--reg-surface); text-align: left; }
+body.registration-info-page .step-flow-card:hover { transform: none; border-color: rgba(232,199,106,.5); }
+body.registration-info-page .step-flow-num { top: 1rem; right: 1rem; left: auto; width: 34px; height: 34px; transform: none; }
+body.registration-info-page .step-flow-icon { margin: 0 0 .7rem; font-size: 1.6rem; }
+body.registration-info-page .step-flow-card h4 { padding-right: 2.3rem; font-size: 1.25rem; }
+body.registration-info-page .step-flow-card p { color: #c1cbd5; font-size: .95rem; }
+body.registration-info-page .step-flow-arrow { display: none; }
+body.registration-info-page .step-optional { margin-top: .4rem; }
+body.registration-info-page .cta-center { margin-top: 2rem; }
+body.registration-info-page .docs-grid,
+body.registration-info-page .organizers-grid { display: grid; grid-template-columns: 1fr; gap: .8rem; }
+body.registration-info-page .doc-card,
+body.registration-info-page .organizer-card { min-width: 0; border-color: var(--reg-line); border-radius: 10px; background: var(--reg-surface); }
+body.registration-info-page .doc-card { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem; padding: 1rem; }
+body.registration-info-page .doc-body { flex: 1; min-width: 8rem; }
+body.registration-info-page .doc-card h3 { color: #f0f4f8; }
+body.registration-info-page .doc-card .btn { min-height: 44px; }
+body.registration-info-page .organizer-card { padding: 1rem; }
+body.registration-info-page .org-contacts { display: grid; grid-template-columns: 1fr; gap: .5rem; }
+body.registration-info-page .org-contact-btn { min-height: 44px; justify-content: flex-start; overflow-wrap: anywhere; }
+
+body.registration-form-page .app-shell { align-items: flex-start; min-height: 100svh; padding: clamp(1rem, 4vw, 3rem) 1rem; }
+body.registration-form-page .card-shell { width: min(100%, 680px); padding: clamp(1rem, 4vw, 2.2rem); border-color: var(--reg-line); border-radius: 14px; background: linear-gradient(150deg, #14283d, #0f2031); }
+body.registration-form-page .brand-row { justify-content: flex-start; }
+body.registration-form-page .brand-row img { width: 52px; height: 52px; }
+body.registration-form-page .brand-row h1 { color: #f0f4f8; font-size: clamp(1.6rem, 5vw, 2.2rem); text-align: left; }
+body.registration-form-page .subtle { color: var(--reg-muted); text-align: left; font-size: .95rem; }
+body.registration-form-page .player-form { gap: 1rem; padding: 0; border: 0; background: transparent; box-shadow: none; }
+body.registration-form-page .form-row { grid-template-columns: 1fr; gap: 0; }
+body.registration-form-page .form-group { display: grid; gap: .45rem; margin-bottom: .85rem; }
+body.registration-form-page .form-group label { color: #e2e8ee; font: 600 .95rem/1.35 'Barlow', sans-serif; letter-spacing: 0; text-transform: none; }
+body.registration-form-page .player-form input:not([type="checkbox"]) { min-height: 50px; border-color: rgba(240,244,248,.22); border-radius: 7px; background: #0a1724; color: #f0f4f8; font-size: 1rem; }
+body.registration-form-page .player-form input:focus-visible { border-color: #ffe08a; outline: 3px solid rgba(255,224,138,.25); }
+body.registration-form-page .required-note { color: var(--reg-muted); font-size: .88rem; }
+body.registration-form-page .required-mark { color: #ffe08a; font-weight: 800; }
+body.registration-form-page .parent-fields,
+body.registration-form-page .consent-fields { gap: .8rem; padding: 1rem; border: 1px solid var(--reg-line); border-radius: 9px; background: rgba(5,14,23,.28); }
+body.registration-form-page .parent-fields h2,
+body.registration-form-page .consent-fields h2 { color: #e8c76a; font: 700 1.2rem 'Barlow Condensed', sans-serif; }
+body.registration-form-page .parent-fields p { color: var(--reg-muted); }
+body.registration-form-page .player-form .check-item { min-height: 50px; align-items: flex-start; gap: .7rem; border-color: var(--reg-line); background: rgba(240,244,248,.035); color: #e4eaf0; font: 400 .95rem/1.5 'Barlow', sans-serif; letter-spacing: 0; text-transform: none; }
+body.registration-form-page .player-form .check-item input { width: 20px; height: 20px; flex-basis: 20px; margin-top: .1rem; }
+body.registration-form-page .player-form > .btn,
+body.registration-form-page .inline-actions .btn { width: 100%; min-height: 50px; justify-content: center; }
+body.registration-form-page .alert { margin-block: .6rem; border-radius: 8px; }
+body.registration-form-page .alert-error { border-left: 4px solid #ff9a86; }
+body.registration-form-page .alert-success { border-left: 4px solid #7eda9d; }
+
+@media (min-width: 40rem) {
+  body.registration-info-page .steps-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body.registration-info-page .docs-grid,
+  body.registration-info-page .organizers-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body.registration-form-page .form-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
+}
+
+@media (min-width: 64rem) {
+  body.registration-info-page .steps-flow { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body.registration-info-page .organizers-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 390px) {
+  body.registration-info-page .iscr-hero-badge { gap: .45rem; }
+  body.registration-info-page .badge-inner { padding: .75rem .45rem; }
+  body.registration-form-page .brand-row { align-items: flex-start; }
+  body.registration-form-page .brand-row img { width: 42px; height: 42px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.registration-info-page *, body.registration-info-page *::before, body.registration-info-page *::after,
+  body.registration-form-page *, body.registration-form-page *::before, body.registration-form-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

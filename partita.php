@@ -85,8 +85,9 @@ if ($hasScore) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-4">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/public-redesign.css?v=1">
 </head>
-<body>
+<body class="public-site public-match">
 
 <?php include 'shared/header.php'; ?>
 
@@ -253,71 +254,6 @@ if ($hasScore) {
 <?php endif; ?>
 
 <?php include 'shared/footer.php'; ?>
-
-<style>
-/* Breadcrumb */
-.breadcrumb { font-size:.82rem; color:var(--muted); margin-bottom:.5rem; }
-.breadcrumb a { color:var(--muted); } .breadcrumb a:hover { color:var(--gold); }
-
-/* Match hero */
-.match-hero { padding: 2rem 0 3rem; background: var(--navy-mid); border-bottom: 1px solid rgba(201,168,76,.1); }
-.match-hero-badge { display:flex; gap:.7rem; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem; font-size:.8rem; color:var(--muted); }
-
-/* Scoreboard */
-.match-scoreboard {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 1.5rem;
-  align-items: start;
-}
-.msb-team { display:flex; flex-direction:column; align-items:center; gap:.5rem; }
-.msb-team--home { align-items:flex-end; text-align:right; }
-.msb-team--away { align-items:flex-start; text-align:left; }
-.msb-team--winner .msb-name { color:var(--gold); }
-.msb-name { font-family:'Barlow Condensed',sans-serif; font-size:clamp(1.1rem,3vw,1.8rem); font-weight:700; }
-.msb-logo { width:60px; height:60px; object-fit:contain; }
-.msb-dot  { width:50px; height:50px; border-radius:50%; }
-.msb-winner-badge { font-family:'Barlow Condensed',sans-serif; font-size:.7rem; letter-spacing:.1em; background:rgba(201,168,76,.15); color:var(--gold); border-radius:4px; padding:.1rem .5rem; }
-
-.msb-scorers { list-style:none; font-size:.82rem; color:var(--muted); margin-top:.3rem; }
-.msb-scorers li { display:flex; align-items:center; gap:.3rem; justify-content:flex-end; }
-.msb-scorers--away li { justify-content:flex-start; }
-.min { opacity:.6; }
-.own-goal { color:var(--red); font-size:.72rem; }
-
-.msb-center { text-align:center; padding-top:.5rem; }
-.msb-score { font-family:'Barlow Condensed',sans-serif; font-size:clamp(2.5rem,8vw,5rem); font-weight:800; color:var(--gold); line-height:1; display:flex; align-items:center; gap:.3rem; }
-.msb-dash { color:var(--gold-dim); }
-.msb-vs   { font-family:'Barlow Condensed',sans-serif; font-size:2rem; font-weight:700; color:var(--gold-dim); }
-.msb-ft   { font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-top:.3rem; }
-.msb-shootout { font-size:.8rem; color:var(--muted); margin-top:.2rem; }
-
-/* Events */
-.tab-block { margin-bottom:2rem; }
-.tab-block-title { font-family:'Barlow Condensed',sans-serif; font-size:1.15rem; font-weight:700; color:var(--white); text-transform:uppercase; letter-spacing:.06em; margin-bottom:1rem; }
-
-.event-list { list-style:none; display:flex; flex-direction:column; gap:.5rem; }
-.event-item { display:flex; align-items:center; gap:.7rem; background:rgba(255,255,255,.04); border-radius:8px; padding:.6rem .9rem; }
-.event-icon { font-size:1.1rem; }
-.event-body { flex:1; display:flex; flex-direction:column; gap:.1rem; font-size:.88rem; }
-.event-min  { font-family:'Barlow Condensed',sans-serif; font-weight:700; color:var(--muted); font-size:.85rem; white-space:nowrap; }
-
-/* MVP */
-.mvp-card { display:flex; align-items:center; gap:1rem; background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.2); border-radius:10px; padding:1rem 1.2rem; }
-.mvp-star { font-size:2rem; }
-.mvp-name { font-family:'Barlow Condensed',sans-serif; font-size:1.3rem; font-weight:700; color:var(--gold); display:block; }
-.mvp-team { font-size:.82rem; }
-
-/* Note */
-.match-note { margin-top:2rem; background:rgba(76,143,201,.06); border:1px solid rgba(76,143,201,.2); border-radius:8px; padding:1rem 1.2rem; font-size:.88rem; color:var(--muted); }
-
-@media(max-width:600px) {
-  .match-scoreboard { grid-template-columns:1fr; }
-  .msb-team--home, .msb-team--away { align-items:center; text-align:center; }
-  .msb-scorers li, .msb-scorers--away li { justify-content:center; }
-  .msb-center { order:-1; }
-}
-</style>
 
 </body>
 </html>

@@ -1,10 +1,10 @@
 <?php require_once __DIR__ . '/../includes/config.php'; ?>
-<footer class="site-footer">
+<footer class="site-footer<?= !empty($isPublicRedesign) ? ' public-footer' : '' ?>">
   <div class="container">
     <div class="footer-main">
       <section class="footer-brand-block" aria-labelledby="footer-brand-title">
         <a class="footer-brand" href="<?= SITE_URL ?>/" aria-label="Torneo Baone, torna alla home">
-          <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="" class="footer-logo" width="48" height="48">
+          <img src="<?= SITE_URL ?>/<?= (!empty($isPublicRedesign) || !empty($isRegistrationInfoLayout) || !empty($isCaptainAuthLayout)) ? 'assets/brand/01_loghi/png/logo_scudetto_compatto.png' : 'assets/img/logo_torneo.png' ?>" alt="" class="footer-logo" width="48" height="48">
           <span id="footer-brand-title">Torneo Baone</span>
         </a>
         <p class="footer-tagline">Calcio a 5 · Baone</p>

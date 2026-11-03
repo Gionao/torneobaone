@@ -20,10 +20,11 @@ define('GOOGLE_FORM_URL', SITE_URL . '/capitano/registrati');
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-menu-4">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/registration-portal.css?v=1">
 </head>
-<body>
+<body class="registration-info-page">
 
-<?php require_once __DIR__ . '/shared/header.php'; ?>
+<?php $isRegistrationInfoLayout = true; require_once __DIR__ . '/shared/header.php'; ?>
 
 <!-- HERO -->
 <section class="iscr-hero">
@@ -122,7 +123,7 @@ define('GOOGLE_FORM_URL', SITE_URL . '/capitano/registrati');
             <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-1.5 15H6V6h12v12zm-9-9h6v1.5H9V9zm0 3h6v1.5H9V12zm0 3h4.5v1.5H9V15z"/>
           </svg>
         </span>
-        Iscriviti Ora — È Gratuito e Veloce
+          Apri il modulo di iscrizione
         <span class="btn-iscriviti-arrow">→</span>
       </a>
     </div>

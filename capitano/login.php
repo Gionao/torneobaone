@@ -61,31 +61,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .auth-form .form-group { margin-bottom: 1rem; }
     .muted-links { display:flex; justify-content:space-between; gap:1rem; margin-top: 1rem; font-size: .8rem; }
   </style>
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=1">
 </head>
-<body>
-<?php require_once __DIR__ . '/../shared/header.php'; ?>
+<body class="captain-auth-flow">
+<?php $isCaptainAuthLayout = true; require_once __DIR__ . '/../shared/header.php'; ?>
 <div class="auth-card">
   <div class="brand">
-    <img src="<?= SITE_URL ?>/assets/img/logo_torneo.png" alt="Logo">
+    <img src="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_scudetto_compatto.png" alt="">
     <h1>Area Capitano</h1>
   </div>
   <div class="helper">Accedi per gestire la squadra e gli inviti.</div>
 
   <?php if ($notice): ?>
-    <div class="alert alert-success"><?= htmlspecialchars($notice) ?></div>
+    <div class="alert alert-success" role="status"><?= htmlspecialchars($notice) ?></div>
   <?php endif; ?>
 
   <?php if ($errore): ?>
-    <div class="alert alert-error"><?= htmlspecialchars($errore) ?></div>
+    <div class="alert alert-error" role="alert"><?= htmlspecialchars($errore) ?></div>
   <?php endif; ?>
 
   <form method="post" class="auth-form">
+    <p class="required-note">Email e password sono obbligatorie.</p>
     <div class="form-group">
-      <label for="email">Email</label>
+      <label for="email">Email <span class="required-mark" aria-hidden="true">*</span></label>
       <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
     </div>
     <div class="form-group">
-      <label for="password">Password</label>
+      <label for="password">Password <span class="required-mark" aria-hidden="true">*</span></label>
       <input type="password" id="password" name="password" required>
     </div>
     <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center;">Accedi</button>
