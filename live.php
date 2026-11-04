@@ -130,8 +130,8 @@ if ($partita) {
 <meta http-equiv="refresh" content="10">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
-<link rel="stylesheet" href="assets/css/public-redesign.css?v=1">
+<link rel="stylesheet" href="assets/css/style.css?v=public-menu-6">
+<link rel="stylesheet" href="assets/css/public-redesign.css?v=phase05">
 
 </head>
 

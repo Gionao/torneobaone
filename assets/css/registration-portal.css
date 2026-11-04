@@ -1,18 +1,18 @@
 /* Esperienza pubblica di iscrizione e completamento invito. */
 body.registration-info-page,
 body.registration-form-page {
-  --reg-surface: #122338;
-  --reg-surface-raised: #172b40;
-  --reg-line: rgba(240, 244, 248, .14);
-  --reg-muted: #c1cbd5;
-  background: #091521;
-  color: #f0f4f8;
-  font-family: 'Barlow', Arial, sans-serif;
+  --reg-surface: var(--tb-surface, #122338);
+  --reg-surface-raised: var(--tb-surface-raised, #172b40);
+  --reg-line: var(--tb-border, rgba(240, 244, 248, .14));
+  --reg-muted: var(--tb-text-muted, #b8c3cf);
+  background: var(--tb-canvas, #091521);
+  color: var(--tb-text, #f0f4f8);
+  font-family: var(--tb-font-body, 'Barlow', Arial, sans-serif);
 }
 
 body.registration-info-page :focus-visible,
 body.registration-form-page :focus-visible {
-  outline: 3px solid #ffe08a;
+  outline: 3px solid var(--tb-focus, #ffe08a);
   outline-offset: 3px;
 }
 
@@ -48,7 +48,7 @@ body.registration-info-page .badge-lbl { color: #c1cbd5; }
 body.registration-info-page .btn-iscriviti { min-height: 52px; justify-content: center; padding: .85rem 1.2rem; border-radius: 6px; }
 
 body.registration-info-page .section { padding-block: clamp(3rem, 7vw, 5rem); }
-body.registration-info-page .section-title { color: #f0f4f8; font-size: clamp(1.8rem, 5vw, 2.7rem); letter-spacing: 0; text-transform: none; }
+body.registration-info-page .section-title { color: var(--tb-text, #f0f4f8); font-family: var(--tb-font-display, 'Barlow Condensed', sans-serif); font-size: clamp(1.8rem, 5vw, 2.7rem); letter-spacing: 0; text-transform: none; }
 body.registration-info-page .section-title::after { display: block; width: 2.5rem; height: 3px; margin-top: .55rem; background: #c9a84c; content: ''; }
 body.registration-info-page .section-title.centered::after { margin-inline: auto; }
 body.registration-info-page .steps-flow { display: grid; grid-template-columns: 1fr; gap: 1rem; }
@@ -68,10 +68,10 @@ body.registration-info-page .organizer-card { min-width: 0; border-color: var(--
 body.registration-info-page .doc-card { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem; padding: 1rem; }
 body.registration-info-page .doc-body { flex: 1; min-width: 8rem; }
 body.registration-info-page .doc-card h3 { color: #f0f4f8; }
-body.registration-info-page .doc-card .btn { min-height: 44px; }
+body.registration-info-page .doc-card .btn { min-height: var(--tb-touch-target, 44px); }
 body.registration-info-page .organizer-card { padding: 1rem; }
 body.registration-info-page .org-contacts { display: grid; grid-template-columns: 1fr; gap: .5rem; }
-body.registration-info-page .org-contact-btn { min-height: 44px; justify-content: flex-start; overflow-wrap: anywhere; }
+body.registration-info-page .org-contact-btn { min-height: var(--tb-touch-target, 44px); justify-content: flex-start; overflow-wrap: anywhere; }
 
 body.registration-form-page .app-shell { align-items: flex-start; min-height: 100svh; padding: clamp(1rem, 4vw, 3rem) 1rem; }
 body.registration-form-page .card-shell { width: min(100%, 680px); padding: clamp(1rem, 4vw, 2.2rem); border-color: var(--reg-line); border-radius: 14px; background: linear-gradient(150deg, #14283d, #0f2031); }

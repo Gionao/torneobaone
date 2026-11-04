@@ -1,6 +1,7 @@
 <?php
 // photo/admin/_header.php
 // Partial comune dell'archivio. $pageTitle e $paginaAttiva vanno definiti prima.
+require_once dirname(__DIR__, 2) . '/includes/staff_navigation.php';
 $mediaFlash = media_flash_leggi();
 $mediaRuolo = media_ruolo();
 $mediaRuoliLabel = [
@@ -29,35 +30,7 @@ $cssVersione = @filemtime(dirname(__DIR__) . '/assets/css/archivio.css') ?: time
 <body class="admin-body archivio-body">
 
 <?php
-$archivioNavPrimary = [
-    ['label' => 'Panoramica', 'href' => ARCHIVIO_URL . '/', 'current' => $paginaAttiva === 'dashboard'],
-    ['label' => 'Galleria', 'href' => ARCHIVIO_URL . '/galleria', 'current' => $paginaAttiva === 'galleria'],
-];
-if (in_array(media_ruolo(), ['uploader', 'admin'], true)) {
-    $archivioNavPrimary[] = ['label' => 'Carica', 'href' => ARCHIVIO_URL . '/upload', 'current' => $paginaAttiva === 'upload'];
-}
-if (media_is_editor()) {
-    $archivioNavPrimary[] = ['label' => 'Edizioni', 'href' => ARCHIVIO_URL . '/edizioni/', 'current' => $paginaAttiva === 'edizioni'];
-}
-if (media_is_admin()) {
-    $archivioNavPrimary[] = ['label' => 'Cestino', 'href' => ARCHIVIO_URL . '/cestino', 'current' => $paginaAttiva === 'cestino'];
-    $archivioNavPrimary[] = ['label' => 'Utenti', 'href' => ARCHIVIO_URL . '/utenti', 'current' => $paginaAttiva === 'utenti'];
-    $archivioNavPrimary[] = ['label' => 'Impostazioni', 'href' => ARCHIVIO_URL . '/impostazioni', 'current' => $paginaAttiva === 'impostazioni'];
-}
-$siteNavConfig = [
-    'id' => 'archive-navigation',
-    'dense' => true,
-    'brand_href' => ARCHIVIO_URL . '/',
-    'brand_name' => 'Archivio',
-    'brand_year' => 'BAONE 2026',
-    'brand_label' => 'Archivio foto e video Baone',
-    'label' => 'Navigazione archivio',
-    'primary' => $archivioNavPrimary,
-    'actions' => array_merge(
-        media_is_admin() ? [['label' => 'Pannello admin', 'href' => ADMIN_PATH . '/', 'primary' => true]] : [],
-        [['label' => 'Esci', 'href' => ARCHIVIO_URL . '/logout', 'danger' => true]]
-    ),
-];
+$siteNavConfig = staff_navigation('archivio', $paginaAttiva);
 require __DIR__ . '/../../shared/site_nav.php';
 ?>
 

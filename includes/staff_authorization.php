@@ -18,6 +18,85 @@ const STAFF_SECTOR_HIERARCHY = [
     'archivio' => ['amministratore' => [], 'editor' => ['amministratore'], 'uploader' => ['amministratore']],
 ];
 
+/** Capabilities are derived from the existing assignment model, never persisted as extra roles. */
+const STAFF_ROLE_CAPABILITIES = [
+    'torneo' => [
+        'amministratore' => [
+            'admin.dashboard', 'torneo.teams', 'torneo.players', 'torneo.registrations',
+            'torneo.payments', 'torneo.payment_methods', 'torneo.staff',
+            'partite.manage', 'partite.delete',
+        ],
+        'segreteria' => [
+            'admin.dashboard', 'torneo.teams', 'torneo.players', 'torneo.registrations', 'torneo.payments',
+        ],
+    ],
+    'partite' => [
+        'gestore' => ['partite.manage', 'partite.delete', 'partite.staff'],
+        'telecronista' => ['partite.limited'],
+    ],
+    'pos' => [
+        'amministratore' => ['pos.admin', 'pos.operator', 'pos.bar', 'pos.kitchen', 'pos.menu', 'pos.coupons', 'pos.users', 'pos.statistics', 'pos.history'],
+        'operatore' => ['pos.operator', 'pos.history'],
+        'bar' => ['pos.bar'],
+        'cucina' => ['pos.kitchen'],
+    ],
+    'archivio' => [
+        'amministratore' => ['archivio.admin', 'archivio.view', 'archivio.upload', 'archivio.structure', 'archivio.trash', 'archivio.users', 'archivio.settings'],
+        'editor' => ['archivio.editor', 'archivio.view', 'archivio.structure'],
+        'uploader' => ['archivio.uploader', 'archivio.view', 'archivio.upload'],
+    ],
+];
+
+function staff_has_capability(string $capability): bool
+{
+    $principal = staff_current_user(true);
+    if ($principal === null) {
+        return false;
+    }
+    if ($principal['is_super_admin']) {
+        return true;
+    }
+    foreach ($principal['assignments'] as $sector => $assignment) {
+        $role = (string) ($assignment['role'] ?? '');
+        if (in_array($capability, STAFF_ROLE_CAPABILITIES[$sector][$role] ?? [], true)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/** Render a safe, Italian 403 with a destination derived only from current DB permissions. */
+function staff_forbidden(string $message = 'Non hai i permessi necessari per accedere a questa funzione.'): never
+{
+    http_response_code(403);
+    header('Content-Type: text/html; charset=utf-8');
+    $destination = staff_authorized_return_url();
+    $label = $destination === STAFF_URL . '/index.php' ? 'Torna alle aree autorizzate' : 'Torna alla tua area';
+    $safeMessage = htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $safeDestination = htmlspecialchars($destination, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    exit('<!doctype html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Accesso negato</title><link rel="stylesheet" href="' . SITE_URL . '/assets/css/style.css"></head><body><main class="admin-container" style="max-width:48rem;margin:10vh auto;padding:2rem"><h1>Accesso negato</h1><p>' . $safeMessage . '</p><p><a class="btn btn-gold" href="' . $safeDestination . '">' . $label . '</a></p></main></body></html>');
+}
+
+function staff_authorized_return_url(): string
+{
+    $principal = staff_current_user(true);
+    if ($principal === null || $principal['is_super_admin']) {
+        return STAFF_URL . '/index.php';
+    }
+    if (staff_has_capability('admin.dashboard')) {
+        return ADMIN_PATH . '/index.php';
+    }
+    if (staff_has_capability('partite.manage') || staff_has_capability('partite.limited')) {
+        return staff_landing_url('partite');
+    }
+    foreach (['pos', 'archivio'] as $area) {
+        if (can_access_sector($area)) {
+            return staff_landing_url($area);
+        }
+    }
+    return STAFF_URL . '/index.php';
+}
+
 function current_staff_user(): ?array
 {
     return staff_current_user(true);
@@ -98,14 +177,12 @@ function can_assign_sector_role(string $sector, string $targetRole, ?int $target
 function require_sector_access(string $sector, array $allowedRoles = []): void
 {
     if (!isset(STAFF_SECTOR_ROLES[$sector])) {
-        http_response_code(403);
-        exit('Accesso non autorizzato.');
+        staff_forbidden();
     }
     staff_require_authenticated();
     $allowedRoles = $allowedRoles === [] ? STAFF_SECTOR_ROLES[$sector] : $allowedRoles;
     if (!has_sector_role($sector, $allowedRoles)) {
-        http_response_code(403);
-        exit('Accesso non autorizzato.');
+        staff_forbidden();
     }
 }
 

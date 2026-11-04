@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/iscrizioni.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/registration-portal.css?v=1">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/registration-portal.css?v=phase05">
 </head>
 <body class="registration-form-page">
   <div class="app-shell">

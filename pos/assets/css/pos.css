@@ -1,7 +1,11 @@
 /* pos/assets/css/pos.css — Stili modulo POS (affiancato a style.css / admin.css) */
 
 body.pos-body {
-  background: #080f17;
+  --pos-surface: var(--tb-surface, #122338);
+  --pos-surface-raised: var(--tb-surface-raised, #172b40);
+  --pos-line: var(--tb-border, rgba(240,244,248,.14));
+  --pos-muted: var(--tb-text-muted, #b8c3cf);
+  background: var(--tb-canvas, #091521);
   min-height: 100vh;
 }
 
@@ -912,14 +916,14 @@ body.tb-ui .site-header .brand-name { color: #f5f7f9; font-family: 'Barlow Conde
 body.tb-ui .site-header .brand-year { color: #e8c76a; font-size: .68rem; letter-spacing: .09em; }
 body.tb-ui .site-header .nav-area { gap: .55rem; }
 body.tb-ui .site-header .nav-links { gap: .15rem; }
-body.tb-ui .site-header .nav-link { min-height: 42px; align-items: center; padding: .5rem .65rem; border-radius: 5px; color: #bdc8d2; font-size: .78rem; font-weight: 600; }
+body.tb-ui .site-header .nav-link { min-height: var(--tb-touch-target, 44px); align-items: center; padding: .5rem .65rem; border-radius: var(--tb-radius-sm, 6px); color: var(--tb-text-muted, #b8c3cf); font-size: .78rem; font-weight: 600; }
 body.tb-ui .site-header .nav-link:hover,
 body.tb-ui .site-header .nav-link.is-current { color: #ffe08a; background: rgba(201, 168, 76, .12); }
 body.tb-ui .site-header .nav-link.is-current { box-shadow: inset 0 -2px #c9a84c; }
 body.tb-ui .site-header .nav-context { color: #d9e0e6; font-size: .75rem; }
-body.tb-ui .site-header .nav-action { min-height: 40px; align-items: center; border-radius: 5px; font-size: .78rem; }
+body.tb-ui .site-header .nav-action { min-height: var(--tb-touch-target, 44px); align-items: center; border-radius: var(--tb-radius-sm, 6px); font-size: .78rem; }
 body.tb-ui .site-header .menu-toggle { min-width: 44px; min-height: 44px; }
-body.tb-ui .site-header .mobile-panel { border-top: 1px solid var(--pos-line); background: #0c1d2e; }
+body.tb-ui .site-header .mobile-panel { border-top: 1px solid var(--pos-line); background: var(--tb-surface-deep, #101e2d); }
 body.tb-ui .site-header .mobile-links .nav-link { min-height: 44px; }
 
 body.pos-body .pos-main { width: min(100%, 1560px); max-width: none; padding: clamp(1rem, 2vw, 1.75rem) clamp(.8rem, 2vw, 1.5rem) 3rem; }
@@ -950,12 +954,12 @@ body.pos-body .cart-item-body .item-name { color: #f3f6f8; font-weight: 700; lin
 body.pos-body .cart-item-controls { display: flex; flex: 0 0 auto; align-items: center; gap: .4rem; }
 body.pos-body .pos-cart-item .mods { color: #b8c4ce; font-size: .78rem; line-height: 1.4; }
 body.pos-body .pos-cart-item .item-price { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
-body.pos-body .pos-cart-item .btn-remove { min-width: 40px; min-height: 40px; border-radius: 5px; background: rgba(217,79,79,.08); }
+body.pos-body .pos-cart-item .btn-remove { min-width: var(--tb-touch-target, 44px); min-height: var(--tb-touch-target, 44px); border-radius: var(--tb-radius-sm, 6px); background: rgba(217,79,79,.08); touch-action: manipulation; }
 body.pos-body .pos-qty-row { display: flex; align-items: center; gap: .35rem; }
-body.pos-body .pos-qty-row .btn-qty { min-width: 42px; min-height: 42px; border: 1px solid rgba(232,199,106,.26); border-radius: 5px; color: #ffe08a; background: rgba(201,168,76,.08); font-size: 1.05rem; touch-action: manipulation; }
+body.pos-body .pos-qty-row .btn-qty { min-width: var(--tb-touch-target, 44px); min-height: var(--tb-touch-target, 44px); border: 1px solid rgba(232,199,106,.26); border-radius: var(--tb-radius-sm, 6px); color: var(--tb-focus, #ffe08a); background: rgba(201,168,76,.08); font-size: 1.05rem; touch-action: manipulation; }
 body.pos-body .pos-qty-row .qty-val { min-width: 1.5rem; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
 body.pos-body .pos-note-row { margin-top: .45rem; }
-body.pos-body .pos-note-row input { width: 100%; min-height: 40px; padding: .45rem .6rem; border: 1px solid rgba(240,244,248,.15); border-radius: 5px; color: #edf2f6; background: #0b1927; font: .82rem 'Barlow', sans-serif; }
+body.pos-body .pos-note-row input { width: 100%; min-height: 44px; padding: .45rem .6rem; border: 1px solid rgba(240,244,248,.15); border-radius: var(--tb-radius-sm, 6px); color: #edf2f6; background: var(--tb-canvas, #091521); font: .82rem var(--tb-font-body, 'Barlow', sans-serif); }
 body.pos-body .pos-note-row input::placeholder { color: #8f9eac; }
 body.pos-body .pos-cart-total { position: sticky; bottom: 0; z-index: 2; margin: 0 -.25rem .8rem; padding: .8rem .5rem; border-top: 2px solid rgba(232,199,106,.42); background: linear-gradient(180deg, rgba(16,34,56,.94), #102238 30%); font-size: 1.4rem; }
 body.pos-body .pos-coupon-row { align-items: stretch; gap: .5rem; }
@@ -969,7 +973,7 @@ body.pos-body .pos-order-card .order-num-sm { font-size: 1.5rem; }
 body.pos-body .pos-order-card .order-time { font-size: .8rem; }
 body.pos-body .pos-order-card .order-items-list { color: #e7edf2; font-size: .88rem; line-height: 1.5; }
 body.pos-body .pos-order-card .order-actions { gap: .45rem; }
-body.pos-body .pos-order-card .order-actions .btn { min-height: 40px; }
+body.pos-body .pos-order-card .order-actions .btn { min-height: var(--tb-touch-target, 44px); }
 body.pos-body .pos-order-success { padding: 1.5rem .5rem; }
 body.pos-body .pos-order-success .order-num { font-size: clamp(3.5rem, 9vw, 5rem); }
 
@@ -1026,7 +1030,7 @@ body.admin-body.tb-ui .form-group select option { color: #f1f4f6; background: #0
 body.admin-body.tb-ui .admin-form input[type="checkbox"],
 body.admin-body.tb-ui .pos-ingredient-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: #d3b35d; }
 body.admin-body.tb-ui .admin-form .btn,
-body.admin-body.tb-ui .admin-table .btn { min-height: 40px; align-items: center; justify-content: center; }
+body.admin-body.tb-ui .admin-table .btn { min-height: var(--tb-touch-target, 44px); align-items: center; justify-content: center; }
 body.admin-body.tb-ui .admin-table-wrap { overflow: auto; border: 1px solid var(--pos-line); border-radius: 8px; background: rgba(16,34,56,.62); }
 body.admin-body.tb-ui .admin-table { min-width: 690px; font-size: .88rem; }
 body.admin-body.tb-ui .admin-table thead th { padding: .8rem .75rem; border-bottom-color: rgba(232,199,106,.3); color: #f0d47e; background: #192f46; }

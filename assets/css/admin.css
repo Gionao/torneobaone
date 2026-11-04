@@ -5,7 +5,7 @@
 
 /* Admin body */
 .admin-body {
-  background: #080f17;
+  background: var(--tb-canvas, #091521);
   min-height: 100vh;
   overflow-x: hidden;
 }

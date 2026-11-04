@@ -11,11 +11,9 @@ if (is_admin_logged()) {
 }
 
 $errore = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
-
     if ($username === '' || $password === '') {
         $errore = 'Credenziali non valide';
     } else {
@@ -26,81 +24,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$siteNavConfig = [
-    'id' => 'pos-login-navigation',
-    'brand_href' => SITE_URL . '/',
-    'brand_name' => 'Torneo Baone',
-    'brand_year' => '2026',
-    'brand_label' => 'Torneo Baone 2026',
-    'label' => 'Navigazione principale',
-    'primary' => [
-        ['label' => 'Home', 'href' => SITE_URL . '/'],
-        ['label' => 'Calendario', 'href' => SITE_URL . '/calendario'],
-        ['label' => 'Classifica', 'href' => SITE_URL . '/classifica'],
-        ['label' => 'Squadre', 'href' => SITE_URL . '/squadre'],
+$authPage = [
+    'title' => 'Area gestione POS',
+    'subtitle' => 'Accesso riservato allo staff del punto vendita.',
+    'logo' => SITE_URL . '/assets/brand/01_loghi/png/logo_principale.png',
+    'logo_alt' => 'Torneo Baone',
+    'page_title' => 'Area gestione POS — ' . SITE_NAME,
+    'error' => $errore,
+    'action' => POS_URL . '/login.php',
+    'novalidate' => true,
+    'show_password_toggle' => true,
+    'navigation' => [
+        'id' => 'pos-login-navigation',
+        'brand_href' => SITE_URL . '/',
+        'brand_name' => 'Torneo Baone',
+        'brand_year' => '2026',
+        'brand_label' => 'Torneo Baone 2026',
+        'label' => 'Navigazione principale',
+        'primary' => [
+            ['label' => 'Home', 'href' => SITE_URL . '/'],
+            ['label' => 'Calendario', 'href' => SITE_URL . '/calendario'],
+            ['label' => 'Classifica', 'href' => SITE_URL . '/classifica'],
+            ['label' => 'Squadre', 'href' => SITE_URL . '/squadre'],
+        ],
+        'actions' => [['label' => 'Area staff', 'href' => '#auth-form', 'primary' => true, 'current' => true]],
     ],
-    'actions' => [['label' => 'Area staff', 'href' => '#accesso', 'primary' => true, 'current' => true]],
+    'fields' => [
+        ['name' => 'username', 'label' => 'Nome utente', 'type' => 'text', 'required' => true, 'autofocus' => true, 'autocomplete' => 'username', 'value' => $_POST['username'] ?? ''],
+        ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'required' => true, 'autocomplete' => 'current-password'],
+    ],
+    'links' => [['label' => 'Torna al sito del torneo', 'href' => SITE_URL . '/']],
+    'footer' => 'Torneo Calcio a 5 — Baone 2026',
 ];
-?>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/assets/brand/02_favicon/favicon.ico">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Area gestione — POS</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/public-redesign.css">
-  <link rel="stylesheet" href="<?= POS_URL ?>/assets/css/pos.css">
-</head>
-<body class="pos-login-body public-site">
-<?php require dirname(__DIR__) . '/shared/site_nav.php'; ?>
-
-<main class="pos-login-main" id="accesso">
-<div class="pos-login-wrap">
-  <div class="pos-login-header">
-    <h1 class="pos-login-title">Area gestione</h1>
-    <p class="pos-login-sub">Accesso riservato allo staff</p>
-  </div>
-
-  <div class="pos-login-card">
-    <?php if ($errore): ?>
-      <div class="alert alert-error"><?= htmlspecialchars($errore) ?></div>
-    <?php endif; ?>
-
-    <form method="post" class="pos-login-form" autocomplete="off" novalidate>
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required autofocus
-               value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <div class="pos-password-wrap">
-          <input type="password" id="password" name="password" required>
-          <button type="button" class="pos-password-toggle" id="togglePassword" aria-label="Mostra password">👁</button>
-        </div>
-      </div>
-      <button type="submit" class="btn btn-gold pos-login-btn">Accedi</button>
-    </form>
-  </div>
-
-  <footer class="pos-login-footer">
-    Torneo Calcio a 5 — Baone 2026
-  </footer>
-</div>
-</main>
-
-<script>
-document.getElementById('togglePassword').addEventListener('click', function () {
-  const inp = document.getElementById('password');
-  const show = inp.type === 'password';
-  inp.type = show ? 'text' : 'password';
-  this.setAttribute('aria-label', show ? 'Nascondi password' : 'Mostra password');
-});
-</script>
-</body>
-</html>
+require dirname(__DIR__) . '/shared/auth_page.php';

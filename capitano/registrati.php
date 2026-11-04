@@ -223,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .grid2 { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap: 1rem; }
     @media (max-width: 640px) { .grid2 { grid-template-columns:1fr; } }
   </style>
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=1">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=phase05">
 </head>
 <body class="captain-auth-flow captain-signup-flow">
 <div class="auth-card">

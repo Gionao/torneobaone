@@ -3,7 +3,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
-require_admin();
+require_tournament_capability('torneo.players');
 
 $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 

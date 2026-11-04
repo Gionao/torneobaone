@@ -21,7 +21,7 @@ if (!isset($pageTitle)) {
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=1">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=phase05">
 </head>
 <body class="admin-body captain-portal">
 

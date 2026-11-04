@@ -25,6 +25,23 @@ function require_admin(): void
     require_sector_access('torneo', ['amministratore']);
 }
 
+/** Guard a tournament resource through the shared role-derived capability map. */
+function require_tournament_capability(string $capability): void
+{
+    $principal = staff_current_user();
+    if ($principal === null) {
+        header('Location: ' . ADMIN_PATH . '/login.php');
+        exit;
+    }
+    staff_require_authenticated();
+    if (!in_array($capability, [
+        'admin.dashboard', 'torneo.teams', 'torneo.players', 'torneo.registrations',
+        'torneo.payments', 'torneo.payment_methods',
+    ], true) || !staff_has_capability($capability)) {
+        staff_forbidden();
+    }
+}
+
 /** Tournament administration workflows available to the delegated segreteria role. */
 function require_tournament_operations(): void
 {
@@ -51,7 +68,9 @@ function require_partite_access(): void
         exit;
     }
     staff_require_authenticated();
-    require_sector_access('partite', ['gestore', 'telecronista']);
+    if (!staff_has_capability('partite.manage') && !staff_has_capability('partite.limited')) {
+        staff_forbidden();
+    }
     if (!$principal['is_super_admin'] && staff_role('partite') === 'telecronista'
         && str_contains((string) ($_SERVER['SCRIPT_NAME'] ?? ''), '/admin/partite/')) {
         $relative = basename((string) $_SERVER['SCRIPT_NAME']);
@@ -69,7 +88,9 @@ function require_partite_manager(): void
         exit;
     }
     staff_require_authenticated();
-    require_sector_access('partite', ['gestore']);
+    if (!staff_has_capability('partite.delete')) {
+        staff_forbidden();
+    }
 }
 
 function is_telecronista(): bool

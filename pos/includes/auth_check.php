@@ -61,6 +61,5 @@ if (pos_current_role() === '') {
         echo json_encode(['success' => false, 'data' => null, 'error' => 'Accesso non autorizzato'], JSON_UNESCAPED_UNICODE);
         exit;
     }
-    header('Location: ' . STAFF_URL . '/index.php');
-    exit;
+    staff_forbidden();
 }

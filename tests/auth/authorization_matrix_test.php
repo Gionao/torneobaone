@@ -17,6 +17,7 @@ putenv('DB_PASS=' . (getenv('TB_AUTH_TEST_DB_PASSWORD') ?: ''));
 putenv('APP_ENV=local');
 $_SERVER['HTTP_HOST'] = 'torneobaone.test';
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
+require_once dirname(__DIR__, 2) . '/includes/staff_navigation.php';
 
 $pdo = db();
 $passed = 0;
@@ -115,6 +116,72 @@ try {
     $setPrincipal($matchManagerId);
     $check(!can_manage_sector_users('torneo') && !can_assign_sector_role('torneo', 'segreteria', $noRoleId),
         'match manager cannot manage tournament staff');
+    $managerNav = staff_navigation('admin');
+    $managerLabels = array_column($managerNav['primary'], 'label');
+    $managerActionLabels = array_column($managerNav['actions'], 'label');
+    $check($managerLabels === ['Partite'] && $managerActionLabels === ['Profilo', 'Logout'],
+        'single-sector Match Manager navigation is limited to Partite, Profilo, Logout');
+
+    $tournamentAdminId = $roleUsers['torneo:amministratore'];
+    $setPrincipal($tournamentAdminId);
+    $check(staff_has_capability('partite.manage') && staff_has_capability('partite.delete'),
+        'Tournament Administrator receives explicit match-management capability');
+    $matchRouteAccess = true;
+    try {
+        require_partite_access();
+        require_partite_manager();
+    } catch (Throwable $e) {
+        $matchRouteAccess = false;
+    }
+    $check($matchRouteAccess, 'Tournament Administrator passes match view and destructive-action guards without match assignment');
+    $check(!can_manage_sector_users('partite') && !can_assign_sector_role('partite', 'gestore', $noRoleId),
+        'Tournament Administrator match capability does not grant Match-sector staff delegation');
+    $tournamentNav = staff_navigation('admin');
+    $check(in_array('Partite', array_column($tournamentNav['primary'], 'label'), true),
+        'Tournament Administrator navigation exposes Partite');
+
+    $secretaryId = $roleUsers['torneo:segreteria'];
+    $setPrincipal($secretaryId);
+    foreach (['admin.dashboard', 'torneo.teams', 'torneo.players', 'torneo.registrations', 'torneo.payments'] as $capability) {
+        $check(staff_has_capability($capability), "Secretary capability $capability");
+    }
+    foreach (['torneo.payment_methods', 'partite.manage', 'pos.admin', 'archivio.admin', 'torneo.staff'] as $capability) {
+        $check(!staff_has_capability($capability), "Secretary denied capability $capability");
+    }
+    $secretaryNav = staff_navigation('admin');
+    $secretaryLabels = array_column($secretaryNav['primary'], 'label');
+    $check($secretaryLabels === ['Dashboard', 'Squadre', 'Giocatori', 'Iscrizioni', 'Pagamenti'],
+        'Secretary navigation contains only dashboard and four authorized resource groups');
+    $secretaryRoutes = true;
+    try {
+        require_tournament_capability('admin.dashboard');
+        require_tournament_capability('torneo.teams');
+        require_tournament_capability('torneo.players');
+        require_tournament_operations();
+    } catch (Throwable $e) {
+        $secretaryRoutes = false;
+    }
+    $check($secretaryRoutes, 'Secretary passes dashboard, teams, players, registrations, and payments route guards');
+
+    // Existing multi-sector assignments remain visible alongside the derived cross-sector capability.
+    $pdo->prepare("INSERT INTO staff_assegnazioni (id_admin,area,ruolo,attivo) VALUES (?, 'pos', 'operatore', 1)")->execute([$tournamentAdminId]);
+    $setPrincipal($tournamentAdminId);
+    $multiNav = staff_navigation('admin');
+    $check(in_array('Punto vendita', array_column($multiNav['primary'], 'label'), true)
+        && in_array('Partite', array_column($multiNav['primary'], 'label'), true)
+        && in_array('Cambia area', array_column($multiNav['actions'], 'label'), true),
+        'multi-sector user retains assigned POS and derived match access with area switcher');
+    $setPrincipal($roleUsers['pos:operatore']);
+    $operatorNav = staff_navigation('pos');
+    $check(array_column($operatorNav['primary'], 'label') === ['Operatore', 'Storico'],
+        'POS operator navigation matches operator/history permissions');
+    $setPrincipal($roleUsers['archivio:uploader']);
+    $uploaderNav = staff_navigation('archivio');
+    $check(array_column($uploaderNav['primary'], 'label') === ['Panoramica', 'Galleria', 'Carica'],
+        'Archive uploader navigation matches upload and view permissions');
+    $check(!in_array('Impostazioni', array_column($uploaderNav['primary'], 'label'), true)
+        && !in_array('Pannello admin', array_column($uploaderNav['actions'], 'label'), true),
+        'Archive uploader navigation hides administrator-only destinations');
     $setPrincipal($roleUsers['archivio:amministratore']);
     $check(!can_manage_sector_users('pos') && !can_assign_sector_role('pos', 'bar', $noRoleId),
         'archive administrator cannot manage POS roles');
@@ -140,6 +207,11 @@ try {
         $check(can_manage_sector_users($sector), "Super Admin delegation $sector");
         $check(can_assign_sector_role($sector, array_key_first(STAFF_SECTOR_HIERARCHY[$sector]), $noRoleId), "Super Admin can grant highest role $sector");
     }
+    $superNav = staff_navigation('admin');
+    $check(in_array('Partite', array_column($superNav['primary'], 'label'), true)
+        && in_array('Archivio media', array_column($superNav['primary'], 'label'), true)
+        && in_array('Gestione staff', array_column($superNav['actions'], 'label'), true),
+        'Super Admin navigation retains unrestricted sectors and global staff administration');
     $check(!can_assign_sector_role('invalid', 'admin', $noRoleId), 'unknown sector fails closed');
     $lastAdminProtected = false;
     try {

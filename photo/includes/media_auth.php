@@ -115,6 +115,9 @@ function media_regenera_sessione(): void
 function require_media_login(): void
 {
     if (!media_is_logged()) {
+        if (staff_current_user() !== null) {
+            staff_forbidden();
+        }
         $destinazione = (string) ($_SERVER['REQUEST_URI'] ?? '');
         $login = ARCHIVIO_URL . '/login.php';
         if ($destinazione !== '' && !str_contains($destinazione, "\n") && !str_contains($destinazione, "\r")) {
@@ -156,6 +159,9 @@ function require_media_admin(): void
 function require_media_api_login(): void
 {
     if (!media_is_logged()) {
+        if (staff_current_user() !== null) {
+            media_json(['ok' => false, 'errore' => 'Il tuo account non è autorizzato per l’archivio.'], 403);
+        }
         media_json(['ok' => false, 'errore' => 'Sessione non valida. Effettua di nuovo l\'accesso.'], 401);
     }
     if (staff_password_change_required()) {

@@ -1,3 +1,5 @@
+@import url("brand/tokens.css?v=phase04");
+
 /* assets/css/style.css
    ============================================================
    TORNEO CALCIO A 5 BAONE 2026
@@ -9,18 +11,18 @@
 
 /* ── Custom Properties ───────────────────────────────────── */
 :root {
-  --navy:       #0d1b2a;
-  --navy-mid:   #122338;
+  --navy:       var(--tb-navy);
+  --navy-mid:   var(--tb-surface);
   --navy-light: #1a3350;
-  --gold:       #c9a84c;
-  --gold-bright:#e8c76a;
-  --gold-dim:   #8a6f2e;
-  --white:      #f0f4f8;
-  --muted:      rgba(240,244,248,.55);
-  --red:        #d94f4f;
-  --green:      #4caf7d;
+  --gold:       var(--tb-gold);
+  --gold-bright:var(--tb-gold-light);
+  --gold-dim:   var(--tb-gold-dim);
+  --white:      var(--tb-white);
+  --muted:      var(--tb-text-muted);
+  --red:        var(--tb-danger);
+  --green:      var(--tb-success);
 
-  --nav-h:    64px;
+  --nav-h:    var(--tb-nav-height);
   --radius:   10px;
   --shadow:   0 8px 32px rgba(0,0,0,.45);
   --transition: .22s cubic-bezier(.4,0,.2,1);
@@ -949,25 +951,25 @@ html.motion-ready [data-reveal].is-visible {
 
 /* ── Shared responsive navigation ────────────────────────── */
 .site-header {
-  --nav-surface: #0c1927;
-  --nav-surface-soft: #132437;
-  --nav-surface-hover: #1a2d42;
-  --nav-accent: #e8b638;
-  --nav-accent-bright: #f2c653;
-  --nav-text: #f7f8fa;
-  --nav-muted: #aab5c1;
-  --nav-line: rgba(255,255,255,.09);
+  --nav-surface: var(--tb-canvas);
+  --nav-surface-soft: rgba(201,168,76,.1);
+  --nav-surface-hover: var(--tb-surface-raised);
+  --nav-accent: var(--tb-gold);
+  --nav-accent-bright: var(--tb-gold-light);
+  --nav-text: var(--tb-white);
+  --nav-muted: var(--tb-text-muted);
+  --nav-line: var(--tb-border);
   position: sticky;
   top: 0;
   z-index: 1000;
   background: var(--nav-surface);
   border-bottom: 1px solid rgba(255,255,255,.07);
-  box-shadow: 0 10px 28px rgba(13,28,45,.13);
+  box-shadow: var(--tb-shadow-sm);
 }
 
 .site-header .nav-shell {
-  width: min(1320px, calc(100% - 56px));
-  min-height: 82px;
+  width: min(var(--tb-nav-width), calc(100% - 56px));
+  min-height: var(--tb-nav-height);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -1005,13 +1007,13 @@ html.motion-ready [data-reveal].is-visible {
   position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: 42px;
+  min-height: var(--tb-touch-target);
   padding: 0 14px;
   border-radius: 7px;
   color: var(--nav-muted);
   text-decoration: none;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 12px;
+  font-family: var(--tb-font-display);
+  font-size: .9rem;
   font-weight: 800;
   letter-spacing: .075em;
   text-transform: uppercase;
@@ -1021,7 +1023,7 @@ html.motion-ready [data-reveal].is-visible {
 .site-header .nav-link:hover { color: var(--nav-text); background: rgba(255,255,255,.055); }
 .site-header .nav-link:focus-visible,
 .site-header .nav-action:focus-visible,
-.site-header .menu-toggle:focus-visible { outline: 2px solid var(--nav-accent-bright); outline-offset: 3px; }
+.site-header .menu-toggle:focus-visible { outline: 3px solid var(--tb-focus); outline-offset: 3px; }
 .site-header .nav-link[aria-current="page"] { color: var(--nav-accent-bright); background: var(--nav-surface-soft); }
 .site-header .nav-link[aria-current="page"]::after {
   content: "";
@@ -1041,11 +1043,11 @@ html.motion-ready [data-reveal].is-visible {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 42px;
+  min-height: var(--tb-touch-target);
   color: var(--nav-muted);
   text-decoration: none;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 11px;
+  font-family: var(--tb-font-display);
+  font-size: .85rem;
   font-weight: 800;
   letter-spacing: .075em;
   text-transform: uppercase;
@@ -1062,8 +1064,8 @@ html.motion-ready [data-reveal].is-visible {
 
 .site-header .menu-toggle {
   display: none;
-  width: 42px;
-  height: 42px;
+  width: var(--tb-touch-target);
+  height: var(--tb-touch-target);
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;

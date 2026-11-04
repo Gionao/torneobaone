@@ -40,8 +40,8 @@ unset($squadra);
   <title>Squadre — <?= htmlspecialchars(SITE_NAME) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-squadre-2">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/public-redesign.css?v=1">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css?v=public-squadre-3">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/public-redesign.css?v=phase05">
 </head>
 <body class="public-site public-team-directory">
 <?php include __DIR__ . '/shared/header.php'; ?>

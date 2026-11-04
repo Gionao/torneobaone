@@ -12,8 +12,7 @@ if (!in_array($sector, ['torneo', 'partite'], true)) {
 $principal = staff_require_authenticated();
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 if (!can_manage_sector_users($sector)) {
-    http_response_code(403);
-    exit('Accesso non autorizzato.');
+    staff_forbidden();
 }
 $labels = ['torneo' => 'Torneo', 'partite' => 'Partite'];
 $subordinate = array_values(array_filter(STAFF_SECTOR_ROLES[$sector], static fn(string $role): bool => $role !== array_key_first(STAFF_SECTOR_HIERARCHY[$sector])));
@@ -78,7 +77,7 @@ $csrf = csrf_token();
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Utenti <?= htmlspecialchars($labels[$sector], ENT_QUOTES, 'UTF-8') ?> — <?= htmlspecialchars(SITE_NAME, ENT_QUOTES, 'UTF-8') ?></title>
-<link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css">
+<link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css?v=phase04">
 </head><body class="admin-body"><main class="admin-main"><div class="admin-container">
 <div class="admin-page-header"><h1>Utenti <?= htmlspecialchars($labels[$sector], ENT_QUOTES, 'UTF-8') ?></h1><p>Gestisci esclusivamente le assegnazioni di quest’area.</p></div>
 <?php if ($messaggio !== ''): ?><div class="alert alert-success"><?= htmlspecialchars($messaggio, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>

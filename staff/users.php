@@ -6,8 +6,7 @@ require_once dirname(__DIR__) . '/includes/auth.php';
 
 $principal = staff_require_authenticated();
 if (!$principal['is_super_admin']) {
-    http_response_code(403);
-    exit('Accesso riservato al Super Admin.');
+    staff_forbidden('Questa funzione è riservata al Super Admin.');
 }
 $pdo = db();
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -104,7 +103,7 @@ $roleLabels = [
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gestione staff — <?= htmlspecialchars(SITE_NAME, ENT_QUOTES, 'UTF-8') ?></title>
-<link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin-workspace.css?v=1"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/staff-users.css">
+<link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css?v=phase04"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin-workspace.css?v=3"><link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/staff-users.css">
 </head><body class="tb-ui admin-body admin-workspace"><main class="admin-main"><div class="admin-container">
 <header class="staff-users-header">
   <div class="staff-users-heading">

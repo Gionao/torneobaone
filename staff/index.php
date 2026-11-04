@@ -23,6 +23,9 @@ foreach ($settori as $codice => $settore) {
         $accessibili[$codice] = $settore;
     }
 }
+if (staff_has_capability('partite.manage') && !isset($accessibili['partite'])) {
+    $accessibili['partite'] = $settori['partite'];
+}
 if (count($accessibili) === 1 && !$principal['is_super_admin']) {
     header('Location: ' . reset($accessibili)['url']);
     exit;
@@ -40,8 +43,8 @@ $pageTitle = 'Selezione area staff';
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin-workspace.css?v=1">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css?v=phase04">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin-workspace.css?v=3">
 </head>
 <body class="tb-ui admin-body">
 <main class="admin-main"><div class="admin-container">

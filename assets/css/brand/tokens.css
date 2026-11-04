@@ -1,32 +1,30 @@
-/* Baone UI — token semantici scoped. Nessuna variabile legacy viene sovrascritta. */
-.tb-ui {
-  color-scheme: dark;
-
-  /* Identità ufficiale */
-  --tb-navy: #0D1B2A;
+/* Palette Baone derivata dal sito pubblico. Tokens globali senza reset/stili globali. */
+:root {
+  --tb-navy: #0d1b2a;
   --tb-steel: #122338;
-  --tb-gold: #C9A84C;
-  --tb-gold-light: #E8C76A;
-  --tb-white: #F0F4F8;
-
-  /* Semantica e superfici */
-  --tb-slate: #6B7A8F;
-  --tb-danger: #E4572E;
-  --tb-success: #2E7D32;
-  --tb-info: #4B8DB8;
-  --tb-warning: #C9A84C;
-  --tb-canvas: #0A1521;
+  --tb-gold: #c9a84c;
+  --tb-gold-light: #e8c76a;
+  --tb-gold-dim: #8a6f2e;
+  --tb-white: #f0f4f8;
+  --tb-canvas: #091521;
   --tb-surface: #122338;
-  --tb-surface-raised: #192D43;
+  --tb-surface-raised: #172b40;
+  --tb-surface-deep: #101e2d;
   --tb-surface-soft: rgba(240, 244, 248, .045);
-  --tb-text: #F0F4F8;
-  --tb-text-muted: #B8C3CF;
-  --tb-text-subtle: #9AA9B9;
+  --tb-text: #f0f4f8;
+  --tb-text-muted: #b8c3cf;
+  --tb-text-subtle: #9aa9b9;
   --tb-border: rgba(240, 244, 248, .14);
   --tb-border-strong: rgba(232, 199, 106, .36);
-  --tb-focus: #FFE08A;
-
-  /* Tipografia */
+  --tb-focus: #ffe08a;
+  --tb-danger: #e4572e;
+  --tb-success: #2e7d32;
+  --tb-info: #4b8db8;
+  --tb-warning: #c9a84c;
+  --tb-slate: #6b7a8f;
+  --tb-danger-text: #ffd0c6;
+  --tb-success-text: #b8f0cb;
+  --tb-info-text: #c9e9fa;
   --tb-font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   --tb-font-body: 'Barlow', Arial, sans-serif;
   --tb-text-xs: .75rem;
@@ -38,8 +36,6 @@
   --tb-heading-lg: clamp(2.25rem, 1.65rem + 2.5vw, 4rem);
   --tb-leading-tight: 1.08;
   --tb-leading-body: 1.6;
-
-  /* Spaziatura: scala 4/8 px */
   --tb-space-1: .25rem;
   --tb-space-2: .5rem;
   --tb-space-3: .75rem;
@@ -50,8 +46,6 @@
   --tb-space-10: 2.5rem;
   --tb-space-12: 3rem;
   --tb-space-16: 4rem;
-
-  /* Radius, elevazione, dimensioni */
   --tb-radius-sm: 6px;
   --tb-radius-md: 10px;
   --tb-radius-lg: 16px;
@@ -59,13 +53,26 @@
   --tb-shadow-sm: 0 2px 8px rgba(0, 0, 0, .18);
   --tb-shadow-md: 0 12px 32px rgba(0, 0, 0, .24);
   --tb-shadow-lg: 0 24px 64px rgba(0, 0, 0, .4);
-  --tb-content-width: 76rem;
+  --tb-content-width: 75rem;
+  --tb-public-width: 75rem;
+  --tb-nav-width: 80rem;
   --tb-reading-width: 48rem;
-  --tb-control-height: 2.75rem;
+  --tb-workspace-width: 93.75rem;
+  --tb-control-height: 2.875rem;
   --tb-touch-target: 2.75rem;
-
-  /* Breakpoint di riferimento: 40rem / 48rem / 64rem / 80rem */
+  --tb-nav-height: 4.75rem;
+  --tb-sidebar-width: 15.5rem;
+  --tb-topbar-height: 4rem;
+  --tb-breakpoint-narrow: 24rem;
+  --tb-breakpoint-form: 40rem;
+  --tb-breakpoint-nav: 48rem;
+  --tb-breakpoint-grid: 64rem;
+  --tb-breakpoint-wide: 80rem;
   --tb-motion-fast: 140ms;
   --tb-motion-base: 200ms;
   --tb-ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+.tb-ui {
+  color-scheme: dark;
 }

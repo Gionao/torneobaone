@@ -44,7 +44,7 @@ if ($token === '') {
     .card { width: min(100%, 520px); background: var(--navy-mid); border: 1px solid rgba(201,168,76,.18); border-radius: 12px; padding: 2rem; }
     h1 { font-family: 'Barlow Condensed', sans-serif; letter-spacing: .08em; color: var(--gold); text-transform: uppercase; }
   </style>
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=1">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=phase05">
 </head>
 <body class="captain-auth-flow">
   <main class="card">

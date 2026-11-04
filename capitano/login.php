@@ -12,12 +12,8 @@ if (is_capitano_logged()) {
 }
 
 $errore = '';
-if (!empty($_SESSION['capitano_notice'])) {
-    $notice = $_SESSION['capitano_notice'];
-    unset($_SESSION['capitano_notice']);
-} else {
-    $notice = '';
-}
+$notice = (string) ($_SESSION['capitano_notice'] ?? '');
+unset($_SESSION['capitano_notice']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim((string) ($_POST['email'] ?? ''));
@@ -26,12 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($email === '' || $password === '') {
         $errore = 'Inserisci email e password.';
     } elseif (!capitano_login($email, $password)) {
-      $loginError = $_SESSION['capitano_login_error'] ?? '';
-      unset($_SESSION['capitano_login_error']);
-      if ($loginError === 'email_non_verificata') {
+        $loginError = $_SESSION['capitano_login_error'] ?? '';
+        unset($_SESSION['capitano_login_error']);
+        if ($loginError === 'email_non_verificata') {
             $errore = 'L’account non è ancora verificato. Controlla la tua email o richiedi un nuovo link.';
-      } elseif ($loginError === 'squadra_non_attiva') {
-        $errore = 'La password è corretta, ma la squadra non risulta attiva. Contatta l’organizzazione.';
+        } elseif ($loginError === 'squadra_non_attiva') {
+            $errore = 'La password è corretta, ma la squadra non risulta attiva. Contatta l’organizzazione.';
         } else {
             $errore = 'Credenziali non valide.';
         }
@@ -40,66 +36,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
-?>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/assets/brand/02_favicon/favicon.ico">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login capitano — <?= htmlspecialchars(SITE_NAME) ?></title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
-  <style>
-    body { background: var(--navy); }
-    .auth-card { max-width: 430px; margin: 4rem auto; background: var(--navy-mid); border:1px solid rgba(201,168,76,.18); border-radius: var(--radius); padding: 2rem; }
-    .brand { text-align:center; margin-bottom: 1.2rem; }
-    .brand img { width: 52px; margin: 0 auto 0.7rem; }
-    .brand h1 { font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.08em; color:var(--gold); }
-    .helper { color: var(--muted); text-align:center; margin-bottom: 1.2rem; }
-    .auth-form .form-group { margin-bottom: 1rem; }
-    .muted-links { display:flex; justify-content:space-between; gap:1rem; margin-top: 1rem; font-size: .8rem; }
-  </style>
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/captain-portal.css?v=1">
-</head>
-<body class="captain-auth-flow">
-<?php $isCaptainAuthLayout = true; require_once __DIR__ . '/../shared/header.php'; ?>
-<div class="auth-card">
-  <div class="brand">
-    <img src="<?= SITE_URL ?>/assets/brand/01_loghi/png/logo_scudetto_compatto.png" alt="">
-    <h1>Area Capitano</h1>
-  </div>
-  <div class="helper">Accedi per gestire la squadra e gli inviti.</div>
 
-  <?php if ($notice): ?>
-    <div class="alert alert-success" role="status"><?= htmlspecialchars($notice) ?></div>
-  <?php endif; ?>
-
-  <?php if ($errore): ?>
-    <div class="alert alert-error" role="alert"><?= htmlspecialchars($errore) ?></div>
-  <?php endif; ?>
-
-  <form method="post" class="auth-form">
-    <p class="required-note">Email e password sono obbligatorie.</p>
-    <div class="form-group">
-      <label for="email">Email <span class="required-mark" aria-hidden="true">*</span></label>
-      <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
-    </div>
-    <div class="form-group">
-      <label for="password">Password <span class="required-mark" aria-hidden="true">*</span></label>
-      <input type="password" id="password" name="password" required>
-    </div>
-    <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center;">Accedi</button>
-  </form>
-
-  <div class="muted-links">
-    <a href="<?= SITE_URL ?>/capitano/password-dimenticata.php">Password dimenticata</a>
-    <a href="<?= SITE_URL ?>/capitano/richiedi-verifica.php">Verifica account</a>
-    <a href="<?= SITE_URL ?>/capitano/registrati.php">Registrati</a>
-  </div>
-</div>
-<?php require_once __DIR__ . '/../shared/footer.php'; ?>
-</body>
-</html>
+$authPage = [
+    'title' => 'Area capitano',
+    'subtitle' => 'Accedi per gestire la squadra e gli inviti.',
+    'logo' => SITE_URL . '/assets/brand/01_loghi/png/logo_scudetto_compatto.png',
+    'logo_alt' => 'Scudetto del Torneo Baone',
+    'page_title' => 'Login capitano — ' . SITE_NAME,
+    'error' => $errore,
+    'notice' => $notice,
+    'action' => SITE_URL . '/capitano/login.php',
+    'fields' => [
+        ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'required' => true, 'autofocus' => true, 'autocomplete' => 'username', 'value' => $_POST['email'] ?? ''],
+        ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'required' => true, 'autocomplete' => 'current-password'],
+    ],
+    'links' => [
+        ['label' => 'Password dimenticata', 'href' => SITE_URL . '/capitano/password-dimenticata.php'],
+        ['label' => 'Verifica account', 'href' => SITE_URL . '/capitano/richiedi-verifica.php'],
+        ['label' => 'Registrati', 'href' => SITE_URL . '/capitano/registrati.php'],
+        ['label' => 'Torna al sito', 'href' => SITE_URL . '/'],
+    ],
+];
+require __DIR__ . '/../shared/auth_page.php';

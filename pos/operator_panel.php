@@ -29,8 +29,8 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
-  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css">
-  <link rel="stylesheet" href="<?= POS_URL ?>/assets/css/pos.css">
+  <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/baone-ui.css?v=phase04">
+  <link rel="stylesheet" href="<?= POS_URL ?>/assets/css/pos.css?v=phase05">
 </head>
 <body class="pos-body tb-ui">
 
