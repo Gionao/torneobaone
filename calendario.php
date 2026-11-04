@@ -36,6 +36,14 @@ $stmt = $pdo->query("
 $partite = $stmt->fetchAll();
 $totalePartite = count($partite);
 
+// Squadre disponibili nel calendario (per il filtro dedicato)
+$squadreDisponibili = [];
+foreach ($partite as $partita) {
+    $squadreDisponibili[(int)$partita['id_squadra_casa']] = $partita['nome_casa'];
+    $squadreDisponibili[(int)$partita['id_squadra_osp']] = $partita['nome_osp'];
+}
+asort($squadreDisponibili, SORT_NATURAL | SORT_FLAG_CASE);
+
 // Filtri rapidi per stato, combinabili con il filtro fase
 $faseRichiesta = $_GET['fase'] ?? 'tutte';
 $filtro = is_string($faseRichiesta) ? $faseRichiesta : 'tutte';
@@ -44,12 +52,22 @@ $statoRichiesto = $_GET['stato'] ?? 'tutte';
 $stato = is_string($statoRichiesto) && in_array($statoRichiesto, ['tutte', 'programmate', 'giocate'], true)
     ? $statoRichiesto
     : 'tutte';
+$squadraRichiesta = $_GET['squadra'] ?? 'tutte';
+$squadra = is_string($squadraRichiesta) && ctype_digit($squadraRichiesta) && isset($squadreDisponibili[(int)$squadraRichiesta])
+    ? (int)$squadraRichiesta
+    : 'tutte';
 
 if ($stato !== 'tutte') {
     $partite = array_values(array_filter($partite, static function (array $partita) use ($stato): bool {
         return $stato === 'giocate'
             ? (bool)$partita['giocata']
             : !(bool)$partita['giocata'];
+    }));
+}
+
+if ($squadra !== 'tutte') {
+    $partite = array_values(array_filter($partite, static function (array $partita) use ($squadra): bool {
+        return (int)$partita['id_squadra_casa'] === $squadra || (int)$partita['id_squadra_osp'] === $squadra;
     }));
 }
 
@@ -87,9 +105,9 @@ $fasiMostrate = $filtro === 'tutte'
     <!-- Filtri fase -->
     <?php if ($totalePartite > 0): ?>
     <div class="fase-filter">
-      <a href="?fase=tutte&amp;stato=<?= urlencode($stato) ?>" class="fase-filter-btn <?= $filtro === 'tutte' ? 'active' : '' ?>" <?= $filtro === 'tutte' ? 'aria-current="page"' : '' ?>>Tutte</a>
+      <a href="?fase=tutte&amp;stato=<?= urlencode($stato) ?>&amp;squadra=<?= urlencode((string)$squadra) ?>" class="fase-filter-btn <?= $filtro === 'tutte' ? 'active' : '' ?>" <?= $filtro === 'tutte' ? 'aria-current="page"' : '' ?>>Tutte</a>
       <?php foreach ($fasiDisponibili as $faseNome): ?>
-        <a href="?fase=<?= urlencode($faseNome) ?>&amp;stato=<?= urlencode($stato) ?>"
+        <a href="?fase=<?= urlencode($faseNome) ?>&amp;stato=<?= urlencode($stato) ?>&amp;squadra=<?= urlencode((string)$squadra) ?>"
            class="fase-filter-btn <?= $filtro === $faseNome ? 'active' : '' ?>" <?= $filtro === $faseNome ? 'aria-current="page"' : '' ?>>
           <?= htmlspecialchars($faseNome) ?>
         </a>
@@ -97,12 +115,23 @@ $fasiMostrate = $filtro === 'tutte'
     </div>
     <nav class="status-filter" aria-label="Filtra le partite per stato">
       <?php foreach (['tutte' => 'Tutte le partite', 'programmate' => 'In programma', 'giocate' => 'Risultati'] as $statoKey => $statoLabel): ?>
-        <a href="?fase=<?= urlencode($filtro) ?>&amp;stato=<?= urlencode($statoKey) ?>"
+        <a href="?fase=<?= urlencode($filtro) ?>&amp;stato=<?= urlencode($statoKey) ?>&amp;squadra=<?= urlencode((string)$squadra) ?>"
            class="fase-filter-btn <?= $stato === $statoKey ? 'active' : '' ?>" <?= $stato === $statoKey ? 'aria-current="page"' : '' ?>>
           <?= htmlspecialchars($statoLabel) ?>
         </a>
       <?php endforeach; ?>
     </nav>
+    <form method="get" class="team-filter" aria-label="Filtra le partite per squadra">
+      <input type="hidden" name="fase" value="<?= htmlspecialchars($filtro, ENT_QUOTES, 'UTF-8') ?>">
+      <input type="hidden" name="stato" value="<?= htmlspecialchars($stato, ENT_QUOTES, 'UTF-8') ?>">
+      <label for="filtro-squadra">Squadra</label>
+      <select id="filtro-squadra" name="squadra" onchange="this.form.submit()">
+        <option value="tutte" <?= $squadra === 'tutte' ? 'selected' : '' ?>>Tutte le squadre</option>
+        <?php foreach ($squadreDisponibili as $squadraId => $squadraNome): ?>
+          <option value="<?= (int)$squadraId ?>" <?= $squadra === (int)$squadraId ? 'selected' : '' ?>><?= htmlspecialchars($squadraNome) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </form>
     <?php endif; ?>
   </div>
 </section>

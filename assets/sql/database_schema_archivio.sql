@@ -1,18 +1,16 @@
--- ============================================================
---  Archivio multimediale — Migrazione 001
---  Crea le tabelle dell'archivio foto/video.
+-- ============================================================================
+-- Schema dell'archivio fotografico e video Torneo Baone
 --
---  Migrazione additiva e idempotente (CREATE TABLE IF NOT EXISTS).
---  Non elimina e non modifica dati esistenti.
---  Eseguire solo su database di sviluppo/staging, mai in produzione
---  senza approvazione esplicita.
--- ============================================================
+-- Crea esclusivamente le tabelle media_* dell'archivio, nella versione che
+-- include gli accessi per edizione e gli ZIP di selezioni. Non inserisce dati,
+-- non modifica tabelle condivise e non altera i ruoli della tabella `admin`.
+--
+-- Prerequisito: eseguire prima database_schema.sql, che crea `admin` e
+-- `impostazioni`, referenziate dall'applicazione e dalle chiavi esterne media.
+-- ============================================================================
 
 SET NAMES utf8mb4;
 
--- ------------------------------------------------------------
--- Edizioni dell'archivio (entità indipendente da `tornei`)
--- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `media_edizioni` (
   `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nome`         VARCHAR(120) NOT NULL,
@@ -32,9 +30,6 @@ CREATE TABLE IF NOT EXISTS `media_edizioni` (
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
--- Giornate dell'edizione
--- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `media_giornate` (
   `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_edizione`  INT UNSIGNED NOT NULL,
@@ -51,9 +46,6 @@ CREATE TABLE IF NOT EXISTS `media_giornate` (
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
--- Album (categoria) della giornata
--- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `media_album` (
   `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_giornata`   INT UNSIGNED NOT NULL,
@@ -70,9 +62,6 @@ CREATE TABLE IF NOT EXISTS `media_album` (
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
--- File multimediali (originali preservati)
--- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `media_file` (
   `id`              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `uuid`            CHAR(36) NOT NULL,
@@ -122,9 +111,6 @@ CREATE TABLE IF NOT EXISTS `media_file` (
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
--- Upload a blocchi (stato persistente, riprendibile)
--- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `media_upload` (
   `id`                   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `uuid`                 CHAR(36) NOT NULL,
@@ -156,15 +142,13 @@ CREATE TABLE IF NOT EXISTS `media_upload` (
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
--- Job ZIP (generazione in background, scadenza automatica)
--- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `media_zip_job` (
   `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `uuid`           CHAR(36) NOT NULL,
   `id_admin`       INT UNSIGNED NULL DEFAULT NULL,
-  `ambito`         ENUM('edizione','giornata','album') NOT NULL,
+  `ambito`         ENUM('edizione','giornata','album','selezione') NOT NULL,
   `id_ambito`      INT UNSIGNED NOT NULL,
+  `file_ids`       TEXT NULL DEFAULT NULL,
   `stato`          ENUM('in_attesa','in_corso','completato','errore','scaduto') NOT NULL DEFAULT 'in_attesa',
   `parti`          TEXT NULL DEFAULT NULL,
   `numero_file`    INT UNSIGNED NULL DEFAULT NULL,
@@ -184,9 +168,6 @@ CREATE TABLE IF NOT EXISTS `media_zip_job` (
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
--- Registro operazioni (audit)
--- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `media_log` (
   `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_admin`    INT UNSIGNED NULL DEFAULT NULL,
@@ -203,5 +184,23 @@ CREATE TABLE IF NOT EXISTS `media_log` (
   KEY `idx_media_log_created` (`created_at`),
   CONSTRAINT `fk_media_log_admin`
     FOREIGN KEY (`id_admin`) REFERENCES `admin` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `media_accesso_edizione` (
+  `id_admin`     INT UNSIGNED NOT NULL,
+  `id_edizione`  INT UNSIGNED NOT NULL,
+  `creato_da`    INT UNSIGNED NULL DEFAULT NULL,
+  `created_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_admin`, `id_edizione`),
+  KEY `idx_media_accesso_edizione` (`id_edizione`),
+  CONSTRAINT `fk_media_accesso_admin`
+    FOREIGN KEY (`id_admin`) REFERENCES `admin` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_media_accesso_edizione`
+    FOREIGN KEY (`id_edizione`) REFERENCES `media_edizioni` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_media_accesso_creato_da`
+    FOREIGN KEY (`creato_da`) REFERENCES `admin` (`id`)
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

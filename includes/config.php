@@ -53,7 +53,13 @@ if (!defined('TELECRONISTA_URL')) {
         : SITE_URL . '/telecronista'));
 }
 if (!defined('ARCHIVIO_URL')) {
-    define('ARCHIVIO_URL', getenv('ARCHIVIO_URL') ?: SITE_URL . '/photo/admin');
+    $hostArchivio = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
+    $baseArchivio = preg_match('/^photo\.torneobaone\.(?:test|it)(?::\d+)?$/', $hostArchivio) === 1
+        ? ((str_ends_with($hostArchivio, '.it') || str_ends_with($hostArchivio, '.it:80') || str_ends_with($hostArchivio, '.it:443'))
+            ? 'https://photo.torneobaone.it'
+            : 'http://photo.torneobaone.test')
+        : SITE_URL;
+    define('ARCHIVIO_URL', getenv('ARCHIVIO_URL') ?: $baseArchivio . '/photo/admin');
 }
 if (!defined('MAX_SQUADRE')) {
     $configuredMaxSquadre = getenv('MAX_SQUADRE');

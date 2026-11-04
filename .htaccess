@@ -41,11 +41,14 @@ RewriteRule ^(.+?)/?$ $1.php [L,NC]
   Require all denied
 </FilesMatch>
 
-RewriteCond %{HTTP_HOST} ^admin\.torneobaone\.it$ [NC]
+RewriteCond %{HTTP_HOST} ^(?:admin\.torneobaone\.(?:it|test))$ [NC]
 RewriteRule ^$ admin/index.php [L]
 
-RewriteCond %{HTTP_HOST} ^pos\.torneobaone\.it$ [NC]
+RewriteCond %{HTTP_HOST} ^(?:pos\.torneobaone\.(?:it|test))$ [NC]
 RewriteRule ^$ pos/index.php [L]
+
+RewriteCond %{HTTP_HOST} ^(?:photo\.torneobaone\.(?:it|test))$ [NC]
+RewriteRule ^$ photo/admin/index.php [L]
 
 RewriteCond %{HTTP_HOST} ^(?:www\.)?torneobaone\.it$ [NC]
 RewriteRule ^admin(?:/(.*))?$ https://admin.torneobaone.it/admin/$1 [R=302,L,NE]
