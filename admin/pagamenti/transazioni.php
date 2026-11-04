@@ -4,7 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
-require_admin();
+require_tournament_operations();
 
 $pdo = db();
 $rows = $pdo->query('SELECT t.*, s.nome AS squadra, a.username AS organizzatore, mp.nome AS metodo FROM transazioni t INNER JOIN squadre s ON s.id = t.id_squadra INNER JOIN admin a ON a.id = t.id_organizzatore LEFT JOIN metodi_pagamento mp ON mp.id = t.id_metodo_pagamento ORDER BY t.registrato_at DESC')->fetchAll();

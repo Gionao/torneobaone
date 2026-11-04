@@ -89,9 +89,7 @@ require_once __DIR__ . '/../_header.php';
             <a href="dettaglio.php?id=<?= $s['id'] ?>" class="btn btn-sm btn-gold">Check squadra</a>
             <a href="form.php?id=<?= $s['id'] ?>" class="btn btn-sm btn-outline">Modifica</a>
             <a href="<?= ADMIN_PATH ?>/giocatori/index.php?squadra=<?= $s['id'] ?>" class="btn btn-sm btn-outline">Rosa</a>
-            <a href="delete.php?id=<?= $s['id'] ?>&csrf=<?= csrf_token() ?>"
-               class="btn btn-sm btn-red"
-               onclick="return confirm('Eliminare questa squadra e tutti i dati correlati?')">Elimina</a>
+            <form method="post" action="delete.php" style="display:inline" onsubmit="return confirm('Eliminare questa squadra e tutti i dati correlati?')"><input type="hidden" name="csrf_token" value="<?= csrf_token() ?>"><input type="hidden" name="id" value="<?= (int) $s['id'] ?>"><button class="btn btn-sm btn-red" type="submit">Elimina</button></form>
           </div>
         </td>
       </tr>

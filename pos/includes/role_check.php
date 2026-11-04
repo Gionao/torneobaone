@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 function require_role(array $allowed_roles): void
 {
-    $role = $_SESSION['pos_admin_role'] ?? '';
+    $role = pos_current_role();
 
     if (!in_array($role, $allowed_roles, true)) {
         if (defined('POS_API') && POS_API) {
@@ -20,12 +20,7 @@ function require_role(array $allowed_roles): void
             exit;
         }
 
-        if (!defined('POS_URL')) {
-            require_once dirname(__DIR__, 2) . '/includes/config.php';
-            define('POS_URL', SITE_URL . '/pos');
-        }
-
-        header('Location: ' . POS_URL . '/index.php');
+        header('Location: ' . STAFF_URL . '/index.php');
         exit;
     }
 }

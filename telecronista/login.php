@@ -13,8 +13,7 @@ session_start_secure();
 
 // Se già loggato, vai alla dashboard
 if (is_admin_logged()) {
-    header('Location: ' . (is_telecronista() ? TELECRONISTA_URL . '/index.php' : ADMIN_PATH . '/index.php'));
-    exit;
+    staff_continue_after_login();
 }
 
 $errore = '';
@@ -29,8 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Messaggio vago per non rivelare se l'username esiste
         $errore = 'Credenziali non valide. Riprova.';
     } else {
-        header('Location: ' . TELECRONISTA_URL . '/index.php');
-        exit;
+        staff_continue_after_login();
     }
 }
 ?>

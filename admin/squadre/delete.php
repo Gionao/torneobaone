@@ -5,10 +5,9 @@ require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_admin();
 
-$id   = filter_input(INPUT_GET, 'id',   FILTER_VALIDATE_INT);
-$csrf = $_GET['csrf'] ?? '';
+$id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
-if ($id && hash_equals($_SESSION['csrf_token'] ?? '', $csrf)) {
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && $id && csrf_verify()) {
     db()->prepare('DELETE FROM squadre WHERE id = ?')->execute([$id]);
     $_SESSION['flash'] = ['type' => 'success', 'text' => 'Squadra eliminata.'];
 } else {

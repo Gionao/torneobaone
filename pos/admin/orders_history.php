@@ -8,8 +8,8 @@ require_once __DIR__ . '/../includes/role_check.php';
 require_role(['admin', 'operatore']);
 
 $posNavActive = 'history';
-$isAdmin      = ($_SESSION['pos_admin_role'] ?? '') === 'admin';
-$currentAdmin = (int) $_SESSION['pos_admin_id'];
+$isAdmin      = pos_current_role() === 'admin';
+$currentAdmin = staff_id();
 
 $statusFilter  = $_GET['status'] ?? '';
 $dateFrom      = $_GET['date_from'] ?? '';

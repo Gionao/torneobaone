@@ -5,13 +5,18 @@ require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/auth.php';
 
 session_start_secure();
-
-if (!isset($_SESSION['pos_admin_id'])) {
+$principal = staff_current_user();
+if ($principal === null) {
     header('Location: ' . POS_URL . '/login.php');
     exit;
 }
 
-$role = $_SESSION['pos_admin_role'] ?? 'operatore';
+$role = $principal['is_super_admin'] ? 'admin' : match (staff_role('pos')) {
+    'amministratore' => 'admin',
+    'operatore', 'bar', 'cucina' => staff_role('pos'),
+    default => '',
+};
+staff_require_authenticated();
 
 switch ($role) {
     case 'admin':
@@ -25,9 +30,7 @@ switch ($role) {
         header('Location: ' . POS_URL . '/kitchen_display.php');
         break;
     default:
-        unset($_SESSION['pos_admin_id'], $_SESSION['pos_admin_user'], $_SESSION['pos_admin_role'], $_SESSION['pos_admin_station']);
-        session_regenerate_id(true);
-        header('Location: ' . POS_URL . '/login.php');
+        header('Location: ' . STAFF_URL . '/index.php');
 }
 
 exit;

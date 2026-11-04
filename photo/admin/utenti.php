@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/_bootstrap.php';
+require_once dirname(__DIR__, 2) . '/includes/staff_authorization.php';
 require_media_admin();
 
 $utenti = media_utenti_archivio();
@@ -35,37 +36,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if ($azione === 'crea') {
             $username = trim((string) ($_POST['username'] ?? ''));
-            $password = (string) ($_POST['password'] ?? '');
-            $conferma = (string) ($_POST['password_confirm'] ?? '');
             $ruolo = (string) ($_POST['role'] ?? '');
 
             if (!preg_match('/^[A-Za-z0-9._-]{3,60}$/', $username)) {
                 throw new RuntimeException('Il nome utente deve avere da 3 a 60 caratteri: lettere, numeri, punto, trattino o underscore.');
             }
-            if (strlen($password) < 8) {
-                throw new RuntimeException('La password deve contenere almeno 8 caratteri.');
-            }
-            if ($password !== $conferma) {
-                throw new RuntimeException('Le password non coincidono.');
-            }
-            if (!media_ruolo_valido($ruolo)) {
+            $ruoloCodice = $ruolo === 'admin' ? 'amministratore' : $ruolo;
+            if (!staff_validate_sector_role('archivio', $ruoloCodice) || !can_assign_sector_role('archivio', $ruoloCodice)) {
                 throw new RuntimeException('Ruolo non valido.');
             }
-            $check = db()->prepare('SELECT COUNT(*) FROM admin WHERE username = ?');
+            $check = db()->prepare('SELECT id FROM admin WHERE username = ? AND attivo=1 AND is_super_admin=0 LIMIT 1');
             $check->execute([$username]);
-            if ((int) $check->fetchColumn() > 0) {
-                throw new RuntimeException('Esiste già un utente con questo nome.');
+            $existingId = (int) ($check->fetchColumn() ?: 0);
+            if ($existingId > 0) {
+                staff_assign_sector_role($existingId, 'archivio', $ruoloCodice);
+                $nuovoId = $existingId;
+            } else {
+                $created = staff_create_account_with_temporary_password($username, 'archivio', $ruoloCodice);
+                $nuovoId = (int) $created['id'];
+                $passwordTemporanea = (string) $created['temporary_password'];
             }
-
-            $nuovoId = media_utente_crea($username, $password, $ruolo);
-            if ($ruolo === 'uploader') {
+            if ($ruoloCodice === 'uploader') {
                 $accessi = isset($_POST['edizioni']) && is_array($_POST['edizioni'])
                     ? array_map('intval', $_POST['edizioni'])
                     : [];
                 media_accesso_imposta($nuovoId, $accessi, media_admin_id());
             }
-            media_log('utente_creato', 'admin', $nuovoId, ['username' => $username, 'ruolo' => $ruolo]);
-            media_flash('success', 'Utente creato.');
+            media_flash('success', isset($passwordTemporanea)
+                ? 'La password digitata non è stata utilizzata. Accesso assegnato. Password temporanea generata (mostrata una sola volta): ' . $passwordTemporanea
+                : 'Accesso archivio assegnato.');
             media_redirect_interno('/utenti.php');
         }
 
@@ -75,22 +74,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new RuntimeException('Utente non trovato.');
             }
             $ruolo = (string) ($_POST['role'] ?? '');
-            if (!media_ruolo_valido($ruolo)) {
+            $ruoloCodice = $ruolo === 'admin' ? 'amministratore' : $ruolo;
+            if (!staff_validate_sector_role('archivio', $ruoloCodice)
+                || !can_assign_sector_role('archivio', $ruoloCodice, $id)) {
                 throw new RuntimeException('Ruolo non valido.');
             }
-            if ($id === media_admin_id() && $ruolo !== 'admin') {
-                throw new RuntimeException('Non puoi togliere il ruolo amministratore al tuo account.');
-            }
-            if ($utente['role'] === 'admin' && $ruolo !== 'admin') {
-                $check = db()->prepare('SELECT COUNT(*) FROM admin WHERE role = \'admin\' AND id <> ?');
-                $check->execute([$id]);
-                if ((int) $check->fetchColumn() < 1) {
-                    throw new RuntimeException('Deve restare almeno un amministratore.');
-                }
+            if ($utente['role'] === 'admin' && !is_super_admin()) {
+                throw new RuntimeException('Solo il Super Admin può modificare un amministratore di settore.');
             }
 
-            media_utente_aggiorna_ruolo($id, $ruolo);
-            if ($ruolo === 'uploader') {
+            staff_assign_sector_role($id, 'archivio', $ruoloCodice);
+            if ($ruoloCodice === 'uploader') {
                 $accessi = isset($_POST['edizioni']) && is_array($_POST['edizioni'])
                     ? array_map('intval', $_POST['edizioni'])
                     : [];
@@ -98,31 +92,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 media_accesso_imposta($id, [], media_admin_id());
             }
-            media_log('utente_ruolo_modificato', 'admin', $id, [
-                'username' => $utente['username'],
-                'ruolo' => $ruolo,
-            ]);
             media_flash('success', 'Ruolo e accessi aggiornati.');
             media_redirect_interno('/utenti.php?modifica=' . $id);
         }
 
         if ($azione === 'password') {
-            $utente = media_utente($id);
-            if (!$utente || !in_array((string) $utente['role'], media_ruoli(), true)) {
-                throw new RuntimeException('Utente non trovato.');
-            }
-            $password = (string) ($_POST['password'] ?? '');
-            $conferma = (string) ($_POST['password_confirm'] ?? '');
-            if (strlen($password) < 8) {
-                throw new RuntimeException('La password deve contenere almeno 8 caratteri.');
-            }
-            if ($password !== $conferma) {
-                throw new RuntimeException('Le password non coincidono.');
-            }
-            media_utente_password($id, $password);
-            media_log('utente_password_modificata', 'admin', $id, ['username' => $utente['username']]);
-            media_flash('success', 'Password aggiornata.');
-            media_redirect_interno('/utenti.php?modifica=' . $id);
+            throw new RuntimeException('La gestione archivio non può reimpostare la password globale di un utente.');
         }
 
         if ($azione === 'elimina') {
@@ -130,9 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$utente) {
                 throw new RuntimeException('Utente non trovato.');
             }
-            media_utente_elimina($id);
-            media_log('utente_eliminato', 'admin', $id, ['username' => $utente['username']]);
-            media_flash('success', 'Utente eliminato. I suoi file restano nell\'archivio.');
+            staff_revoke_sector_role($id, 'archivio');
+            media_flash('success', 'Accesso archivio revocato. Gli altri accessi dell’account restano invariati.');
             media_redirect_interno('/utenti.php');
         }
 
@@ -278,11 +252,11 @@ require_once __DIR__ . '/_header.php';
     </div>
     <div class="form-group">
       <label for="password">Password *</label>
-      <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+      <input type="password" id="password" name="password" minlength="8" autocomplete="new-password">
     </div>
     <div class="form-group">
       <label for="password_confirm">Conferma password *</label>
-      <input type="password" id="password_confirm" name="password_confirm" required minlength="8" autocomplete="new-password">
+      <input type="password" id="password_confirm" name="password_confirm" minlength="8" autocomplete="new-password">
     </div>
     <div class="form-group">
       <label for="role">Ruolo *</label>

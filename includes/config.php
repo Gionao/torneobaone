@@ -61,6 +61,9 @@ if (!defined('ARCHIVIO_URL')) {
         : SITE_URL;
     define('ARCHIVIO_URL', getenv('ARCHIVIO_URL') ?: $baseArchivio . '/photo/admin');
 }
+if (!defined('STAFF_URL')) {
+    define('STAFF_URL', getenv('STAFF_URL') ?: SITE_URL . '/staff');
+}
 if (!defined('MAX_SQUADRE')) {
     $configuredMaxSquadre = getenv('MAX_SQUADRE');
     define(

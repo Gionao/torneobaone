@@ -11,13 +11,8 @@ require_once __DIR__ . '/../includes/auth.php';
 
 session_start_secure();
 
-// Se già loggato, vai alla dashboard corretta
 if (is_admin_logged()) {
-    $destinazione = in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)
-        ? ARCHIVIO_URL . '/index.php'
-        : 'index.php';
-    header('Location: ' . $destinazione);
-    exit;
+    staff_continue_after_login();
 }
 
 $errore = '';
@@ -32,11 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Messaggio vago per non rivelare se l'username esiste
         $errore = 'Credenziali non valide. Riprova.';
     } else {
-        $destinazione = in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)
-            ? ARCHIVIO_URL . '/index.php'
-            : 'index.php';
-        header('Location: ' . $destinazione);
-        exit;
+        staff_continue_after_login();
     }
 }
 ?>

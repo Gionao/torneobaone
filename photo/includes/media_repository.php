@@ -12,7 +12,7 @@ require_once __DIR__ . '/media_auth.php';
 function media_log(string $azione, string $entita, ?int $idEntita = null, array $dettagli = [], ?int $adminId = null): void
 {
     try {
-        $logAdminId = $adminId !== null ? $adminId : (int) ($_SESSION['admin_id'] ?? 0);
+        $logAdminId = $adminId !== null ? $adminId : staff_id();
         $stmt = db()->prepare('
             INSERT INTO media_log (id_admin, azione, entita, id_entita, dettagli, ip, user_agent)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -137,6 +137,14 @@ function media_accesso_edizioni_admin(int $adminId): array
  */
 function media_accesso_imposta(int $adminId, array $idEdizioni, ?int $creatoDa = null): void
 {
+    if (!can_manage_sector_users('archivio') || (!is_super_admin() && $adminId === staff_id())) {
+        throw new RuntimeException('Non sei autorizzato a modificare questi accessi.');
+    }
+    $target = db()->prepare("SELECT 1 FROM staff_assegnazioni WHERE id_admin=? AND area='archivio' AND ruolo='uploader' AND attivo=1");
+    $target->execute([$adminId]);
+    if (!$target->fetchColumn()) {
+        throw new RuntimeException('Gli accessi per edizione si applicano solo ai collaboratori.');
+    }
     $idEdizioni = array_values(array_filter(array_map('intval', $idEdizioni), static fn (int $id): bool => $id > 0));
     $pdo = db();
     $pdo->beginTransaction();
@@ -855,18 +863,18 @@ function media_statistiche(?array $idEdizioniConsentite = null): array
 function media_utenti_archivio(): array
 {
     return db()->query('
-        SELECT u.id, u.username, u.role, u.created_at,
+        SELECT u.id, u.username, CASE a.ruolo WHEN \'amministratore\' THEN \'admin\' ELSE a.ruolo END AS role, u.created_at,
                (SELECT COUNT(*) FROM media_file f WHERE f.id_uploader = u.id AND f.eliminato_il IS NULL) AS numero_file,
                (SELECT COUNT(*) FROM media_accesso_edizione a WHERE a.id_admin = u.id) AS numero_accessi
-        FROM admin u
-        WHERE u.role IN (\'uploader\', \'editor\', \'admin\')
-        ORDER BY FIELD(u.role, \'admin\', \'editor\', \'uploader\'), u.username
+        FROM admin u INNER JOIN staff_assegnazioni a ON a.id_admin=u.id AND a.area=\'archivio\' AND a.attivo=1
+        WHERE u.attivo=1 AND u.is_super_admin=0
+        ORDER BY FIELD(a.ruolo, \'amministratore\', \'editor\', \'uploader\'), u.username
     ')->fetchAll();
 }
 
 function media_utente(int $id): ?array
 {
-    $stmt = db()->prepare('SELECT id, username, role, created_at FROM admin WHERE id = ? LIMIT 1');
+    $stmt = db()->prepare("SELECT u.id,u.username,CASE a.ruolo WHEN 'amministratore' THEN 'admin' ELSE a.ruolo END AS role,u.created_at FROM admin u INNER JOIN staff_assegnazioni a ON a.id_admin=u.id AND a.area='archivio' AND a.attivo=1 WHERE u.id=? AND u.attivo=1 AND u.is_super_admin=0 LIMIT 1");
     $stmt->execute([$id]);
     $row = $stmt->fetch();
     return $row ?: null;
@@ -874,7 +882,7 @@ function media_utente(int $id): ?array
 
 function media_conta_admin_archivio(): int
 {
-    return (int) db()->query('SELECT COUNT(*) FROM admin WHERE role = \'admin\'')->fetchColumn();
+    return (int) db()->query("SELECT COUNT(*) FROM staff_assegnazioni WHERE area='archivio' AND ruolo='amministratore'")->fetchColumn();
 }
 
 function media_utente_crea(string $username, string $password, string $ruolo): int
@@ -882,10 +890,7 @@ function media_utente_crea(string $username, string $password, string $ruolo): i
     if (!media_ruolo_valido($ruolo)) {
         throw new RuntimeException('Ruolo non valido.');
     }
-    $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-    $stmt = db()->prepare('INSERT INTO admin (username, password_hash, role) VALUES (?, ?, ?)');
-    $stmt->execute([$username, $hash, $ruolo]);
-    return (int) db()->lastInsertId();
+    return staff_create_account($username, $password, 'archivio', $ruolo === 'admin' ? 'amministratore' : $ruolo);
 }
 
 function media_utente_aggiorna_ruolo(int $id, string $ruolo): void
@@ -893,15 +898,12 @@ function media_utente_aggiorna_ruolo(int $id, string $ruolo): void
     if (!media_ruolo_valido($ruolo)) {
         throw new RuntimeException('Ruolo non valido.');
     }
-    $stmt = db()->prepare('UPDATE admin SET role = ? WHERE id = ?');
-    $stmt->execute([$ruolo, $id]);
+    staff_assign_sector_role($id, 'archivio', $ruolo === 'admin' ? 'amministratore' : $ruolo);
 }
 
 function media_utente_password(int $id, string $password): void
 {
-    $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-    $stmt = db()->prepare('UPDATE admin SET password_hash = ? WHERE id = ?');
-    $stmt->execute([$hash, $id]);
+    throw new RuntimeException('La gestione archivio non può reimpostare la password globale di un utente.');
 }
 
 function media_utente_elimina(int $id): void
@@ -913,14 +915,7 @@ function media_utente_elimina(int $id): void
     if ((int) $utente['id'] === media_admin_id()) {
         throw new RuntimeException('Non puoi eliminare il tuo account.');
     }
-    if ($utente['role'] === 'admin') {
-        $stmt = db()->prepare('SELECT COUNT(*) FROM admin WHERE role = \'admin\' AND id <> ?');
-        $stmt->execute([$id]);
-        if ((int) $stmt->fetchColumn() < 1) {
-            throw new RuntimeException('Deve restare almeno un amministratore.');
-        }
-    }
-    db()->prepare('DELETE FROM admin WHERE id = ? AND role IN (\'uploader\', \'editor\', \'admin\')')->execute([$id]);
+    staff_revoke_sector_role($id, 'archivio');
 }
 
 // ------------------------------------------------------------

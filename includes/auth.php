@@ -1,156 +1,117 @@
 <?php
-// includes/auth.php
-// ============================================================
-//  Gestione sessione e autenticazione admin
-// ============================================================
-
+// Backward-compatible function names backed by the centralized staff service.
 declare(strict_types=1);
 
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/staff_authorization.php';
 
-// Avvia sessione con impostazioni sicure
 function session_start_secure(): void
 {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_set_cookie_params([
-            'lifetime' => 0,           // Sessione finisce alla chiusura browser
-            'path'     => '/',
-            'domain'   => ENV === 'production' ? '.torneobaone.it' : '',
-            'secure'   => (ENV === 'production'),  // HTTPS solo in produzione
-            'httponly' => true,
-            'samesite' => 'Strict',
-        ]);
-        session_start();
-    }
+    staff_session_start();
 }
 
-// Verifica se l'admin è loggato
 function is_admin_logged(): bool
 {
-    session_start_secure();
-    return !empty($_SESSION['admin_id']) && !empty($_SESSION['admin_token']);
+    return staff_current_user() !== null;
 }
 
-// Protezione pagine admin: reindirizza al login se non autenticato
 function require_admin(): void
 {
-    if (!is_admin_logged()) {
+    $principal = staff_current_user();
+    if ($principal === null) {
         header('Location: ' . ADMIN_PATH . '/login.php');
         exit;
     }
-    if (($_SESSION['admin_role'] ?? 'admin') === 'telecronista') {
-        header('Location: ' . TELECRONISTA_URL . '/index.php');
-        exit;
-    }
-    if (in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)) {
-        header('Location: ' . ARCHIVIO_URL . '/index.php');
-        exit;
-    }
-    // Rigenera il token di sessione ad ogni richiesta (prevenzione session fixation)
-    if (empty($_SESSION['last_regen']) || time() - $_SESSION['last_regen'] > 300) {
-        session_regenerate_id(true);
-        $_SESSION['last_regen'] = time();
-    }
+    staff_require_authenticated();
+    require_sector_access('torneo', ['amministratore']);
 }
 
-// Tentativo di login — restituisce true/false
+/** Tournament administration workflows available to the delegated segreteria role. */
+function require_tournament_operations(): void
+{
+    $principal = staff_current_user();
+    if ($principal === null) {
+        header('Location: ' . ADMIN_PATH . '/login.php');
+        exit;
+    }
+    staff_require_authenticated();
+    require_sector_access('torneo', ['amministratore', 'segreteria']);
+}
+
+/** Backward-compatible login API; credentials always use the shared staff table. */
 function admin_login(string $username, string $password): bool
 {
-    session_start_secure();
-
-    // Brute-force: max 5 tentativi in 15 minuti
-    if (!empty($_SESSION['login_attempts']) && $_SESSION['login_attempts'] >= 5) {
-        $elapsed = time() - ($_SESSION['login_time'] ?? 0);
-        if ($elapsed < 900) {
-            return false;  // Blocca per 15 minuti
-        }
-        // Reset dopo il timeout
-        $_SESSION['login_attempts'] = 0;
-    }
-
-    $pdo  = db();
-    $stmt = $pdo->prepare('SELECT id, username, password_hash, role FROM admin WHERE username = ? LIMIT 1');
-    $stmt->execute([$username]);
-    $row = $stmt->fetch();
-
-    if ($row && password_verify($password, $row['password_hash'])) {
-        // Login riuscito — inizializza sessione
-        session_regenerate_id(true);
-        $_SESSION['admin_id']    = $row['id'];
-        $_SESSION['admin_username'] = $row['username'];
-        $_SESSION['admin_role']  = $row['role'] ?? 'admin';
-        $_SESSION['admin_token'] = bin2hex(random_bytes(32));
-        $_SESSION['login_attempts'] = 0;
-        return true;
-    }
-
-    // Login fallito — incrementa contatore
-    $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
-    $_SESSION['login_time']     = time();
-    return false;
+    return staff_login($username, $password);
 }
 
-/** Accesso alle sole funzioni di gestione partite per admin e telecronisti. */
 function require_partite_access(): void
 {
-    if (!is_admin_logged()) {
+    $principal = staff_current_user();
+    if ($principal === null) {
         header('Location: ' . TELECRONISTA_URL . '/login.php');
         exit;
     }
-    if (in_array((string) ($_SESSION['admin_role'] ?? ''), ['uploader', 'editor'], true)) {
-        header('Location: ' . ARCHIVIO_URL . '/index.php');
-        exit;
-    }
-    if (empty($_SESSION['last_regen']) || time() - $_SESSION['last_regen'] > 300) {
-        session_regenerate_id(true);
-        $_SESSION['last_regen'] = time();
-    }
-    if (($_SESSION['admin_role'] ?? '') === 'telecronista'
-        && strpos((string) ($_SERVER['SCRIPT_NAME'] ?? ''), '/admin/partite/') !== false) {
+    staff_require_authenticated();
+    require_sector_access('partite', ['gestore', 'telecronista']);
+    if (!$principal['is_super_admin'] && staff_role('partite') === 'telecronista'
+        && str_contains((string) ($_SERVER['SCRIPT_NAME'] ?? ''), '/admin/partite/')) {
         $relative = basename((string) $_SERVER['SCRIPT_NAME']);
         $query = !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '';
-        header('Location: ' . TELECRONISTA_URL . '/partite/' . $relative . $query);
+        header('Location: ' . TELECRONISTA_URL . '/partite/' . rawurlencode($relative) . $query);
         exit;
     }
+}
+
+function require_partite_manager(): void
+{
+    $principal = staff_current_user();
+    if ($principal === null) {
+        header('Location: ' . TELECRONISTA_URL . '/login.php');
+        exit;
+    }
+    staff_require_authenticated();
+    require_sector_access('partite', ['gestore']);
 }
 
 function is_telecronista(): bool
 {
-    session_start_secure();
-    return is_admin_logged() && ($_SESSION['admin_role'] ?? '') === 'telecronista';
+    $principal = staff_current_user();
+    return $principal !== null && !$principal['must_change_password']
+        && !$principal['is_super_admin'] && staff_role('partite') === 'telecronista';
 }
 
-// Logout
 function admin_logout(): void
 {
-    session_start_secure();
-    $_SESSION = [];
-    session_destroy();
+    staff_logout();
 }
 
-// Cambio password admin
 function admin_change_password(int $admin_id, string $new_password): bool
 {
-    if (strlen($new_password) < 8) {
+    if ($admin_id !== staff_id() || !csrf_verify() || strlen($new_password) < 12 || strlen($new_password) > 72
+        || preg_match('/[a-z]/', $new_password) !== 1
+        || preg_match('/[A-Z]/', $new_password) !== 1
+        || preg_match('/[0-9]/', $new_password) !== 1) {
         return false;
     }
-    $hash = password_hash($new_password, PASSWORD_BCRYPT, ['cost' => 12]);
-    $stmt = db()->prepare('UPDATE admin SET password_hash = ? WHERE id = ?');
-    return $stmt->execute([$hash, $admin_id]);
+    try {
+        $pdo = db();
+        if (!table_has_column($pdo, 'admin', 'must_change_password')) {
+            return false;
+        }
+        $stmt = $pdo->prepare('UPDATE admin SET password_hash = ?, must_change_password = 0 WHERE id = ? AND attivo = 1');
+        $stmt->execute([password_hash($new_password, PASSWORD_DEFAULT), $admin_id]);
+        staff_auth_forget_cache();
+        return $stmt->rowCount() === 1;
+    } catch (Throwable $e) {
+        return false;
+    }
 }
 
-// CSRF token per form admin
 function csrf_token(): string
 {
-    session_start_secure();
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['csrf_token'];
+    return staff_csrf_token();
 }
 
 function csrf_verify(): bool
 {
-    return !empty($_POST['csrf_token'])
-        && hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token']);
+    return staff_csrf_verify();
 }

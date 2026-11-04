@@ -43,9 +43,10 @@ $takeawayFeeVal = $settings['takeaway_fee'] ?? 1.00;
 $appliedCoverFee   = $isTakeaway ? 0.0 : round($coverFeeUnit * $covers, 2);
 $appliedTakeawayFee = $isTakeaway ? $takeawayFeeVal : 0.0;
 
-$adminId     = (int) $_SESSION['pos_admin_id'];
-$stationName = isset($_SESSION['pos_admin_station'])
-    ? substr((string) $_SESSION['pos_admin_station'], 0, 80)
+$adminId     = staff_id();
+$assignedStation = staff_is_super_admin() ? null : staff_station('pos');
+$stationName = $assignedStation !== null
+    ? substr($assignedStation, 0, 80)
     : null;
 
 $items = $input['items'];

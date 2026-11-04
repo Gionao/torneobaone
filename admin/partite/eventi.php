@@ -33,8 +33,12 @@ $partita = $pStmt->fetch();
 if (!$partita) { header('Location: index.php'); exit; }
 
 // Elimina evento
-if (isset($_GET['del']) && csrf_verify()) {
-    $delId = filter_input(INPUT_GET, 'del', FILTER_VALIDATE_INT);
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['del'])) {
+    $delId = filter_input(INPUT_POST, 'del', FILTER_VALIDATE_INT);
+    if (!csrf_verify()) {
+        http_response_code(400);
+        exit('Richiesta non valida.');
+    }
     if ($delId) {
         $pdo->prepare('DELETE FROM eventi_partita WHERE id = ? AND id_partita = ?')
             ->execute([$delId, $id]);
@@ -256,9 +260,7 @@ require_once __DIR__ . '/../_header.php';
             <td style="font-size:.82rem;"><?= htmlspecialchars($ev['nome_squadra']) ?></td>
             <td style="color:var(--muted)"><?= $ev['minuto'] ? $ev['minuto']."'" : '—' ?></td>
             <td>
-              <a href="eventi.php?id=<?= $id ?>&del=<?= $ev['id'] ?>&csrf=<?= csrf_token() ?>"
-                 class="btn btn-sm btn-red"
-                 onclick="return confirm('Eliminare questo evento?')">✕</a>
+              <form method="post" style="display:inline" onsubmit="return confirm('Eliminare questo evento?')"><input type="hidden" name="csrf_token" value="<?= csrf_token() ?>"><input type="hidden" name="partita_id" value="<?= (int) $id ?>"><input type="hidden" name="del" value="<?= (int) $ev['id'] ?>"><button class="btn btn-sm btn-red" type="submit">✕</button></form>
             </td>
           </tr>
           <?php endforeach; ?>

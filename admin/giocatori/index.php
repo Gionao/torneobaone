@@ -105,9 +105,7 @@ require_once __DIR__ . '/../_header.php';
         <td>
           <div class="actions">
             <a href="form.php?id=<?= $g['id'] ?>" class="btn btn-sm btn-outline">Modifica</a>
-            <a href="delete.php?id=<?= $g['id'] ?>&csrf=<?= csrf_token() ?>"
-               class="btn btn-sm btn-red"
-               onclick="return confirm('Eliminare questo giocatore?')">Elimina</a>
+            <form method="post" action="delete.php" style="display:inline" onsubmit="return confirm('Eliminare questo giocatore?')"><input type="hidden" name="csrf_token" value="<?= csrf_token() ?>"><input type="hidden" name="id" value="<?= (int) $g['id'] ?>"><button class="btn btn-sm btn-red" type="submit">Elimina</button></form>
           </div>
         </td>
       </tr>

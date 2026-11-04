@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/iscrizione_helper.php';
-require_admin();
+require_tournament_operations();
 
 $pdo = db();
 $squadre = $pdo->query('SELECT s.id, s.nome, s.stato_iscrizione, s.stato_pagamento, s.quota_iscrizione, COUNT(g.id) AS num_giocatori, SUM(CASE WHEN g.stato_iscrizione = "completo" THEN 1 ELSE 0 END) AS completati FROM squadre s LEFT JOIN giocatori g ON g.id_squadra = s.id GROUP BY s.id ORDER BY s.nome')->fetchAll();

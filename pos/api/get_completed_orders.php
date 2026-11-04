@@ -11,6 +11,12 @@ require_once __DIR__ . '/../includes/role_check.php';
 require_role(['admin', 'operatore', 'bar', 'cucina']);
 
 $department = $_GET['department'] ?? null;
+$posRole = pos_current_role();
+if ($posRole === 'bar') {
+    $department = 'bar';
+} elseif ($posRole === 'cucina') {
+    $department = 'kitchen';
+}
 if ($department !== null && !in_array($department, ['kitchen', 'bar'], true)) {
     pos_json(false, null, 'Dipartimento non valido.');
 }

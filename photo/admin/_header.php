@@ -67,7 +67,7 @@ require __DIR__ . '/../../shared/site_nav.php';
     <span class="role-badge role-badge--<?= media_h($mediaRuolo) ?>">
       <?= media_h($mediaRuoliLabel[$mediaRuolo] ?? $mediaRuolo) ?>
     </span>
-    <span><?= media_h((string) ($_SESSION['admin_username'] ?? '')) ?></span>
+    <span><?= media_h(media_admin_username()) ?></span>
   </div>
 
   <?php if ($mediaFlash): ?>

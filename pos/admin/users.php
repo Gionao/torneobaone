@@ -2,13 +2,15 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/includes/config.php';
+require_once dirname(__DIR__, 2) . '/includes/staff_authorization.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/role_check.php';
 require_role(['admin']);
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
 $posNavActive = 'users';
-$currentId    = (int) $_SESSION['pos_admin_id'];
+$currentId    = staff_id();
 $message      = null;
 $messageType  = 'success';
 $editUserId   = (int) ($_GET['edit_password'] ?? 0);
@@ -20,20 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     try {
+        if (!csrf_verify()) {
+            throw new RuntimeException('Sessione scaduta. Ricarica la pagina e riprova.');
+        }
         if ($action === 'create_user') {
             $username = trim($_POST['username'] ?? '');
-            $password = $_POST['password'] ?? '';
-            $confirm  = $_POST['password_confirm'] ?? '';
             $role     = $_POST['role'] ?? 'operatore';
             $station  = trim($_POST['station_name'] ?? '');
 
-            if ($username === '' || strlen($password) < 8) {
-                throw new RuntimeException('Username e password (min 8 caratteri) obbligatori.');
+            if ($username === '') {
+                throw new RuntimeException('Lo username è obbligatorio.');
             }
-            if ($password !== $confirm) {
-                throw new RuntimeException('Le password non coincidono.');
-            }
-            if (!in_array($role, $roles, true)) {
+            $role = $role === 'admin' ? 'amministratore' : $role;
+            if (!staff_validate_sector_role('pos', $role) || !can_assign_sector_role('pos', $role)) {
                 throw new RuntimeException('Ruolo non valido.');
             }
             if ($role === 'operatore' && $station === '') {
@@ -42,47 +43,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($role !== 'operatore') {
                 $station = null;
             }
-
-            $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-            $pdo->prepare('
-                INSERT INTO admin (username, role, station_name, password_hash)
-                VALUES (?, ?, ?, ?)
-            ')->execute([$username, $role, $station ?: null, $hash]);
-            $message = 'Utente creato.';
+            $lookup = $pdo->prepare('SELECT id FROM admin WHERE username=? AND attivo=1 AND is_super_admin=0 LIMIT 1');
+            $lookup->execute([$username]);
+            $existingId = (int) ($lookup->fetchColumn() ?: 0);
+            if ($existingId > 0) {
+                staff_assign_sector_role($existingId, 'pos', $role, $station ?: null);
+                $message = 'Accesso POS assegnato.';
+            } else {
+                $created = staff_create_account_with_temporary_password($username, 'pos', $role, $station ?: null);
+                $message = 'La password digitata non è stata utilizzata. Password temporanea generata (mostrata una sola volta): ' . $created['temporary_password'];
+            }
         } elseif ($action === 'update_password') {
-            $userId   = (int) ($_POST['user_id'] ?? 0);
-            $password = $_POST['password'] ?? '';
-            $confirm  = $_POST['password_confirm'] ?? '';
-
-            if ($userId < 1 || strlen($password) < 8) {
-                throw new RuntimeException('Password non valida (min 8 caratteri).');
-            }
-            if ($password !== $confirm) {
-                throw new RuntimeException('Le password non coincidono.');
-            }
-
-            $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-            $stmt = $pdo->prepare('
-                UPDATE admin SET password_hash = ?
-                WHERE id = ? AND role IN (?, ?, ?, ?)
-            ');
-            $stmt->execute([$hash, $userId, ...$ruoliPos]);
-            if ($stmt->rowCount() === 0) {
-                throw new RuntimeException('Utente POS non trovato.');
-            }
-            $message = 'Password aggiornata.';
-            $editUserId = 0;
+            throw new RuntimeException('La gestione POS non può reimpostare la password globale di un utente.');
         } elseif ($action === 'delete_user') {
             $userId = (int) ($_POST['user_id'] ?? 0);
-            if ($userId === $currentId) {
-                throw new RuntimeException('Non puoi eliminare il tuo account.');
+            if ($userId === $currentId || $userId < 1) {
+                throw new RuntimeException('Non puoi revocare la tua assegnazione amministratore.');
             }
-            $stmt = $pdo->prepare('DELETE FROM admin WHERE id = ? AND role IN (?, ?, ?, ?)');
-            $stmt->execute([$userId, ...$ruoliPos]);
-            if ($stmt->rowCount() === 0) {
+            if (get_sector_role($userId, 'pos') === null) {
                 throw new RuntimeException('Utente POS non trovato.');
             }
-            $message = 'Utente eliminato.';
+            staff_revoke_sector_role($userId, 'pos');
+            $message = 'Accesso POS revocato. Gli altri accessi dell’account restano invariati.';
         }
     } catch (Throwable $e) {
         $messageType = 'error';
@@ -90,12 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$users = $pdo->prepare('
-    SELECT id, username, role, station_name, created_at
-    FROM admin WHERE role IN (?, ?, ?, ?) ORDER BY role, username
-');
-$users->execute($ruoliPos);
+$users = $pdo->prepare('SELECT u.id,u.username,a.ruolo AS role,a.station_name,u.created_at FROM admin u INNER JOIN staff_assegnazioni a ON a.id_admin=u.id AND a.area=? AND a.attivo=1 WHERE u.attivo=1 AND u.is_super_admin=0 ORDER BY a.ruolo,u.username');
+$users->execute(['pos']);
 $users = $users->fetchAll();
+$csrfToken = csrf_token();
 
 $pageTitle = 'Utenti POS';
 ?>
@@ -148,6 +128,7 @@ $pageTitle = 'Utenti POS';
           <a href="?edit_password=<?= (int) $u['id'] ?>" class="btn btn-sm btn-outline">Modifica password</a>
           <?php if ((int) $u['id'] !== $currentId): ?>
           <form method="post" style="display:inline" onsubmit="return confirm('Eliminare questo utente?');">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
             <input type="hidden" name="action" value="delete_user">
             <input type="hidden" name="user_id" value="<?= (int) $u['id'] ?>">
             <button type="submit" class="btn btn-sm btn-red">Elimina</button>
@@ -172,15 +153,16 @@ $pageTitle = 'Utenti POS';
     Password — <?= htmlspecialchars($editUser['username']) ?>
   </h2>
   <form method="post">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
     <input type="hidden" name="action" value="update_password">
     <input type="hidden" name="user_id" value="<?= $editUserId ?>">
     <div class="form-group">
       <label>Nuova password</label>
-      <input type="password" name="password" required minlength="8">
+    <input type="password" name="password" minlength="8" autocomplete="new-password">
     </div>
     <div class="form-group">
       <label>Conferma password</label>
-      <input type="password" name="password_confirm" required minlength="8">
+    <input type="password" name="password_confirm" minlength="8" autocomplete="new-password">
     </div>
     <div class="form-actions">
       <button type="submit" class="btn btn-gold">Salva password</button>
@@ -194,6 +176,7 @@ $pageTitle = 'Utenti POS';
 <section class="admin-form">
   <h2 style="font-family:'Barlow Condensed',sans-serif;color:var(--gold);text-transform:uppercase;margin-bottom:1rem;">Aggiungi utente</h2>
   <form method="post" id="formCreateUser">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
     <input type="hidden" name="action" value="create_user">
     <div class="form-group">
       <label>Username</label>

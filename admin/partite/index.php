@@ -103,9 +103,7 @@ require_once __DIR__ . '/../_header.php';
             <a href="form.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline">Modifica</a>
             <a href="risultato.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-gold">Risultato</a>
             <a href="eventi.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline">Eventi</a>
-            <?php if (!is_telecronista()): ?><a href="delete.php?id=<?= $p['id'] ?>&csrf=<?= csrf_token() ?>"
-               class="btn btn-sm btn-red"
-               onclick="return confirm('Eliminare questa partita?')">Elimina</a><?php endif; ?>
+            <?php if (!is_telecronista()): ?><form method="post" action="delete.php" style="display:inline" onsubmit="return confirm('Eliminare questa partita?')"><input type="hidden" name="csrf_token" value="<?= csrf_token() ?>"><input type="hidden" name="id" value="<?= (int) $p['id'] ?>"><button class="btn btn-sm btn-red" type="submit">Elimina</button></form><?php endif; ?>
           </div>
         </td>
       </tr>

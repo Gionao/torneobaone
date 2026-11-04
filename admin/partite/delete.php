@@ -5,12 +5,11 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/classifica_helper.php';
-require_admin();
+require_partite_manager();
 
-$id   = filter_input(INPUT_GET, 'id',   FILTER_VALIDATE_INT);
-$csrf = $_GET['csrf'] ?? '';
+$id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
-if ($id && hash_equals($_SESSION['csrf_token'] ?? '', $csrf)) {
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && $id && csrf_verify()) {
     db()->prepare('DELETE FROM partite WHERE id = ?')->execute([$id]);
     ricalcola_classifica(db());
     $_SESSION['flash'] = ['type' => 'success', 'text' => 'Partita eliminata.'];

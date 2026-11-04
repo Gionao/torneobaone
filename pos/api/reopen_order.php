@@ -22,6 +22,18 @@ if ($orderId < 1) {
 }
 
 try {
+    $departmentScope = match (pos_current_role()) {
+        'bar' => 'bar',
+        'cucina' => 'kitchen',
+        default => null,
+    };
+    if ($departmentScope !== null) {
+        $scope = $pdo->prepare('SELECT COUNT(*) FROM pos_order_items oi INNER JOIN pos_products p ON p.id=oi.product_id INNER JOIN pos_categories c ON c.id=p.category_id WHERE oi.order_id=? AND c.department=?');
+        $scope->execute([$orderId, $departmentScope]);
+        if ((int) $scope->fetchColumn() === 0) {
+            pos_json(false, null, 'Ordine non autorizzato per questo dipartimento.');
+        }
+    }
     // Solo ordini delivered possono essere riaperti (non cancelled)
     $stmt = $pdo->prepare("
         UPDATE pos_orders SET status = 'preparing'

@@ -292,11 +292,7 @@ require_once __DIR__ . '/../_header.php';
     L'eliminazione è permanente: verranno cancellati anche tutti gli eventi e il risultato legati a questa partita.
     La classifica verrà ricalcolata automaticamente.
   </p>
-  <a href="delete.php?id=<?= $id ?>&csrf=<?= csrf_token() ?>"
-     class="btn btn-red btn-sm"
-     onclick="return confirm('Sei sicuro di voler eliminare questa partita? L\'operazione è irreversibile.')">
-    🗑️ Elimina Partita
-  </a>
+  <form method="post" action="delete.php" style="display:inline" onsubmit="return confirm('Sei sicuro di voler eliminare questa partita? L\'operazione è irreversibile.')"><input type="hidden" name="csrf_token" value="<?= csrf_token() ?>"><input type="hidden" name="id" value="<?= (int) $id ?>"><button type="submit" class="btn btn-red btn-sm">🗑️ Elimina Partita</button></form>
 </div>
 <?php endif; ?>
 <?php endif; ?>

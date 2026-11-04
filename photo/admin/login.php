@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/_bootstrap.php';
 
 session_start_secure();
+$cssVersione = @filemtime(dirname(__DIR__) . '/assets/css/archivio.css') ?: time();
 
 if (media_is_logged()) {
     header('Location: ' . ARCHIVIO_URL . '/index.php');
@@ -15,11 +16,11 @@ $errore = '';
 $username = '';
 $ritorna = (string) ($_GET['ritorna'] ?? $_POST['ritorna'] ?? '');
 $destinazione = ARCHIVIO_URL . '/index.php';
-if (str_starts_with($ritorna, '/photo/admin/') && !str_contains($ritorna, '//')) {
+if (preg_match('~\A/photo/admin/(?!/)(?!.*(?:^|/)\.\.(?:/|$))[A-Za-z0-9_./-]*(?:\?[A-Za-z0-9_=&%-]*)?\z~', $ritorna) === 1) {
     $destinazione = SITE_URL . $ritorna;
 }
 
-if (is_admin_logged() && !in_array((string) ($_SESSION['admin_role'] ?? ''), media_ruoli(), true)) {
+if (is_admin_logged() && !media_is_logged()) {
     $errore = 'Questo account non ha accesso all\'archivio. Usa un account autorizzato.';
 }
 
@@ -32,13 +33,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($username === '' || $password === '') {
             $errore = 'Inserisci nome utente e password.';
-        } elseif (!admin_login($username, $password)) {
+        } elseif (!staff_login($username, $password)) {
             $errore = 'Credenziali non valide. Riprova.';
-        } elseif (!in_array((string) ($_SESSION['admin_role'] ?? ''), media_ruoli(), true)) {
-            admin_logout();
+        } elseif (!media_is_logged()) {
             $errore = 'Questo account non ha accesso all\'archivio.';
         } else {
-            media_regenera_sessione();
+            if (staff_password_change_required()) {
+                header('Location: ' . STAFF_URL . '/change-password.php');
+                exit;
+            }
+            if (count(staff_current_user()['assignments']) > 1 && !staff_is_super_admin()) {
+                header('Location: ' . STAFF_URL . '/index.php');
+                exit;
+            }
             header('Location: ' . $destinazione);
             exit;
         }
@@ -56,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= media_h(SITE_URL) ?>/assets/css/style.css">
-  <link rel="stylesheet" href="<?= media_h(MEDIA_ROOT_URL) ?>/assets/css/archivio.css">
+  <link rel="stylesheet" href="<?= media_h(MEDIA_ROOT_URL) ?>/assets/css/archivio.css?v=<?= (int) $cssVersione ?>">
 </head>
 <body class="archivio-login-body">
   <main class="archivio-login-card">

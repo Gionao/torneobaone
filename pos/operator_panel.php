@@ -12,7 +12,7 @@ require_role(['admin', 'operatore']);
 
 $pageTitle        = 'POS — Bancone';
 $posNavActive     = 'operator';
-$showStationInQueue = ($_SESSION['pos_admin_role'] ?? '') === 'admin';
+$showStationInQueue = pos_current_role() === 'admin';
 
 // Leggi impostazioni tariffe
 $settings      = $pdo->query("SELECT `key`, `value` FROM pos_settings")->fetchAll(PDO::FETCH_KEY_PAIR);

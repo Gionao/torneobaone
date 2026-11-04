@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/iscrizione_helper.php';
 
-require_admin();
+require_tournament_operations();
 
 $pdo = db();
 $squadre = $pdo->query('SELECT id, nome FROM squadre ORDER BY nome')->fetchAll();
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dataPagamento,
                 $stato,
                 $note !== '' ? $note : null,
-                (int) ($_SESSION['admin_id'] ?? 0),
+                staff_id(),
             ]);
             ricalcola_stato_pagamento($pdo, $idSquadra);
             $pdo->commit();

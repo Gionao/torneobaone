@@ -49,39 +49,22 @@ function media_ruoli_assegnabili(): array
  */
 function media_utente_corrente(): ?array
 {
-    static $caricato = false;
-    static $utente = null;
-
     session_start_secure();
-    if ($caricato) {
-        return $utente;
-    }
-    $caricato = true;
-
-    $id = (int) ($_SESSION['admin_id'] ?? 0);
-    if ($id <= 0 || empty($_SESSION['admin_token'])) {
+    $principal = staff_current_user();
+    if ($principal === null || (!isset($principal['assignments']['archivio']) && !$principal['is_super_admin'])) {
         return null;
     }
 
-    try {
-        $stmt = db()->prepare('SELECT id, username, role FROM admin WHERE id = ? LIMIT 1');
-        $stmt->execute([$id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (Throwable $e) {
-        return null;
-    }
+    $ruolo = $principal['is_super_admin']
+        ? 'admin'
+        : (string) ($principal['assignments']['archivio']['role'] ?? '');
+    $ruolo = $ruolo === 'amministratore' ? 'admin' : $ruolo;
 
-    if (!$row) {
-        unset($_SESSION['admin_id'], $_SESSION['admin_username'], $_SESSION['admin_role'], $_SESSION['admin_token']);
-        return null;
-    }
-
-    $utente = [
-        'id'       => (int) $row['id'],
-        'username' => (string) $row['username'],
-        'role'     => (string) $row['role'],
+    return [
+        'id'       => (int) $principal['id'],
+        'username' => (string) $principal['username'],
+        'role'     => $ruolo,
     ];
-    return $utente;
 }
 
 function media_ruolo(): string
@@ -98,7 +81,7 @@ function media_is_logged(): bool
 
 function media_is_uploader(): bool
 {
-    return media_is_logged();
+    return media_is_logged() && media_ruolo() === 'uploader';
 }
 
 function media_is_editor(): bool
@@ -125,10 +108,7 @@ function media_admin_username(): string
 
 function media_regenera_sessione(): void
 {
-    if (empty($_SESSION['last_regen']) || time() - (int) $_SESSION['last_regen'] > 300) {
-        session_regenerate_id(true);
-        $_SESSION['last_regen'] = time();
-    }
+    staff_current_user();
 }
 
 /** Protezione pagine HTML: reindirizza al login archivio. */
@@ -141,6 +121,10 @@ function require_media_login(): void
             $login .= '?ritorna=' . rawurlencode($destinazione);
         }
         header('Location: ' . $login);
+        exit;
+    }
+    if (staff_password_change_required()) {
+        header('Location: ' . STAFF_URL . '/change-password.php');
         exit;
     }
     media_regenera_sessione();
@@ -174,6 +158,9 @@ function require_media_api_login(): void
     if (!media_is_logged()) {
         media_json(['ok' => false, 'errore' => 'Sessione non valida. Effettua di nuovo l\'accesso.'], 401);
     }
+    if (staff_password_change_required()) {
+        media_json(['ok' => false, 'errore' => 'È necessario cambiare la password.'], 403);
+    }
     media_regenera_sessione();
 }
 
@@ -200,8 +187,7 @@ function media_csrf_valido(): bool
     $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_POST['csrf_token'] ?? '');
     return is_string($token)
         && $token !== ''
-        && !empty($_SESSION['csrf_token'])
-        && hash_equals((string) $_SESSION['csrf_token'], $token);
+        && hash_equals(staff_csrf_token(), $token);
 }
 
 function media_richiedi_csrf(): void
@@ -274,7 +260,7 @@ function media_edizioni_consentite(?int $adminId = null): ?array
     }
 
     try {
-        $stmt = db()->prepare('SELECT id_edizione FROM media_accesso_edizione WHERE id_admin = ? ORDER BY id_edizione');
+            $stmt = db()->prepare('SELECT a.id_edizione FROM media_accesso_edizione a INNER JOIN admin u ON u.id=a.id_admin AND u.attivo=1 INNER JOIN staff_assegnazioni s ON s.id_admin=u.id AND s.area=\'archivio\' AND s.ruolo=\'uploader\' AND s.attivo=1 WHERE a.id_admin = ? ORDER BY a.id_edizione');
         $stmt->execute([$adminId]);
         $ids = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     } catch (Throwable $e) {
@@ -313,8 +299,9 @@ function media_puo_caricare_album(array $album): bool
  */
 function media_puo_scaricare(array $file, ?int $adminId = null, ?string $ruolo = null): bool
 {
-    $adminId = $adminId ?? media_admin_id();
-    $ruolo   = $ruolo ?? media_ruolo();
+    // Optional legacy arguments are deliberately ignored as authorities.
+    $adminId = media_admin_id();
+    $ruolo = media_ruolo();
 
     if (!in_array($ruolo, media_ruoli(), true)) {
         return false;
@@ -328,8 +315,9 @@ function media_puo_scaricare(array $file, ?int $adminId = null, ?string $ruolo =
 /** Un uploader può eliminare i propri file; l'editor no; l'admin tutto. */
 function media_puo_eliminare(array $file, ?int $adminId = null, ?string $ruolo = null): bool
 {
-    $adminId = $adminId ?? media_admin_id();
-    $ruolo   = $ruolo ?? media_ruolo();
+    // Optional legacy arguments are deliberately ignored as authorities.
+    $adminId = media_admin_id();
+    $ruolo = media_ruolo();
 
     if ($ruolo === 'admin') {
         return true;

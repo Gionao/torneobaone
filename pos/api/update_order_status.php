@@ -25,7 +25,19 @@ if (!in_array($status, $allowed, true) || $id < 1) {
 }
 
 try {
+    $departmentScope = match (pos_current_role()) {
+        'bar' => 'bar',
+        'cucina' => 'kitchen',
+        default => null,
+    };
     if ($type === 'order') {
+        if ($departmentScope !== null) {
+            $scopeCheck = $pdo->prepare('SELECT COUNT(*) FROM pos_order_items oi INNER JOIN pos_products p ON p.id=oi.product_id INNER JOIN pos_categories c ON c.id=p.category_id WHERE oi.order_id=? AND c.department=?');
+            $scopeCheck->execute([$id, $departmentScope]);
+            if ((int) $scopeCheck->fetchColumn() === 0) {
+                pos_json(false, null, 'Ordine non autorizzato per questo dipartimento.');
+            }
+        }
         $stmt = $pdo->prepare('UPDATE pos_orders SET status = ? WHERE id = ?');
         $stmt->execute([$status, $id]);
         if ($stmt->rowCount() === 0) {
@@ -40,6 +52,13 @@ try {
             $pdo->prepare("UPDATE pos_order_items SET status = 'delivered' WHERE order_id = ? AND status = 'ready'")->execute([$id]);
         }
     } elseif ($type === 'item') {
+        if ($departmentScope !== null) {
+            $scopeCheck = $pdo->prepare('SELECT 1 FROM pos_order_items oi INNER JOIN pos_products p ON p.id=oi.product_id INNER JOIN pos_categories c ON c.id=p.category_id WHERE oi.id=? AND c.department=? LIMIT 1');
+            $scopeCheck->execute([$id, $departmentScope]);
+            if (!$scopeCheck->fetchColumn()) {
+                pos_json(false, null, 'Riga ordine non autorizzata per questo dipartimento.');
+            }
+        }
         $stmt = $pdo->prepare('UPDATE pos_order_items SET status = ? WHERE id = ?');
         $stmt->execute([$status, $id]);
         if ($stmt->rowCount() === 0) {
