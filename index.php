@@ -60,6 +60,26 @@ $altreProssime = array_values(array_filter($prossime, static function (array $pa
 
 // Data fine torneo per countdown (modifica se necessario)
 $data_torneo = '2027-07-12 21:00:00';
+
+// Usa la foto solo se è selezionata in config e il file esiste sotto assets/img/.
+$heroBackgroundMode = HERO_BACKGROUND_MODE === 'image' ? 'image' : 'graphic';
+$heroBackgroundImage = '';
+if ($heroBackgroundMode === 'image') {
+    $configuredHeroImage = str_replace('\\', '/', HERO_BACKGROUND_IMAGE);
+    $assetsImageRoot = realpath(__DIR__ . '/assets/img');
+    $candidateHeroImage = realpath(__DIR__ . '/' . $configuredHeroImage);
+    if (
+        str_starts_with($configuredHeroImage, 'assets/img/')
+        && $assetsImageRoot !== false
+        && $candidateHeroImage !== false
+        && str_starts_with($candidateHeroImage, $assetsImageRoot . DIRECTORY_SEPARATOR)
+        && is_file($candidateHeroImage)
+    ) {
+        $heroBackgroundImage = $configuredHeroImage;
+    } else {
+        $heroBackgroundMode = 'graphic';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -72,7 +92,7 @@ $data_torneo = '2027-07-12 21:00:00';
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-5">
+  <link rel="stylesheet" href="assets/css/style.css?v=public-menu-6">
   <link rel="stylesheet" href="assets/css/public-redesign.css?v=1">
 </head>
 <body class="public-site public-home">
@@ -81,7 +101,7 @@ $data_torneo = '2027-07-12 21:00:00';
 
 <!-- ═══════════════════════════════ HERO ════════════════════════════════ -->
 <section class="hero" aria-labelledby="home-title">
-  <div class="hero-bg"></div>
+  <div class="hero-bg<?= $heroBackgroundMode === 'image' ? ' hero-bg--image' : '' ?>"<?= $heroBackgroundMode === 'image' ? ' style="--hero-bg-image: url(\'' . htmlspecialchars(rtrim(SITE_URL, '/') . '/' . $heroBackgroundImage, ENT_QUOTES, 'UTF-8') . '\')"' : '' ?>></div>
   <div class="hero-content">
       <img src="assets/brand/01_loghi/png/logo_principale.png" alt="Scudetto ufficiale del Torneo Baone" class="hero-logo animate-drop" fetchpriority="high">
       <h1 class="hero-title animate-fade" id="home-title">

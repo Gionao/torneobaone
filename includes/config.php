@@ -78,6 +78,14 @@ if (!defined('DEBUG_MODE')) {
     define('DEBUG_MODE', $parsedDebugMode ?? (ENV !== 'production'));
 }
 
+// Hero homepage: seleziona 'graphic' oppure 'image'. L'immagine deve trovarsi in assets/img/.
+if (!defined('HERO_BACKGROUND_MODE')) {
+    define('HERO_BACKGROUND_MODE', 'graphic');
+}
+if (!defined('HERO_BACKGROUND_IMAGE')) {
+    define('HERO_BACKGROUND_IMAGE', 'assets/img/hero.jpg');
+}
+
 if (!defined('SMTP_HOST')) {
     define('SMTP_HOST', getenv('SMTP_HOST') ?: '');
 }
