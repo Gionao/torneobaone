@@ -1,5 +1,13 @@
 # Unified staff authentication schema and migration
 
+## Registration workflow extension (not yet production-ready)
+
+`20261105_registration_workflow.sql` is the next one-time migration after `20261104_unified_staff_auth.sql`. It adds registration fields and append-only consent, parent authorization, paper authorization and registration audit tables. It contains DDL and a backfill of `giocatori.id_torneo`; it has **not** been executed or validated against a disposable MySQL/MariaDB instance in this change. Review `docs/registration-audit/08_IMPLEMENTATION_REPORT.md` before use.
+
+Before execution, restore a protected backup into a disposable database, inspect the exact schema/version and every `ALTER TABLE` target, run the duplicate preflight queries and resolve collisions manually. MySQL DDL auto-commits: the migration is not transactionally rollbackable. Recovery is restore from verified backup or a separately reviewed forward fix; do not apply to production on the basis of this file alone. The unique active tax-code key is limited to rows whose `id_torneo` is populated; orphan/legacy rows with NULL edition are not deduplicated by that index.
+
+The registration migration currently contains no application migration runner and assumes the prior staff tables (`admin`, `tornei`, `documenti`) exist. It is intentionally not advertised as repeat-safe: do not rerun after partial completion without checking each DDL statement.
+
 ## Stable identifiers
 
 Database codes are fixed application identifiers, not editable permissions. Keep lowercase ASCII spelling stable in SQL and PHP:

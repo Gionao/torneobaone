@@ -178,6 +178,10 @@ CREATE TABLE IF NOT EXISTS `tornei` (
   `data_inizio` DATE NULL DEFAULT NULL,
   `data_fine`   DATE NULL DEFAULT NULL,
   `attivo`      TINYINT(1) NOT NULL DEFAULT 1,
+  `max_squadre` SMALLINT UNSIGNED NULL DEFAULT NULL,
+  `scadenza_iscrizioni` DATETIME NULL DEFAULT NULL,
+  `iscrizioni_riaperte_at` DATETIME NULL DEFAULT NULL,
+  `iscrizioni_riaperte_da` INT UNSIGNED NULL DEFAULT NULL,
   `created_at`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -229,6 +233,10 @@ CREATE TABLE IF NOT EXISTS `squadre` (
   `id_torneo`                 TINYINT UNSIGNED  NULL DEFAULT NULL,
   `attiva`                    TINYINT(1)        NOT NULL DEFAULT 0,
   `autorizzata`               TINYINT(1)        NOT NULL DEFAULT 0,
+  `stato_approvazione`        ENUM('in_attesa','approvata','respinta','sospesa') NOT NULL DEFAULT 'in_attesa',
+  `approvata_da`              INT UNSIGNED NULL DEFAULT NULL,
+  `approvata_at`              DATETIME NULL DEFAULT NULL,
+  `approvazione_note`         VARCHAR(500) NULL DEFAULT NULL,
   `numero_giocatori_previsto` TINYINT UNSIGNED  NULL DEFAULT NULL,
   `stato_iscrizione`          ENUM('bozza','in_corso','completa') NOT NULL DEFAULT 'bozza',
   `stato_pagamento`           ENUM('non_pagato','parziale','pagato') NOT NULL DEFAULT 'non_pagato',
@@ -242,7 +250,8 @@ CREATE TABLE IF NOT EXISTS `squadre` (
     ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_squadre_torneo`
     FOREIGN KEY (`id_torneo`) REFERENCES `tornei` (`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_squadre_approvata_da` FOREIGN KEY (`approvata_da`) REFERENCES `admin` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -252,6 +261,7 @@ CREATE TABLE IF NOT EXISTS `squadre` (
 CREATE TABLE IF NOT EXISTS `giocatori` (
   `id`           INT UNSIGNED      NOT NULL AUTO_INCREMENT,
   `id_squadra`   SMALLINT UNSIGNED NOT NULL,
+  `id_torneo`    TINYINT UNSIGNED NULL DEFAULT NULL,
   `nome`         VARCHAR(100)      NOT NULL,
   `cognome`      VARCHAR(100)      NOT NULL,
   `numero_maglia` TINYINT UNSIGNED NULL DEFAULT NULL,
@@ -260,12 +270,23 @@ CREATE TABLE IF NOT EXISTS `giocatori` (
   `telefono`     VARCHAR(30)       NULL DEFAULT NULL,
   `data_nascita` DATE              NULL DEFAULT NULL,
   `indirizzo`    VARCHAR(255)      NULL DEFAULT NULL,
+  `codice_fiscale` CHAR(16) CHARACTER SET ascii COLLATE ascii_general_ci NULL DEFAULT NULL,
+  `codice_fiscale_attivo` CHAR(16) CHARACTER SET ascii COLLATE ascii_general_ci
+    GENERATED ALWAYS AS (CASE WHEN `stato_iscrizione` <> 'annullato' THEN `codice_fiscale` ELSE NULL END) STORED,
+  `email_verificata_at` DATETIME NULL DEFAULT NULL,
+  `ruolo_roster` VARCHAR(20) NOT NULL DEFAULT 'giocatore',
+  `sostituisce_id` INT UNSIGNED NULL DEFAULT NULL,
+  `ritirato_at` DATETIME NULL DEFAULT NULL,
   `stato_iscrizione` VARCHAR(40)   NOT NULL DEFAULT 'non_registrato',
   PRIMARY KEY (`id`),
   KEY `fk_gioc_squadra` (`id_squadra`),
+  KEY `idx_giocatori_torneo_squadra` (`id_torneo`,`id_squadra`),
+  UNIQUE KEY `uq_giocatori_cf_torneo_attivi` (`id_torneo`,`codice_fiscale_attivo`),
   CONSTRAINT `fk_gioc_squadra`
     FOREIGN KEY (`id_squadra`) REFERENCES `squadre` (`id`)
-    ON DELETE CASCADE ON UPDATE CASCADE
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_giocatori_torneo` FOREIGN KEY (`id_torneo`) REFERENCES `tornei` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_giocatori_sostituisce` FOREIGN KEY (`sostituisce_id`) REFERENCES `giocatori` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DELIMITER //
@@ -387,6 +408,10 @@ CREATE TABLE IF NOT EXISTS `genitori` (
   `cognome`      VARCHAR(100) NOT NULL,
   `email`        VARCHAR(190) NOT NULL,
   `telefono`     VARCHAR(30) NULL DEFAULT NULL,
+  `codice_fiscale` CHAR(16) CHARACTER SET ascii COLLATE ascii_general_ci NULL DEFAULT NULL,
+  `indirizzo` VARCHAR(255) NULL DEFAULT NULL,
+  `dichiara_tutela` TINYINT(1) NULL DEFAULT NULL,
+  `email_verificata_at` DATETIME NULL DEFAULT NULL,
   `created_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_genitori_giocatore` (`id_giocatore`),
@@ -480,6 +505,88 @@ CREATE TABLE IF NOT EXISTS `token_verifica` (
     FOREIGN KEY (`id_giocatore`) REFERENCES `giocatori` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_token_verifica_genitore`
     FOREIGN KEY (`id_genitore`) REFERENCES `genitori` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `consensi_eventi` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_giocatore` INT UNSIGNED NULL,
+  `id_capitano` INT UNSIGNED NULL,
+  `id_genitore` INT UNSIGNED NULL,
+  `codice_controllo` VARCHAR(40) NOT NULL,
+  `id_documento` INT UNSIGNED NOT NULL,
+  `valore` ENUM('accettato','rifiutato','revocato') NOT NULL,
+  `attore_tipo` ENUM('partecipante','genitore','staff') NOT NULL,
+  `id_staff` INT UNSIGNED NULL,
+  `canale` VARCHAR(30) NOT NULL,
+  `riferimento_verifica` BIGINT UNSIGNED NULL,
+  `ip_address` VARCHAR(45) NULL,
+  `user_agent` VARCHAR(255) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_consensi_eventi_giocatore` (`id_giocatore`,`codice_controllo`,`created_at`),
+  KEY `idx_consensi_eventi_genitore` (`id_genitore`,`created_at`),
+  CONSTRAINT `fk_cons_evt_gioc` FOREIGN KEY (`id_giocatore`) REFERENCES `giocatori` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_cons_evt_cap` FOREIGN KEY (`id_capitano`) REFERENCES `capitani` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_cons_evt_gen` FOREIGN KEY (`id_genitore`) REFERENCES `genitori` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_cons_evt_doc` FOREIGN KEY (`id_documento`) REFERENCES `documenti` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_cons_evt_staff` FOREIGN KEY (`id_staff`) REFERENCES `admin` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `chk_cons_evt_soggetto` CHECK (
+    (id_giocatore IS NOT NULL) + (id_capitano IS NOT NULL) + (id_genitore IS NOT NULL) = 1
+  )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `autorizzazioni_genitore` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_genitore` INT UNSIGNED NOT NULL,
+  `id_giocatore` INT UNSIGNED NOT NULL,
+  `token_hash` CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  `otp_hash` CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NULL,
+  `link_scade_at` DATETIME NOT NULL,
+  `otp_scade_at` DATETIME NULL,
+  `tentativi_otp` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  `ultimo_invio_at` DATETIME NOT NULL,
+  `verificato_at` DATETIME NULL,
+  `consumato_at` DATETIME NULL,
+  `invalidato_at` DATETIME NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_aut_gen_token` (`token_hash`),
+  KEY `idx_aut_gen_player` (`id_giocatore`,`consumato_at`,`invalidato_at`),
+  CONSTRAINT `fk_aut_gen_parent` FOREIGN KEY (`id_genitore`) REFERENCES `genitori` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_aut_gen_player` FOREIGN KEY (`id_giocatore`) REFERENCES `giocatori` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `autorizzazioni_cartacee` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_giocatore` INT UNSIGNED NOT NULL,
+  `riferimento` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  `stato` ENUM('generata','ricevuta','validata','respinta','sostituita') NOT NULL DEFAULT 'generata',
+  `versioni_documenti` JSON NOT NULL,
+  `ricevuta_at` DATETIME NULL,
+  `validata_at` DATETIME NULL,
+  `validata_da` INT UNSIGNED NULL,
+  `note_staff` VARCHAR(500) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_aut_cart_ref` (`riferimento`),
+  KEY `idx_aut_cart_player` (`id_giocatore`,`stato`),
+  CONSTRAINT `fk_aut_cart_player` FOREIGN KEY (`id_giocatore`) REFERENCES `giocatori` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_aut_cart_staff` FOREIGN KEY (`validata_da`) REFERENCES `admin` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `audit_iscrizioni` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_admin` INT UNSIGNED NULL,
+  `id_squadra` SMALLINT UNSIGNED NULL,
+  `id_giocatore` INT UNSIGNED NULL,
+  `azione` VARCHAR(50) NOT NULL,
+  `dettagli` JSON NULL,
+  `ip_address` VARCHAR(45) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_audit_iscr_team` (`id_squadra`,`created_at`),
+  KEY `idx_audit_iscr_player` (`id_giocatore`,`created_at`),
+  CONSTRAINT `fk_audit_iscr_admin` FOREIGN KEY (`id_admin`) REFERENCES `admin` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `metodi_pagamento` (
