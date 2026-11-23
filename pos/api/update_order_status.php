@@ -25,6 +25,16 @@ if (!in_array($status, $allowed, true) || $id < 1) {
 }
 
 try {
+    // Gli annullamenti staff passano dall'API dedicata, che controlla ruolo e giornata.
+    if ($status === 'cancelled') {
+        $staffCheck = $pdo->prepare($type === 'item'
+            ? 'SELECT o.is_staff FROM pos_orders o INNER JOIN pos_order_items oi ON oi.order_id = o.id WHERE oi.id = ?'
+            : 'SELECT is_staff FROM pos_orders WHERE id = ?');
+        $staffCheck->execute([$id]);
+        if ($staffCheck->fetchColumn()) {
+            pos_json(false, null, 'Per annullare un ordine staff usa Annulla dalla cassa o dallo storico.');
+        }
+    }
     $departmentScope = match (pos_current_role()) {
         'bar' => 'bar',
         'cucina' => 'kitchen',

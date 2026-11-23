@@ -108,10 +108,10 @@ if (!defined('MAIL_FROM_ADDRESS')) {
     define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS') ?: 'noreply@torneobaone.test');
 }
 if (!defined('MAIL_FROM_NAME')) {
-    define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: SITE_NAME);
+    define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: Torneo Baone);
 }
 if (!defined('MAIL_REPLY_TO')) {
-    define('MAIL_REPLY_TO', getenv('MAIL_REPLY_TO') ?: MAIL_FROM_ADDRESS);
+    define('MAIL_REPLY_TO', getenv('MAIL_REPLY_TO') ?: 'support@torneobaone.test');
 }
 
 date_default_timezone_set('Europe/Rome');

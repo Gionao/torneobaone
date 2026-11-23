@@ -6,6 +6,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/role_check.php';
 require_role(['admin']);
+require_once __DIR__ . '/../includes/staff_orders.php';
 
 $posNavActive = 'stats';
 $selectedDate = $_GET['date'] ?? date('Y-m-d');
@@ -15,9 +16,9 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $selectedDate)) {
 
 $summaryStmt = $pdo->prepare("
     SELECT
-        COUNT(CASE WHEN status != 'cancelled' THEN 1 END) AS total_orders,
-        COALESCE(SUM(CASE WHEN status != 'cancelled' THEN total_amount ELSE 0 END), 0) AS total_revenue,
-        COALESCE(SUM(CASE WHEN status != 'cancelled' THEN covers ELSE 0 END), 0) AS total_covers
+        COUNT(CASE WHEN status != 'cancelled' AND is_staff = 0 THEN 1 END) AS total_orders,
+        COALESCE(SUM(CASE WHEN status != 'cancelled' AND is_staff = 0 THEN total_amount ELSE 0 END), 0) AS total_revenue,
+        COALESCE(SUM(CASE WHEN status != 'cancelled' AND is_staff = 0 THEN covers ELSE 0 END), 0) AS total_covers
     FROM pos_orders
     WHERE DATE(created_at) = ?
 ");
@@ -31,7 +32,7 @@ $couponStmt = $pdo->prepare("
     FROM pos_order_items oi
     INNER JOIN pos_orders o ON o.id = oi.order_id
     WHERE DATE(o.created_at) = ?
-      AND o.status != 'cancelled'
+      AND o.status != 'cancelled' AND o.is_staff = 0
       AND oi.coupon_id IS NOT NULL
 ");
 $couponStmt->execute([$selectedDate]);
@@ -44,7 +45,7 @@ $stationStmt = $pdo->prepare("
         COALESCE(SUM(total_amount), 0) AS revenue,
         COALESCE(SUM(covers), 0) AS covers
     FROM pos_orders
-    WHERE DATE(created_at) = ? AND status != 'cancelled'
+    WHERE DATE(created_at) = ? AND status != 'cancelled' AND is_staff = 0
     GROUP BY station_name
     ORDER BY revenue DESC
 ");
@@ -57,7 +58,7 @@ foreach ($byStation as &$st) {
         FROM pos_order_items oi
         INNER JOIN pos_orders o ON o.id = oi.order_id
         WHERE DATE(o.created_at) = ?
-          AND o.status != 'cancelled'
+          AND o.status != 'cancelled' AND o.is_staff = 0
           AND oi.coupon_id IS NOT NULL
           AND COALESCE(NULLIF(o.station_name, ''), '—') = ?
     ");
@@ -81,7 +82,7 @@ $productsStmt = $pdo->prepare("
     INNER JOIN pos_orders o ON o.id = oi.order_id
     INNER JOIN pos_products p ON p.id = oi.product_id
     INNER JOIN pos_categories c ON c.id = p.category_id
-    WHERE DATE(o.created_at) = ? AND o.status != 'cancelled'
+    WHERE DATE(o.created_at) = ? AND o.status != 'cancelled' AND o.is_staff = 0
     GROUP BY p.id, p.name, c.name, c.department
     ORDER BY qty_sold DESC
     LIMIT 25
@@ -94,12 +95,24 @@ $hourlyStmt = $pdo->prepare("
            COUNT(*) AS num_orders,
            COALESCE(SUM(total_amount), 0) AS revenue
     FROM pos_orders
-    WHERE DATE(created_at) = ? AND status != 'cancelled'
+    WHERE DATE(created_at) = ? AND status != 'cancelled' AND is_staff = 0
     GROUP BY HOUR(created_at)
     ORDER BY hour_slot
 ");
 $hourlyStmt->execute([$selectedDate]);
 $hourly = $hourlyStmt->fetchAll();
+
+$staffFrom = $_GET['staff_from'] ?? $selectedDate;
+$staffTo = $_GET['staff_to'] ?? $selectedDate;
+foreach (['staffFrom', 'staffTo'] as $field) {
+    $value = $$field;
+    $parsed = is_string($value) ? DateTimeImmutable::createFromFormat('!Y-m-d', $value) : false;
+    if (!$parsed || $parsed->format('Y-m-d') !== $value) $$field = $selectedDate;
+}
+if ($staffFrom > $staffTo) [$staffFrom, $staffTo] = [$staffTo, $staffFrom];
+$staffProducts = pos_staff_consumption($pdo, $staffFrom, $staffTo);
+$staffTotal = array_sum(array_column($staffProducts, 'consumed_value'));
+$staffQuantity = array_sum(array_column($staffProducts, 'quantity'));
 
 $pageTitle = 'Statistiche POS';
 ?>
@@ -158,6 +171,27 @@ $pageTitle = 'Statistiche POS';
     <div class="stat-num"><?= (int) ($summary['total_covers'] ?? 0) ?></div>
     <div class="stat-lbl">Coperti serviti</div>
   </div>
+</div>
+
+<h2 class="pos-stats-section-title" id="staff-consumption">Consumi staff</h2>
+<p>Valore di listino dei prodotti e degli extra al momento dell’ordine. Escluso dagli incassi e dalle vendite; ordini e righe annullati esclusi.</p>
+<form method="get" class="admin-form" style="display:flex;flex-wrap:wrap;gap:1rem;align-items:end;margin-bottom:1rem;">
+  <input type="hidden" name="date" value="<?= htmlspecialchars($selectedDate) ?>">
+  <div class="form-group"><label for="staffFrom">Dal</label><input type="date" id="staffFrom" name="staff_from" value="<?= htmlspecialchars($staffFrom) ?>" required></div>
+  <div class="form-group"><label for="staffTo">Al</label><input type="date" id="staffTo" name="staff_to" value="<?= htmlspecialchars($staffTo) ?>" required></div>
+  <button type="submit" class="btn btn-gold">Filtra consumi staff</button>
+</form>
+<div class="admin-table-wrap" style="margin-bottom:2rem;">
+  <table class="admin-table">
+    <thead><tr><th>Prodotto</th><th>Quantità</th><th>Valore consumato</th></tr></thead>
+    <tbody>
+      <?php if (!$staffProducts): ?><tr><td colspan="3" class="empty-msg">Nessun consumo staff nel periodo.</td></tr><?php endif; ?>
+      <?php foreach ($staffProducts as $product): ?>
+      <tr><td><?= htmlspecialchars($product['product_name']) ?></td><td><?= (int) $product['quantity'] ?></td><td>€ <?= number_format((float) $product['consumed_value'], 2, ',', '.') ?></td></tr>
+      <?php endforeach; ?>
+    </tbody>
+    <tfoot><tr><td><strong>Totale consumi staff</strong></td><td><?= (int) $staffQuantity ?></td><td><strong>€ <?= number_format((float) $staffTotal, 2, ',', '.') ?></strong></td></tr></tfoot>
+  </table>
 </div>
 
 <h2 class="pos-stats-section-title">Per cassa</h2>

@@ -709,6 +709,7 @@ CREATE TABLE IF NOT EXISTS `pos_orders` (
   `customer_name` VARCHAR(100) NOT NULL DEFAULT '',
   `table_number`  VARCHAR(20) NULL DEFAULT NULL,
   `is_takeaway`   TINYINT(1) NOT NULL DEFAULT 0,
+  `is_staff`      TINYINT(1) NOT NULL DEFAULT 0,
   `covers`        TINYINT UNSIGNED NOT NULL DEFAULT 1,
   `cover_fee`     DECIMAL(8,2) NOT NULL DEFAULT 0.00,
   `takeaway_fee`  DECIMAL(8,2) NOT NULL DEFAULT 0.00,

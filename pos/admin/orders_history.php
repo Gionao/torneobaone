@@ -29,15 +29,9 @@ $stations = $pdo->query("
 
 $sql = "
     SELECT o.id, o.daily_number, o.customer_name, o.covers, o.station_name,
-           o.status, o.created_at,
-           COALESCE(SUM(
-               (oi.unit_price * oi.quantity)
-               + COALESCE((
-                   SELECT SUM(oim.extra_price) FROM pos_order_item_modifications oim
-                   WHERE oim.order_item_id = oi.id AND oim.action = 'added'
-               ), 0) * oi.quantity
-               - oi.discount_applied * oi.quantity
-           ), 0) AS order_total,
+           o.status, o.created_at, o.is_staff,
+           DATE(o.created_at) = CURDATE() AS is_today,
+           o.total_amount AS order_total,
            SUM(CASE WHEN oi.coupon_id IS NOT NULL THEN 1 ELSE 0 END) AS coupon_count
     FROM pos_orders o
     LEFT JOIN pos_order_items oi ON oi.order_id = o.id
@@ -169,20 +163,21 @@ $pageTitle = 'Storico ordini POS';
         <th>Stato</th>
         <th>Totale</th>
         <th>Coupon</th>
+        <th>Azioni</th>
       </tr>
     </thead>
     <tbody>
       <?php if (empty($orders)): ?>
-      <tr><td colspan="<?= $isAdmin ? 8 : 7 ?>" class="empty-msg">Nessun ordine trovato.</td></tr>
+      <tr><td colspan="<?= $isAdmin ? 9 : 8 ?>" class="empty-msg">Nessun ordine trovato.</td></tr>
       <?php else: foreach ($orders as $o):
         $orderId = (int) $o['id'];
         $itemStmt->execute([$orderId]);
         $items = $itemStmt->fetchAll();
-        $colspan = $isAdmin ? 8 : 7;
+        $colspan = $isAdmin ? 9 : 8;
       ?>
       <tr class="pos-history-row" data-order-id="<?= $orderId ?>">
         <td><strong>#<?= (int) $o['daily_number'] ?></strong></td>
-        <td><?= htmlspecialchars($o['customer_name'] ?: '—') ?></td>
+        <td><?= htmlspecialchars($o['customer_name'] ?: '—') ?><?= $o['is_staff'] ? ' · STAFF' : '' ?></td>
         <td><?= (int) $o['covers'] ?></td>
         <?php if ($isAdmin): ?>
         <td style="color:var(--muted);font-size:.85rem"><?= htmlspecialchars($o['station_name'] ?? '—') ?></td>
@@ -191,6 +186,12 @@ $pageTitle = 'Storico ordini POS';
         <td><span class="status-badge <?= htmlspecialchars($o['status']) ?>"><?= htmlspecialchars($o['status']) ?></span></td>
         <td>€ <?= number_format((float) $o['order_total'], 2, ',', '.') ?></td>
         <td><?= (int) $o['coupon_count'] > 0 ? (int) $o['coupon_count'] : '—' ?></td>
+        <td>
+          <?php if ($o['is_today'] && $o['status'] !== 'cancelled'): ?>
+          <button type="button" class="btn btn-sm btn-outline" data-convert-order="<?= $orderId ?>" data-to-staff="<?= $o['is_staff'] ? '0' : '1' ?>"><?= $o['is_staff'] ? 'Rendi normale' : 'Rendi staff' ?></button>
+          <button type="button" class="btn btn-sm btn-red" data-cancel-staff-order="<?= $orderId ?>">Annulla</button>
+          <?php endif; ?>
+        </td>
       </tr>
       <tr class="pos-history-detail" id="detail-<?= $orderId ?>">
         <td colspan="<?= $colspan ?>">
@@ -228,7 +229,7 @@ $pageTitle = 'Storico ordini POS';
       <tr class="pos-history-footer">
         <td colspan="<?= $isAdmin ? 5 : 4 ?>"><strong>Totali (ordini non annullati nel filtro)</strong></td>
         <td colspan="2"><strong>€ <?= number_format($totalRevenue, 2, ',', '.') ?></strong></td>
-        <td><strong><?= $totalCoupons ?> riscattati</strong></td>
+        <td><strong><?= $totalCoupons ?> riscattati</strong></td><td></td>
       </tr>
     </tfoot>
     <?php endif; ?>
@@ -238,11 +239,13 @@ $pageTitle = 'Storico ordini POS';
 </div></main>
 <script>
 document.querySelectorAll('.pos-history-row').forEach(row => {
-  row.addEventListener('click', () => {
+  row.addEventListener('click', event => {
+    if (event.target.closest('button')) return;
     const detail = document.getElementById('detail-' + row.dataset.orderId);
     if (detail) detail.classList.toggle('open');
   });
 });
 </script>
+<script src="<?= POS_URL ?>/assets/js/staff-orders.js" data-api="<?= POS_URL ?>/api"></script>
 </body>
 </html>
