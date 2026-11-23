@@ -63,6 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($minorenne && ($genitoreNome === '' || $genitoreCognome === '' || strlen($genitoreNome) > 100 || strlen($genitoreCognome) > 100 || strlen($genitoreEmail) > 190 || !filter_var($genitoreEmail, FILTER_VALIDATE_EMAIL))) {
             $errors[] = 'Per un minorenne servono nome, cognome ed email del genitore.';
         }
+        if ($minorenne && filter_var($genitoreEmail, FILTER_VALIDATE_EMAIL)) {
+            // Il controllo comprende tutte le squadre e anche gli inviti non ancora completati.
+            $participantEmail = $pdo->prepare('SELECT id FROM giocatori WHERE LOWER(TRIM(email)) = ? UNION ALL SELECT id FROM capitani WHERE LOWER(TRIM(email)) = ? LIMIT 1');
+            $participantEmail->execute([$genitoreEmail, $genitoreEmail]);
+            if ($genitoreEmail === $email || $participantEmail->fetchColumn() !== false) {
+                $errors[] = 'L’email del genitore deve essere diversa da quella del minorenne e non può essere già utilizzata da un giocatore o capitano.';
+            }
+        }
 
         if (!$errors) {
             $idGiocatore = (int) ($tokenData['id_giocatore'] ?? 0);
@@ -204,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="form-group"><label for="genitore_nome">Nome genitore</label><input id="genitore_nome" type="text" name="genitore_nome" maxlength="100" value="<?= htmlspecialchars($_POST['genitore_nome'] ?? '') ?>"></div>
               <div class="form-group"><label for="genitore_cognome">Cognome genitore</label><input id="genitore_cognome" type="text" name="genitore_cognome" maxlength="100" value="<?= htmlspecialchars($_POST['genitore_cognome'] ?? '') ?>"></div>
             </div>
-            <div class="form-group"><label for="genitore_email">Email genitore</label><input id="genitore_email" type="email" name="genitore_email" maxlength="190" value="<?= htmlspecialchars($_POST['genitore_email'] ?? '') ?>"></div>
+            <div class="form-group"><label for="genitore_email">Email genitore</label><input id="genitore_email" type="email" name="genitore_email" maxlength="190" aria-describedby="genitore_email_hint" value="<?= htmlspecialchars($_POST['genitore_email'] ?? '') ?>"><small id="genitore_email_hint">Usa un indirizzo diverso da quello del minorenne e non utilizzato da giocatori o capitani.</small></div>
           </section>
           <section class="consent-fields">
             <h2>Consensi</h2>
