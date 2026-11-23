@@ -31,9 +31,9 @@ require __DIR__ . '/../../shared/site_nav.php';
   const token = <?= json_encode(staff_csrf_token(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
-    const url = typeof input === 'string' ? input : input.url;
+    const url = new URL(input instanceof Request ? input.url : input, document.baseURI);
     const method = (init.method || (typeof input !== 'string' && input.method) || 'GET').toUpperCase();
-    if (url.includes('/api/') && method === 'POST') {
+    if (url.origin === window.location.origin && url.pathname.includes('/api/') && method === 'POST') {
       const headers = new Headers(init.headers || (typeof input !== 'string' ? input.headers : undefined));
       headers.set('X-CSRF-Token', token);
       init = {...init, headers};

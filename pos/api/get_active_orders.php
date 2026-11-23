@@ -24,7 +24,7 @@ try {
     // Query ordini attivi (pending/preparing/ready)
     $sql = "
         SELECT DISTINCT o.id, o.daily_number, o.customer_name, o.table_number,
-               o.is_takeaway, o.covers, o.station_name, o.status, o.created_at
+               o.is_takeaway, o.is_staff, DATE(o.created_at) = CURDATE() AS is_today, o.covers, o.station_name, o.status, o.created_at
         FROM pos_orders o
         INNER JOIN pos_order_items oi ON oi.order_id = o.id
         INNER JOIN pos_products p     ON p.id = oi.product_id
@@ -121,6 +121,8 @@ try {
             'customer_name' => $order['customer_name'] ?? '',
             'table_number'  => $order['table_number'],
             'is_takeaway'   => (bool) $order['is_takeaway'],
+            'is_staff'      => (bool) $order['is_staff'],
+            'is_today'      => (bool) $order['is_today'],
             'covers'        => (int) ($order['covers'] ?? 0),
             'station_name'  => $order['station_name'],
             'status'        => $order['status'],

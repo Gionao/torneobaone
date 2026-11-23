@@ -46,6 +46,11 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
 
       <div id="orderFormView">
         <h2>Nuovo ordine</h2>
+        <label class="pos-toggle-label">
+          <input type="checkbox" id="isStaff">
+          <span class="pos-toggle-track"><span class="pos-toggle-thumb"></span></span>
+          <span>Ordine staff — gratuito</span>
+        </label>
 
         <!-- Metadati ordine -->
         <div class="pos-order-meta">
@@ -125,6 +130,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
     <!-- ── Coda ordini ────────────────────────────────────── -->
     <section class="pos-panel" id="panelQueue">
       <h2>Coda ordini</h2>
+      <p><a href="<?= POS_URL ?>/admin/orders_history">Storico e trasformazione ordini completati</a></p>
       <div id="queueArea"><p class="empty-msg">Nessun ordine in coda.</p></div>
     </section>
 
@@ -164,6 +170,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
   const customerName   = document.getElementById('customerName');
   const tableNumber    = document.getElementById('tableNumber');
   const isTakeaway     = document.getElementById('isTakeaway');
+  const isStaff        = document.getElementById('isStaff');
   const orderCovers    = document.getElementById('orderCovers');
   const tableGroup     = document.getElementById('tableGroup');
   const coversGroup    = document.getElementById('coversGroup');
@@ -187,13 +194,34 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
 
   // ── Toggle Asporto ──────────────────────────────────────────
   isTakeaway.addEventListener('change', updateTakeawayUI);
+  isStaff.addEventListener('change', () => {
+    if (isStaff.checked && cart.some(item => item.coupon_id)) {
+      if (!confirm('Passando a staff i coupon saranno rimossi dal carrello. Continuare?')) {
+        isStaff.checked = false;
+        return;
+      }
+      cart.forEach(item => { item.coupon_id = null; item.discount_type = null; item.discount_value = 0; });
+      activeCoupon = null;
+    }
+    customerName.value = isStaff.checked ? 'Staff' : '';
+    customerName.disabled = isStaff.checked;
+    isTakeaway.disabled = isStaff.checked;
+    if (isStaff.checked) isTakeaway.checked = false;
+    document.getElementById('couponCode').disabled = isStaff.checked;
+    if (isStaff.checked) document.getElementById('couponCode').value = '';
+    document.getElementById('btnVerifyCoupon').disabled = isStaff.checked;
+    couponAlert.innerHTML = '';
+    updateTakeawayUI();
+    renderCart();
+  });
   orderCovers.addEventListener('input', updateCoverPreview);
 
   function updateTakeawayUI() {
     const ta = isTakeaway.checked;
     tableGroup.style.opacity   = ta ? '1' : '1';
-    coversGroup.style.display  = ta ? 'none' : '';
-    tableNumber.disabled       = false;
+    coversGroup.style.display  = ta || isStaff.checked ? 'none' : '';
+    tableGroup.style.display = isStaff.checked ? 'none' : '';
+    tableNumber.disabled       = isStaff.checked;
     if (ta) {
       tableNumber.placeholder = 'Asporto';
       orderCovers.value = '0';
@@ -205,7 +233,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
     updateTotal();
   }
   function updateCoverPreview() {
-    if (isTakeaway.checked) {
+    if (isTakeaway.checked || isStaff.checked) {
       coverFeePreview.textContent = '';
       return;
     }
@@ -341,7 +369,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
     const covers = ta ? 0 : (parseInt(orderCovers.value, 10) || 0);
     let total    = cart.reduce((s, i) => s + lineTotal(i), 0);
     total       += ta ? TAKEAWAY_FEE : covers * COVER_FEE;
-    cartTotalEl.textContent = euro(total);
+    cartTotalEl.textContent = euro(isStaff.checked ? 0 : total);
     btnConfirm.disabled = cart.length === 0;
   }
 
@@ -387,7 +415,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
             '<span class="qty-val">' + item.quantity + '</span>' +
             '<button type="button" class="btn-qty btn-plus"  data-idx="' + idx + '" aria-label="Aumenta">+</button>' +
           '</div>' +
-          '<span class="item-price">' + euro(lt) + '</span>' +
+          '<span class="item-price">' + euro(isStaff.checked ? 0 : lt) + '</span>' +
           '<button type="button" class="btn-remove" data-idx="' + idx + '" aria-label="Rimuovi">×</button>' +
         '</div>' +
       '</li>';
@@ -441,6 +469,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
 
   // ── Coupon ──────────────────────────────────────────────────
   document.getElementById('btnVerifyCoupon').onclick = async () => {
+    if (isStaff.checked) return;
     couponAlert.innerHTML = '';
     const code = document.getElementById('couponCode').value.trim();
     if (!code) return;
@@ -450,6 +479,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code }),
       });
+      if (isStaff.checked) return;
 
       const restriction = data.product_type_restriction;
       const idx = cart.findIndex(it => !it.coupon_id &&
@@ -498,7 +528,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
       couponAlert.innerHTML = '<div class="alert alert-error">Inserisci il nome del cliente.</div>';
       return;
     }
-    if (!ta && !tNumber) {
+    if (!isStaff.checked && !ta && !tNumber) {
       couponAlert.innerHTML = '<div class="alert alert-error">Inserisci il numero del tavolo o seleziona Asporto.</div>';
       return;
     }
@@ -506,6 +536,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
     btnConfirm.disabled = true;
     try {
       const payload = {
+        is_staff:      isStaff.checked,
         customer_name: cName,
         table_number:  ta ? null : tNumber,
         is_takeaway:   ta,
@@ -539,6 +570,11 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
       activeCoupon = null;
       document.getElementById('couponCode').value = '';
       customerName.value  = '';
+      isStaff.checked = false;
+      customerName.disabled = false;
+      isTakeaway.disabled = false;
+      document.getElementById('couponCode').disabled = false;
+      document.getElementById('btnVerifyCoupon').disabled = false;
       tableNumber.value   = '';
       isTakeaway.checked  = false;
       orderCovers.value   = '1';
@@ -602,7 +638,12 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
           html += '<button type="button" class="btn btn-sm btn-gold btn-status" data-id="' + o.id +
             '" data-status="' + flow.next + '">' + flow.label + '</button>';
         }
-        html += '<button type="button" class="btn btn-sm btn-red btn-cancel" data-id="' + o.id + '">Annulla</button>';
+        if (!o.is_staff || o.is_today) {
+          html += '<button type="button" class="btn btn-sm btn-red btn-cancel" data-id="' + o.id + '">Annulla</button>';
+        }
+        if (o.is_today) {
+          html += '<button type="button" class="btn btn-sm btn-outline" data-convert-order="' + o.id + '" data-to-staff="' + (o.is_staff ? '0' : '1') + '">' + (o.is_staff ? 'Rendi normale' : 'Rendi staff') + '</button>';
+        }
         html += '</div></div>';
       });
       html += '</div>';
@@ -657,5 +698,6 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
 
 })();
 </script>
+<script src="<?= POS_URL ?>/assets/js/staff-orders.js" data-api="<?= POS_URL ?>/api"></script>
 </body>
 </html>

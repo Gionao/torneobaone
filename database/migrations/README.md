@@ -1,5 +1,21 @@
 # Unified staff authentication schema and migration
 
+## POS: consumi staff (23 novembre 2026)
+
+`20261123_pos_staff_orders.sql` aggiunge `pos_orders.is_staff` con valore predefinito 0: gli ordini esistenti restano normali. Eseguire una sola volta prima del codice POS aggiornato; verificare con `SHOW COLUMNS FROM pos_orders LIKE 'is_staff'` prima di ripeterla. Lo schema completo include già la colonna per le nuove installazioni.
+
+La cassa permette ordini staff gratuiti; i prezzi originali di prodotti ed extra restano nelle righe. Lo storico usa `total_amount` per il totale dovuto. Le statistiche vendite escludono gli ordini staff e mostrano separatamente quantità e valore consumato per intervallo di date. Le trasformazioni, anche su ordini consegnati, sono ammesse solo per ordini della giornata corrente; un ordine annullato non è trasformabile. Nel passaggio a staff i coupon sono scollegati e restituiti nella stessa transazione. Gli annullamenti staff sono consentiti solo nella giornata corrente da cassa/storico.
+
+Verifica locale: `php tests/pos/staff_orders_test.php`. Il test usa esclusivamente tabelle temporanee MySQL, senza modificare i dati applicativi.
+
+## Registration workflow extension (not yet production-ready)
+
+`20261105_registration_workflow.sql` is the next one-time migration after `20261104_unified_staff_auth.sql`. It adds registration fields and append-only consent, parent authorization, paper authorization and registration audit tables. It contains DDL and a backfill of `giocatori.id_torneo`; it has **not** been executed or validated against a disposable MySQL/MariaDB instance in this change. Review `docs/registration-audit/08_IMPLEMENTATION_REPORT.md` before use.
+
+Before execution, restore a protected backup into a disposable database, inspect the exact schema/version and every `ALTER TABLE` target, run the duplicate preflight queries and resolve collisions manually. MySQL DDL auto-commits: the migration is not transactionally rollbackable. Recovery is restore from verified backup or a separately reviewed forward fix; do not apply to production on the basis of this file alone. The unique active tax-code key is limited to rows whose `id_torneo` is populated; orphan/legacy rows with NULL edition are not deduplicated by that index.
+
+The registration migration currently contains no application migration runner and assumes the prior staff tables (`admin`, `tornei`, `documenti`) exist. It is intentionally not advertised as repeat-safe: do not rerun after partial completion without checking each DDL statement.
+
 ## Stable identifiers
 
 Database codes are fixed application identifiers, not editable permissions. Keep lowercase ASCII spelling stable in SQL and PHP:

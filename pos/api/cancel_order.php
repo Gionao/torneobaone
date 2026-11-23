@@ -6,6 +6,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/role_check.php';
 require_role(['admin', 'operatore']);
+require_once __DIR__ . '/../includes/staff_orders.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     pos_json(false, null, 'Metodo non consentito.');
@@ -20,40 +21,8 @@ if ($orderId < 1) {
 }
 
 try {
-    $pdo->beginTransaction();
-
-    $check = $pdo->prepare('SELECT id, status FROM pos_orders WHERE id = ? LIMIT 1');
-    $check->execute([$orderId]);
-    $order = $check->fetch();
-
-    if (!$order) {
-        $pdo->rollBack();
-        pos_json(false, null, 'Ordine non trovato.');
-    }
-
-    if ($order['status'] === 'cancelled') {
-        $pdo->commit();
-        pos_json(true, ['cancelled' => true]);
-    }
-
-    $pdo->prepare("
-        UPDATE pos_coupons c
-        INNER JOIN pos_order_items oi ON oi.coupon_id = c.id
-        SET c.is_used = 0, c.used_at = NULL
-        WHERE oi.order_id = ?
-    ")->execute([$orderId]);
-
-    $pdo->prepare("UPDATE pos_orders SET status = 'cancelled' WHERE id = ?")->execute([$orderId]);
-    $pdo->prepare("UPDATE pos_order_items SET status = 'cancelled' WHERE order_id = ?")->execute([$orderId]);
-
-    $pdo->commit();
-    pos_json(true, ['cancelled' => true]);
+    $result = pos_cancel_order($pdo, $orderId);
+    pos_json(true, $result);
 } catch (Throwable $e) {
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
-    if (DEBUG_MODE) {
-        pos_json(false, null, $e->getMessage());
-    }
-    pos_json(false, null, 'Errore annullamento ordine.');
+    pos_json(false, null, $e instanceof InvalidArgumentException || DEBUG_MODE ? $e->getMessage() : 'Errore annullamento ordine.');
 }
