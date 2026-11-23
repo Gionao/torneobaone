@@ -90,10 +90,10 @@ if (!defined('HERO_BACKGROUND_IMAGE')) {
 }
 
 if (!defined('SMTP_HOST')) {
-    define('SMTP_HOST', getenv('SMTP_HOST') ?: '');
+    define('SMTP_HOST', getenv('SMTP_HOST') ?: '127.0.0.1');
 }
 if (!defined('SMTP_PORT')) {
-    define('SMTP_PORT', getenv('SMTP_PORT') ?: '587');
+    define('SMTP_PORT', getenv('SMTP_PORT') ?: '1025');
 }
 if (!defined('SMTP_USERNAME')) {
     define('SMTP_USERNAME', getenv('SMTP_USERNAME') ?: '');
@@ -102,13 +102,14 @@ if (!defined('SMTP_PASSWORD')) {
     define('SMTP_PASSWORD', getenv('SMTP_PASSWORD') ?: '');
 }
 if (!defined('SMTP_ENCRYPTION')) {
-    define('SMTP_ENCRYPTION', getenv('SMTP_ENCRYPTION') ?: 'tls');
+    // Mailpit locale: nessuna cifratura; il mailer rappresenta null con 'none'.
+    define('SMTP_ENCRYPTION', getenv('SMTP_ENCRYPTION') ?: (ENV === 'production' ? 'tls' : 'none'));
 }
 if (!defined('MAIL_FROM_ADDRESS')) {
     define('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS') ?: 'noreply@torneobaone.test');
 }
 if (!defined('MAIL_FROM_NAME')) {
-    define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: Torneo Baone);
+    define('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME') ?: 'Torneo Baone');
 }
 if (!defined('MAIL_REPLY_TO')) {
     define('MAIL_REPLY_TO', getenv('MAIL_REPLY_TO') ?: 'support@torneobaone.test');

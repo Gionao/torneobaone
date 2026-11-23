@@ -101,6 +101,7 @@ function send_email(string $recipient, string $subject, string $htmlBody, ?strin
         $mail->Username = $smtpUser;
         $mail->Password = $smtpPass;
         $mail->SMTPSecure = $smtpEnc === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : ($smtpEnc === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : false);
+        $mail->SMTPAutoTLS = ($smtpEnc !== 'none');
         $mail->Port = $smtpPort > 0 ? $smtpPort : 587;
         $mail->Timeout = 15;
         //$mail->Timelimit = 15;

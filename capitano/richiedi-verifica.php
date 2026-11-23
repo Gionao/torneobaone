@@ -32,9 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'Il link scade tra 72 ore.',
                     'Se non hai richiesto questa verifica, puoi ignorare questa email.'
                 );
-                send_email($email, 'Verifica il tuo account', $body);
+                $failureReason = null;
+                if (!send_email($email, 'Verifica il tuo account', $body, $failureReason)) {
+                    $errors[] = $failureReason ?: 'Non è stato possibile inviare la mail di verifica. Riprova più tardi.';
+                }
+            } else {
+                $errors[] = 'Non è stato possibile creare il link di verifica. Riprova più tardi.';
             }
-            $success = 'Se l’indirizzo è corretto, ti abbiamo inviato un nuovo link di verifica.';
+            if (!$errors) {
+                $success = 'Se l’indirizzo è corretto, ti abbiamo inviato un nuovo link di verifica.';
+            }
         } else {
             $success = 'Se l’indirizzo è corretto, ti abbiamo inviato un nuovo link di verifica.';
         }
