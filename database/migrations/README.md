@@ -16,7 +16,7 @@ Verifica locale: `php tests/pos/staff_orders_test.php`. Il test usa esclusivamen
 
 ## Registration workflow extension (not yet production-ready)
 
-`20261105_registration_workflow.sql` is the next one-time migration after `20261104_unified_staff_auth.sql`. It adds registration fields and append-only consent, parent authorization, paper authorization and registration audit tables. It contains DDL and a backfill of `giocatori.id_torneo`; it has **not** been executed or validated against a disposable MySQL/MariaDB instance in this change. Review `docs/registration-audit/08_IMPLEMENTATION_REPORT.md` before use.
+`20261105_registration_workflow.sql` is the next one-time migration after `20261104_unified_staff_auth.sql`. It adds registration fields and append-only consent, parent authorization, paper authorization and registration audit tables. It contains DDL and a backfill of `giocatori.id_torneo`. The migration ran successfully on MySQL 8.0.30 against a disposable database initialized from the previous complete schema with no application data. Review `docs/registration-audit/08_IMPLEMENTATION_REPORT.md` before use.
 
 Before execution, restore a protected backup into a disposable database, inspect the exact schema/version and every `ALTER TABLE` target, run the duplicate preflight queries and resolve collisions manually. MySQL DDL auto-commits: the migration is not transactionally rollbackable. Recovery is restore from verified backup or a separately reviewed forward fix; do not apply to production on the basis of this file alone. The unique active tax-code key is limited to rows whose `id_torneo` is populated; orphan/legacy rows with NULL edition are not deduplicated by that index.
 
@@ -37,7 +37,8 @@ One row per `(id_admin, area)` enforces at most one role per sector. Composite F
 
 ## Artifacts
 
-- `database/schema_complete.sql`: new-database schema, adapted from `assets/sql/database_schema_completo.sql`; adds `admin.must_change_password` and a serialized guard for last-active-Super-Admin protection. It retains all business schemas and captain tables. It creates no staff account and inserts no default password. It is **not** an upgrade script.
+- `database/schema_complete.sql` is the canonical schema for new databases. `assets/sql/database_schema_completo.sql` is an identical copy. Both include the structural changes through `20261128_pos_tracking_token.sql` and create no staff accounts or default passwords. Keep both files synchronized when updating the schema.
+- Existing databases use the migration files in date order, starting with the first pending migration. The complete schemas also retain the existing fresh-install foreign key `fk_giocatori_sostituisce`, which sets `giocatori.sostituisce_id` to NULL when the referenced player is deleted.
 - `database/migrations/20261104_unified_staff_auth.sql`: additive migration. Existing `admin` IDs/password hashes/legacy `role` and `station_name` columns and all business data/FKs remain. New columns and normalized assignment tables are added only if absent. The role catalog and assignments use duplicate-safe inserts.
 - `database/bootstrap_super_admin.php`: local CLI-only, one-time bootstrap to promote an existing active account when no active Super Admin exists. It locks a singleton guard row and makes no default credentials.
 
