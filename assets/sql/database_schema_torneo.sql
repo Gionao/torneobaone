@@ -24,11 +24,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Utente admin di default  (password: admin — DA CAMBIARE subito)
-INSERT INTO `admin` (`username`, `password_hash`) VALUES
-('admin', '$2y$10$ZVqAQkZ.6NVKkBofUpIj6uideKqYape41nHFimOaUtjl2qHtKvQjK');
--- ^ hash generato con: password_hash('Admin2026!', PASSWORD_BCRYPT, ['cost'=>12])
--- IMPORTANTE: rigenera questo hash con la tua password reale prima del deploy!
+-- Creare gli account amministrativi separatamente con credenziali uniche.
 
 
 -- ------------------------------------------------------------

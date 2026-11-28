@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/iscrizione_helper.php';
+require_once __DIR__ . '/../../includes/operation_audit.php';
 require_tournament_operations();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_verify()) {
@@ -22,8 +23,15 @@ if (!$transazione) {
 }
 try {
     $pdo->beginTransaction();
+    $lock = $pdo->prepare('SELECT id, id_squadra, importo, stato, id_metodo_pagamento, data_pagamento FROM transazioni WHERE id = ? FOR UPDATE');
+    $lock->execute([$id]);
+    $before = $lock->fetch();
+    if (!$before) {
+        throw new RuntimeException('Pagamento non trovato.');
+    }
     $pdo->prepare('DELETE FROM transazioni WHERE id = ?')->execute([$id]);
-    ricalcola_stato_pagamento($pdo, (int) $transazione['id_squadra']);
+    record_operation_audit($pdo, staff_id(), 'torneo', 'pagamento_eliminato', ['before' => $before]);
+    ricalcola_stato_pagamento($pdo, (int) $before['id_squadra']);
     $pdo->commit();
     $_SESSION['flash'] = ['type' => 'success', 'text' => 'Pagamento eliminato e totale squadra aggiornato.'];
 } catch (Throwable $e) {

@@ -29,7 +29,7 @@ $stations = $pdo->query("
 
 $sql = "
     SELECT o.id, o.daily_number, o.customer_name, o.covers, o.station_name,
-           o.status, o.created_at, o.is_staff,
+           o.status, o.created_at, o.is_staff, o.was_delivered,
            DATE(o.created_at) = CURDATE() AS is_today,
            o.total_amount AS order_total,
            SUM(CASE WHEN oi.coupon_id IS NOT NULL THEN 1 ELSE 0 END) AS coupon_count
@@ -188,7 +188,9 @@ $pageTitle = 'Storico ordini POS';
         <td><?= (int) $o['coupon_count'] > 0 ? (int) $o['coupon_count'] : '—' ?></td>
         <td>
           <?php if ($o['is_today'] && $o['status'] !== 'cancelled'): ?>
+          <?php if (pos_current_role() === 'admin' && ($o['is_staff'] || (!$o['was_delivered'] && $o['status'] !== 'delivered'))): ?>
           <button type="button" class="btn btn-sm btn-outline" data-convert-order="<?= $orderId ?>" data-to-staff="<?= $o['is_staff'] ? '0' : '1' ?>"><?= $o['is_staff'] ? 'Rendi normale' : 'Rendi staff' ?></button>
+          <?php endif; ?>
           <button type="button" class="btn btn-sm btn-red" data-cancel-staff-order="<?= $orderId ?>">Annulla</button>
           <?php endif; ?>
         </td>

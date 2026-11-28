@@ -47,7 +47,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
       <div id="orderFormView">
         <h2>Nuovo ordine</h2>
         <label class="pos-toggle-label">
-          <input type="checkbox" id="isStaff">
+          <input type="checkbox" id="isStaff" <?= $showStationInQueue ? '' : 'disabled' ?>>
           <span class="pos-toggle-track"><span class="pos-toggle-thumb"></span></span>
           <span>Ordine staff — gratuito</span>
         </label>
@@ -119,6 +119,10 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
       <div id="orderDoneView" class="pos-order-success pos-hidden">
         <p class="empty-msg">Ordine registrato</p>
         <div class="order-num" id="assignedOrderNum">#—</div>
+        <p id="orderTracking" hidden>
+          <a id="orderTrackingLink" target="_blank" rel="noopener">Apri tracciamento</a>
+          <label>Codice cliente <input id="orderTrackingCode" readonly></label>
+        </p>
         <div id="orderSummaryTotal" style="color:var(--gold);font-size:1.1rem;margin-top:.5rem;"></div>
         <button type="button" class="btn btn-gold" id="btnNewOrder" style="margin-top:1rem;">
           Nuovo ordine
@@ -171,6 +175,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
   const tableNumber    = document.getElementById('tableNumber');
   const isTakeaway     = document.getElementById('isTakeaway');
   const isStaff        = document.getElementById('isStaff');
+  const canManageStaffOrders = <?= json_encode($showStationInQueue) ?>;
   const orderCovers    = document.getElementById('orderCovers');
   const tableGroup     = document.getElementById('tableGroup');
   const coversGroup    = document.getElementById('coversGroup');
@@ -360,7 +365,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
     item.modifications.forEach(m => {
       if (m.action === 'added') t += m.extra_price * item.quantity;
     });
-    t -= lineDiscount(item) * item.quantity;
+    t -= lineDiscount(item);
     return Math.max(0, t);
   }
 
@@ -492,6 +497,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
       }
 
       cart[idx].coupon_id     = data.id;
+      cart[idx].coupon_code   = code;
       cart[idx].discount_type  = data.discount_type;
       cart[idx].discount_value = data.discount_value;
       activeCoupon = data;
@@ -533,10 +539,14 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
       return;
     }
 
+    const staffReason = isStaff.checked ? window.prompt('Motivazione ordine staff')?.trim() : null;
+    if (isStaff.checked && !staffReason) return;
+
     btnConfirm.disabled = true;
     try {
       const payload = {
         is_staff:      isStaff.checked,
+        staff_reason: staffReason,
         customer_name: cName,
         table_number:  ta ? null : tNumber,
         is_takeaway:   ta,
@@ -545,7 +555,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
           product_id:    it.product_id,
           quantity:      it.quantity,
           item_note:     it.item_note || null,
-          coupon_id:     it.coupon_id,
+          coupon_code:  it.coupon_id ? it.coupon_code : null,
           modifications: it.modifications.map(m => ({
             ingredient_id: m.ingredient_id,
             action:        m.action,
@@ -561,6 +571,9 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
       });
 
       assignedNum.textContent      = '#' + data.daily_number;
+      document.getElementById('orderTracking').hidden = !data.tracking_token;
+      document.getElementById('orderTrackingCode').value = data.tracking_token || '';
+      document.getElementById('orderTrackingLink').href = 'stato-ordine#token=' + (data.tracking_token || '');
       orderSummaryTotal.textContent = 'Totale: ' + euro(data.total);
       orderFormView.classList.add('pos-hidden');
       orderDoneView.classList.remove('pos-hidden');
@@ -641,7 +654,7 @@ $takeawayFee   = (float) ($settings['takeaway_fee'] ?? 1.00);
         if (!o.is_staff || o.is_today) {
           html += '<button type="button" class="btn btn-sm btn-red btn-cancel" data-id="' + o.id + '">Annulla</button>';
         }
-        if (o.is_today) {
+        if (canManageStaffOrders && o.is_today && (o.is_staff || !o.was_delivered)) {
           html += '<button type="button" class="btn btn-sm btn-outline" data-convert-order="' + o.id + '" data-to-staff="' + (o.is_staff ? '0' : '1') + '">' + (o.is_staff ? 'Rendi normale' : 'Rendi staff') + '</button>';
         }
         html += '</div></div>';

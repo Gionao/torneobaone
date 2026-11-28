@@ -5,6 +5,7 @@ define('POS_API', true);
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/role_check.php';
+require_once __DIR__ . '/../includes/department_orders.php';
 require_role(['admin', 'operatore', 'bar', 'cucina']);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -25,6 +26,16 @@ if (!in_array($status, $allowed, true) || $id < 1) {
 }
 
 try {
+    $departmentScope = match (pos_current_role()) {
+        'bar' => 'bar',
+        'cucina' => 'kitchen',
+        'admin' => in_array($input['department'] ?? null, ['bar', 'kitchen'], true) ? $input['department'] : null,
+        default => null,
+    };
+    if ($departmentScope !== null) {
+        pos_update_department_items($pdo, $departmentScope, $type, $id, $status);
+        pos_json(true, ['updated' => true]);
+    }
     // Gli annullamenti staff passano dall'API dedicata, che controlla ruolo e giornata.
     if ($status === 'cancelled') {
         $staffCheck = $pdo->prepare($type === 'item'
@@ -35,21 +46,10 @@ try {
             pos_json(false, null, 'Per annullare un ordine staff usa Annulla dalla cassa o dallo storico.');
         }
     }
-    $departmentScope = match (pos_current_role()) {
-        'bar' => 'bar',
-        'cucina' => 'kitchen',
-        default => null,
-    };
+
     if ($type === 'order') {
-        if ($departmentScope !== null) {
-            $scopeCheck = $pdo->prepare('SELECT COUNT(*) FROM pos_order_items oi INNER JOIN pos_products p ON p.id=oi.product_id INNER JOIN pos_categories c ON c.id=p.category_id WHERE oi.order_id=? AND c.department=?');
-            $scopeCheck->execute([$id, $departmentScope]);
-            if ((int) $scopeCheck->fetchColumn() === 0) {
-                pos_json(false, null, 'Ordine non autorizzato per questo dipartimento.');
-            }
-        }
-        $stmt = $pdo->prepare('UPDATE pos_orders SET status = ? WHERE id = ?');
-        $stmt->execute([$status, $id]);
+        $stmt = $pdo->prepare('UPDATE pos_orders SET status = ?, was_delivered = was_delivered OR ? WHERE id = ?');
+        $stmt->execute([$status, (int) ($status === 'delivered'), $id]);
         if ($stmt->rowCount() === 0) {
             $exists = $pdo->prepare('SELECT 1 FROM pos_orders WHERE id = ?');
             $exists->execute([$id]);
@@ -62,13 +62,6 @@ try {
             $pdo->prepare("UPDATE pos_order_items SET status = 'delivered' WHERE order_id = ? AND status = 'ready'")->execute([$id]);
         }
     } elseif ($type === 'item') {
-        if ($departmentScope !== null) {
-            $scopeCheck = $pdo->prepare('SELECT 1 FROM pos_order_items oi INNER JOIN pos_products p ON p.id=oi.product_id INNER JOIN pos_categories c ON c.id=p.category_id WHERE oi.id=? AND c.department=? LIMIT 1');
-            $scopeCheck->execute([$id, $departmentScope]);
-            if (!$scopeCheck->fetchColumn()) {
-                pos_json(false, null, 'Riga ordine non autorizzata per questo dipartimento.');
-            }
-        }
         $stmt = $pdo->prepare('UPDATE pos_order_items SET status = ? WHERE id = ?');
         $stmt->execute([$status, $id]);
         if ($stmt->rowCount() === 0) {
@@ -101,6 +94,9 @@ try {
     }
 
     pos_json(true, ['updated' => true]);
+} catch (InvalidArgumentException $e) {
+    http_response_code(403);
+    pos_json(false, null, $e->getMessage());
 } catch (Throwable $e) {
     if (DEBUG_MODE) {
         pos_json(false, null, $e->getMessage());

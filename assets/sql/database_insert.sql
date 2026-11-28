@@ -5,14 +5,11 @@
 -- Tutti i nomi, account, consensi, pagamenti e partite sono sintetici.
 -- Le righe di consenso e pagamento simulano i flussi applicativi e NON sono
 -- accettazioni legali né incassi reali. Non usare o copiare questo seed in
--- produzione. Le password qui riportate sono condivise e vanno cambiate.
+-- produzione. Gli account sintetici non hanno una password utilizzabile.
 --
 -- Nessuna tabella temporanea viene creata: i dati sono inseriti direttamente
 -- nelle tabelle applicative con INSERT / INSERT ... SELECT.
 --
--- Credenziali sviluppo:
---   Amministratore: sviluppo_baone / DemoBaone2027!
---   Capitani:       capitanoN@torneobaone.it / DemoBaone2027! (N da 1 a 15)
 -- ============================================================================
 
 SET NAMES utf8mb4;
@@ -23,7 +20,7 @@ START TRANSACTION;
 INSERT IGNORE INTO `admin` (`username`, `password_hash`, `role`, `station_name`)
 VALUES (
   'sviluppo_baone',
-  '$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',
+  '!disabled-fixture',
   'admin',
   NULL
 );
@@ -67,21 +64,21 @@ SET @sviluppo_metodo_id := (
 INSERT IGNORE INTO `capitani`
   (`nome`, `cognome`, `email`, `telefono`, `data_nascita`, `indirizzo`, `password_hash`, `email_verificata_at`)
 VALUES
-  ('Luca','Rinaldi','capitano1@torneobaone.it','+390000000001','1992-04-12','Via Sviluppo 1, Baone','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Marco','Bellini','capitano2@torneobaone.it','+390000000002','1990-09-23','Via Sviluppo 2, Este','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Andrea','Moretti','capitano3@torneobaone.it','+390000000003','1994-01-08','Via Sviluppo 3, Baone','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Davide','Conti','capitano4@torneobaone.it','+390000000004','1991-11-17','Via Sviluppo 4, Rivadolmo','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Matteo','Galli','capitano5@torneobaone.it','+390000000005','1993-06-30','Via Sviluppo 5, Calaone','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Stefano','Marin','capitano6@torneobaone.it','+390000000006','1989-02-14','Via Sviluppo 6, Arquà','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Nicola','Fabbri','capitano7@torneobaone.it','+390000000007','1995-07-21','Via Sviluppo 7, Baone','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Paolo','Caruso','capitano8@torneobaone.it','+390000000008','1992-12-05','Via Sviluppo 8, San Giorgio','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Simone','Ferrari','capitano9@torneobaone.it','+390000000009','1990-03-19','Via Sviluppo 9, Este','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Alessandro','Costa','capitano10@torneobaone.it','+390000000010','1996-10-27','Via Sviluppo 10, Montemerlo','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Gabriele','Fontana','capitano11@torneobaone.it','+390000000011','1991-05-03','Via Sviluppo 11, Baone','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Federico','Rossi','capitano12@torneobaone.it','+390000000012','1993-08-16','Via Sviluppo 12, Calaone','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Enrico','Basso','capitano13@torneobaone.it','+390000000013','1988-12-29','Via Sviluppo 13, Baone','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Tommaso','Longo','capitano14@torneobaone.it','+390000000014','1994-02-24','Via Sviluppo 14, Rivadolmo','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP),
-  ('Riccardo','Greco','capitano15@torneobaone.it','+390000000015','1992-07-11','Via Sviluppo 15, Este','$2y$12$6v/xPzPiktYkFM8djGSWR.ByJIOEv8W1OxFsMT.6N9yFiQetbhAh6',CURRENT_TIMESTAMP);
+  ('Luca','Rinaldi','capitano1@torneobaone.it','+390000000001','1992-04-12','Via Sviluppo 1, Baone','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Marco','Bellini','capitano2@torneobaone.it','+390000000002','1990-09-23','Via Sviluppo 2, Este','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Andrea','Moretti','capitano3@torneobaone.it','+390000000003','1994-01-08','Via Sviluppo 3, Baone','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Davide','Conti','capitano4@torneobaone.it','+390000000004','1991-11-17','Via Sviluppo 4, Rivadolmo','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Matteo','Galli','capitano5@torneobaone.it','+390000000005','1993-06-30','Via Sviluppo 5, Calaone','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Stefano','Marin','capitano6@torneobaone.it','+390000000006','1989-02-14','Via Sviluppo 6, Arquà','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Nicola','Fabbri','capitano7@torneobaone.it','+390000000007','1995-07-21','Via Sviluppo 7, Baone','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Paolo','Caruso','capitano8@torneobaone.it','+390000000008','1992-12-05','Via Sviluppo 8, San Giorgio','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Simone','Ferrari','capitano9@torneobaone.it','+390000000009','1990-03-19','Via Sviluppo 9, Este','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Alessandro','Costa','capitano10@torneobaone.it','+390000000010','1996-10-27','Via Sviluppo 10, Montemerlo','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Gabriele','Fontana','capitano11@torneobaone.it','+390000000011','1991-05-03','Via Sviluppo 11, Baone','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Federico','Rossi','capitano12@torneobaone.it','+390000000012','1993-08-16','Via Sviluppo 12, Calaone','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Enrico','Basso','capitano13@torneobaone.it','+390000000013','1988-12-29','Via Sviluppo 13, Baone','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Tommaso','Longo','capitano14@torneobaone.it','+390000000014','1994-02-24','Via Sviluppo 14, Rivadolmo','!disabled-fixture',CURRENT_TIMESTAMP),
+  ('Riccardo','Greco','capitano15@torneobaone.it','+390000000015','1992-07-11','Via Sviluppo 15, Este','!disabled-fixture',CURRENT_TIMESTAMP);
 
 -- 15 squadre distribuite in tre gironi da cinque.
 INSERT IGNORE INTO `squadre`

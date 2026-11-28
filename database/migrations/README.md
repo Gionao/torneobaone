@@ -1,10 +1,16 @@
 # Unified staff authentication schema and migration
 
+## POS: tracciamento privato (28 novembre 2026)
+
+Per i database esistenti eseguire una sola volta [20261128_pos_tracking_token.sql](20261128_pos_tracking_token.sql) prima di distribuire il codice. Per le nuove installazioni lo schema completo include le colonne e il relativo indice. La migrazione conserva il blocco di conversione per gli ordini gia consegnati.
+
+Il codice di tracciamento viene mostrato alla cassa per i nuovi ordini normali e scade dopo 24 ore. Gli ordini creati prima della migrazione non hanno un codice. Gli ordini staff e i pagamenti manuali usano la tabella di audit gia presente nello schema unificato.
+
 ## POS: consumi staff (23 novembre 2026)
 
 `20261123_pos_staff_orders.sql` aggiunge `pos_orders.is_staff` con valore predefinito 0: gli ordini esistenti restano normali. Eseguire una sola volta prima del codice POS aggiornato; verificare con `SHOW COLUMNS FROM pos_orders LIKE 'is_staff'` prima di ripeterla. Lo schema completo include già la colonna per le nuove installazioni.
 
-La cassa permette ordini staff gratuiti; i prezzi originali di prodotti ed extra restano nelle righe. Lo storico usa `total_amount` per il totale dovuto. Le statistiche vendite escludono gli ordini staff e mostrano separatamente quantità e valore consumato per intervallo di date. Le trasformazioni, anche su ordini consegnati, sono ammesse solo per ordini della giornata corrente; un ordine annullato non è trasformabile. Nel passaggio a staff i coupon sono scollegati e restituiti nella stessa transazione. Gli annullamenti staff sono consentiti solo nella giornata corrente da cassa/storico.
+La cassa permette ordini staff gratuiti; i prezzi originali di prodotti ed extra restano nelle righe. Lo storico usa `total_amount` per il totale dovuto. Le statistiche vendite escludono gli ordini staff e mostrano separatamente quantità e valore consumato per intervallo di date. Le trasformazioni sono riservate agli amministratori POS e agli ordini della giornata corrente. Un ordine annullato non e trasformabile. Un ordine normale gia consegnato non puo diventare gratuito. Nel passaggio a staff i coupon sono scollegati e restituiti nella stessa transazione. Gli annullamenti staff sono consentiti solo nella giornata corrente da cassa/storico.
 
 Verifica locale: `php tests/pos/staff_orders_test.php`. Il test usa esclusivamente tabelle temporanee MySQL, senza modificare i dati applicativi.
 
@@ -46,7 +52,7 @@ The old shared `admin.role` values found in repository SQL/PHP conventions inclu
 - `uploader`, `editor` -> matching `archivio` role (unambiguous)
 - `admin` -> **ambiguous**. It may represent tournament, POS, or archive administration depending on deployment and its account-management history. Migration does not assign it and never infers `is_super_admin`.
 
-The historic SQL `assets/sql/database_schema_torneo.sql` declares enum values `admin`, `operatore`, `bar`, `cucina`, `telecronista`; it also contains an unsafe default admin account/password and must not be used for this migration or production bootstrap. Runtime media code additionally recognizes `uploader` and `editor`. Any other observed value is reported as unmapped. The migration outputs a frequency report and a per-account report for values requiring review. Export these reports and resolve each account using trusted pre-import records before cutover. Do not invent mappings or translate generic `admin` to every sector.
+The historic SQL `assets/sql/database_schema_torneo.sql` declares enum values `admin`, `operatore`, `bar`, `cucina`, `telecronista`; it is unsuitable for this migration or production bootstrap. Runtime media code additionally recognizes `uploader` and `editor`. Any other observed value is reported as unmapped. The migration outputs a frequency report and a per-account report for values requiring review. Export these reports and resolve each account using trusted pre-import records before cutover. Do not invent mappings or translate generic `admin` to every sector.
 
 The Phase 01 development DB has no `admin.role` or `admin.station_name`, so there is no reliable local legacy-role dataset to migrate. On such a database, the migration makes no assignments from guesses and reports that manual reconciliation from a trusted account source is required. This is expected, not evidence that the accounts have no historical roles.
 

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/iscrizione_helper.php';
 
+require_once __DIR__ . '/../../includes/operation_audit.php';
 require_tournament_operations();
 
 $pdo = db();
@@ -17,7 +18,7 @@ $dataPagamento = trim((string) ($_POST['data_pagamento'] ?? date('Y-m-d')));
 $note = trim((string) ($_POST['note'] ?? ''));
 $idSquadra = (int) ($_POST['id_squadra'] ?? $_GET['squadra'] ?? 0);
 $idMetodo = (int) ($_POST['id_metodo_pagamento'] ?? 0);
-$stato = (string) ($_POST['stato'] ?? 'confermata');
+$stato = (string) ($_POST['stato'] ?? 'in_attesa');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_verify()) {
@@ -42,6 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!in_array($stato, ['confermata', 'in_attesa', 'annullata'], true)) {
         $errors[] = 'Seleziona uno stato valido.';
     }
+    if ($stato === 'confermata' && $note === '') {
+        $errors[] = 'Inserisci nelle note il riferimento o la ricevuta del pagamento verificato.';
+    }
     if (strlen($note) > 60000) {
         $errors[] = 'Le note sono troppo lunghe.';
     }
@@ -58,6 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stato,
                 $note !== '' ? $note : null,
                 staff_id(),
+            ]);
+            record_operation_audit($pdo, staff_id(), 'torneo', 'pagamento_registrato', [
+                'transaction_id' => (int) $pdo->lastInsertId(), 'team_id' => $idSquadra,
+                'amount' => $importo, 'status' => $stato, 'method_id' => $idMetodo,
             ]);
             ricalcola_stato_pagamento($pdo, $idSquadra);
             $pdo->commit();

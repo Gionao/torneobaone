@@ -24,7 +24,7 @@ try {
     // Query ordini attivi (pending/preparing/ready)
     $sql = "
         SELECT DISTINCT o.id, o.daily_number, o.customer_name, o.table_number,
-               o.is_takeaway, o.is_staff, DATE(o.created_at) = CURDATE() AS is_today, o.covers, o.station_name, o.status, o.created_at
+               o.is_takeaway, o.is_staff, o.was_delivered, DATE(o.created_at) = CURDATE() AS is_today, o.covers, o.station_name, o.status, o.created_at
         FROM pos_orders o
         INNER JOIN pos_order_items oi ON oi.order_id = o.id
         INNER JOIN pos_products p     ON p.id = oi.product_id
@@ -56,7 +56,7 @@ try {
           AND oi.status IN ('pending', 'preparing', 'ready')
     ";
     if ($department !== null) {
-        $itemSql .= ' AND c.department = ?';
+        $itemSql .= " AND c.department = ? AND oi.status NOT IN ('delivered', 'cancelled')";
     }
     $itemSql .= ' ORDER BY oi.id';
     $itemStmt = $pdo->prepare($itemSql);
@@ -122,6 +122,7 @@ try {
             'table_number'  => $order['table_number'],
             'is_takeaway'   => (bool) $order['is_takeaway'],
             'is_staff'      => (bool) $order['is_staff'],
+            'was_delivered' => (bool) $order['was_delivered'],
             'is_today'      => (bool) $order['is_today'],
             'covers'        => (int) ($order['covers'] ?? 0),
             'station_name'  => $order['station_name'],

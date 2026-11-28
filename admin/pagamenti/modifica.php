@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/iscrizione_helper.php';
+require_once __DIR__ . '/../../includes/operation_audit.php';
 require_tournament_operations();
 
 $pdo = db();
@@ -32,15 +33,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dateParts = explode('-', $dataPagamento);
     if (count($dateParts) !== 3 || !checkdate((int) ($dateParts[1] ?? 0), (int) ($dateParts[2] ?? 0), (int) ($dateParts[0] ?? 0))) $errors[] = 'Inserisci una data valida.';
     if (!in_array($stato, ['confermata', 'in_attesa', 'annullata'], true)) $errors[] = 'Seleziona uno stato valido.';
+    if ($stato === 'confermata' && $note === '') {
+        $errors[] = 'Inserisci nelle note il riferimento o la ricevuta del pagamento verificato.';
+    }
     if (strlen($note) > 60000) $errors[] = 'Le note sono troppo lunghe.';
 
     if (!$errors) {
         try {
             $pdo->beginTransaction();
+            $lock = $pdo->prepare('SELECT id, id_squadra, importo, stato, id_metodo_pagamento, data_pagamento FROM transazioni WHERE id = ? FOR UPDATE');
+            $lock->execute([$id]);
+            $before = $lock->fetch();
+            if (!$before) {
+                throw new RuntimeException('Pagamento non trovato.');
+            }
             $update = $pdo->prepare('UPDATE transazioni SET id_squadra = ?, importo = ?, id_metodo_pagamento = ?, data_pagamento = ?, stato = ?, note = ? WHERE id = ?');
             $update->execute([$idSquadra, number_format((float) $importo, 2, '.', ''), $idMetodo, $dataPagamento, $stato, $note !== '' ? $note : null, $id]);
-            ricalcola_stato_pagamento($pdo, (int) $transazione['id_squadra']);
-            if ($idSquadra !== (int) $transazione['id_squadra']) ricalcola_stato_pagamento($pdo, $idSquadra);
+            record_operation_audit($pdo, staff_id(), 'torneo', 'pagamento_modificato', [
+                'before' => $before, 'after' => ['team_id' => $idSquadra, 'amount' => $importo,
+                    'status' => $stato, 'method_id' => $idMetodo, 'payment_date' => $dataPagamento],
+            ]);
+            ricalcola_stato_pagamento($pdo, (int) $before['id_squadra']);
+            if ($idSquadra !== (int) $before['id_squadra']) ricalcola_stato_pagamento($pdo, $idSquadra);
             $pdo->commit();
             $_SESSION['flash'] = ['type' => 'success', 'text' => 'Pagamento aggiornato.'];
             header('Location: transazioni.php');

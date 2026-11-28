@@ -119,7 +119,7 @@ $posNavActive = 'kitchen';
       btn.onclick = async () => {
         btn.disabled = true;
         try {
-          await apiPost('api/update_order_status.php', { type: 'item', id: parseInt(btn.dataset.itemId, 10), status: 'ready' });
+          await apiPost('api/update_order_status.php', { type: 'item', id: parseInt(btn.dataset.itemId, 10), status: 'ready', department: DEPT });
           load();
         } catch (e) { alert(e.message); btn.disabled = false; }
       };
@@ -129,7 +129,7 @@ $posNavActive = 'kitchen';
       btn.onclick = async () => {
         btn.disabled = true;
         try {
-          await apiPost('api/update_order_status.php', { type: 'order', id: parseInt(btn.dataset.orderId, 10), status: 'delivered' });
+          await apiPost('api/update_order_status.php', { type: 'order', id: parseInt(btn.dataset.orderId, 10), status: 'delivered', department: DEPT });
           load();
         } catch (e) { alert(e.message); btn.disabled = false; }
       };
@@ -160,7 +160,7 @@ $posNavActive = 'kitchen';
         if (!confirm('Riaprire questo ordine?')) return;
         btn.disabled = true;
         try {
-          await apiPost('api/reopen_order.php', { order_id: parseInt(btn.dataset.orderId, 10) });
+          await apiPost('api/reopen_order.php', { order_id: parseInt(btn.dataset.orderId, 10), department: DEPT });
           loadHistory();
         } catch (e) { alert(e.message); btn.disabled = false; }
       };

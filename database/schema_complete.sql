@@ -1,7 +1,7 @@
 -- ===========================================================================
 -- TORNEO BAONE - SCHEMA COMPLETO UNIFICATO
--- Versione bozza 2026-11-04 | Nuova installazione su database VUOTO
--- Fonte: ZIP progetto + riprogettazione ruoli fornita in PDF.
+-- Aggiornato al 2026-11-28 | Nuova installazione su database VUOTO
+-- Schema canonico: database/schema_complete.sql | Copia: assets/sql/database_schema_completo.sql.
 -- MySQL / MariaDB InnoDB, utf8mb4. Selezionare il database in phpMyAdmin.
 -- NON ESEGUIRE direttamente su un database con dati reali: questo NON e'
 -- uno script di migrazione e CREATE TABLE IF NOT EXISTS non aggiorna tabelle.
@@ -719,6 +719,9 @@ CREATE TABLE IF NOT EXISTS `pos_orders` (
   `total_amount`  DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  `tracking_token_hash` CHAR(64) NULL,
+  `was_delivered` TINYINT(1) NOT NULL DEFAULT 0,
+  UNIQUE KEY `uq_pos_orders_tracking_token` (`tracking_token_hash`),
   KEY `idx_pos_orders_date` (`created_at`),
   KEY `idx_pos_orders_status` (`status`),
   KEY `idx_pos_orders_admin` (`admin_id`),
