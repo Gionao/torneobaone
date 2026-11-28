@@ -1,6 +1,17 @@
 <?php
 declare(strict_types=1);
 
+require_once dirname(__DIR__, 2) . '/includes/operation_audit.php';
+
+function pos_staff_reason(array $input): string
+{
+    $reason = is_string($input['staff_reason'] ?? null) ? trim($input['staff_reason']) : '';
+    if ($reason === '' || strlen($reason) > 250) {
+        throw new InvalidArgumentException('Indica la motivazione (massimo 250 byte).');
+    }
+    return $reason;
+}
+
 /** Normalizza i dati senza fidarsi dei totali inviati dalla cassa. */
 function pos_order_details(array $input, float $coverFee, float $takeawayFee): array
 {
@@ -37,7 +48,7 @@ function pos_require_current_order(array $order): void
 }
 
 /** La transazione serializza conversioni e annullamenti dello stesso ordine. */
-function pos_convert_order(PDO $pdo, int $orderId, array $input): array
+function pos_convert_order(PDO $pdo, int $orderId, array $input, ?int $actorId = null): array
 {
     $pdo->beginTransaction();
     try {
@@ -48,6 +59,9 @@ function pos_convert_order(PDO $pdo, int $orderId, array $input): array
             throw new InvalidArgumentException('Ordine non trovato.');
         }
         pos_require_current_order($order);
+        if (!$order['is_staff'] && !empty($input['is_staff']) && ($order['was_delivered'] || $order['status'] === 'delivered')) {
+            throw new InvalidArgumentException('Un ordine normale consegnato non puo diventare gratuito.');
+        }
         if ((bool) $order['is_staff'] === !empty($input['is_staff'])) {
             throw new InvalidArgumentException('Il tipo di ordine è già quello richiesto. Ricarica la pagina.');
         }
@@ -66,6 +80,12 @@ function pos_convert_order(PDO $pdo, int $orderId, array $input): array
             (int) $details['is_staff'], $details['customer_name'], $details['table_number'],
             (int) $details['is_takeaway'], $details['covers'], $details['cover_fee'], $details['takeaway_fee'], $total, $orderId,
         ]);
+        if ($actorId !== null) {
+            record_operation_audit($pdo, $actorId, 'pos', 'ordine_convertito', [
+                'order_id' => $orderId, 'is_staff' => $details['is_staff'], 'reason' => pos_staff_reason($input),
+                'previous_total' => $order['total_amount'], 'new_total' => $total,
+            ]);
+        }
         $pdo->commit();
         return ['order_id' => $orderId, 'is_staff' => $details['is_staff'], 'total' => $total];
     } catch (Throwable $e) {

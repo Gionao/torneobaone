@@ -35,14 +35,20 @@ try {
         INNER JOIN pos_order_items oi ON oi.order_id = o.id
         INNER JOIN pos_products p     ON p.id = oi.product_id
         INNER JOIN pos_categories c   ON c.id = p.category_id
-        WHERE o.status = 'delivered'
-          AND DATE(o.created_at) = ?
+        WHERE DATE(o.created_at) = ?
     ";
     $params = [$date];
 
     if ($department !== null) {
-        $sql .= ' AND c.department = ?';
+        $sql .= " AND o.status <> 'cancelled' AND oi.status = 'delivered' AND c.department = ?
+            AND NOT EXISTS (SELECT 1 FROM pos_order_items moi
+                JOIN pos_products mp ON mp.id = moi.product_id
+                JOIN pos_categories mc ON mc.id = mp.category_id
+                WHERE moi.order_id = o.id AND mc.department = c.department
+                AND moi.status NOT IN ('delivered', 'cancelled'))";
         $params[] = $department;
+    } else {
+        $sql .= " AND o.status = 'delivered'";
     }
 
     $sql .= ' ORDER BY o.created_at DESC LIMIT 200';

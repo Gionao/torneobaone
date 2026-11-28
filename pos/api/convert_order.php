@@ -16,8 +16,9 @@ $input = json_decode(file_get_contents('php://input') ?: '', true);
 if (!is_array($input) || (int) ($input['order_id'] ?? 0) < 1 || !isset($input['is_staff']) || !is_bool($input['is_staff'])) {
     pos_json(false, null, 'Dati trasformazione non validi.');
 }
+require_role(['admin']);
 try {
-    $result = pos_convert_order($pdo, (int) $input['order_id'], $input);
+    $result = pos_convert_order($pdo, (int) $input['order_id'], $input, staff_id());
     pos_json(true, $result);
 } catch (InvalidArgumentException $e) {
     pos_json(false, null, $e->getMessage());

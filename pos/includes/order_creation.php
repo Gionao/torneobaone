@@ -20,6 +20,8 @@ function pos_create_order(PDO $pdo, array $input, int $adminId, ?string $station
 
     $details = pos_order_details($input, $coverFeeUnit, $takeawayFeeVal);
     $isStaff = $details['is_staff'];
+    $staffReason = $isStaff ? pos_staff_reason($input) : null;
+    $trackingToken = $isStaff ? null : bin2hex(random_bytes(16));
     $customerName = $details['customer_name'];
     $tableNumber = $details['table_number'];
     $isTakeaway = $details['is_takeaway'];
@@ -40,20 +42,21 @@ function pos_create_order(PDO $pdo, array $input, int $adminId, ?string $station
         $orderStmt = $pdo->prepare("
             INSERT INTO pos_orders
                 (daily_number, customer_name, table_number, is_takeaway, covers,
-                 cover_fee, takeaway_fee, admin_id, station_name, is_staff, status, total_amount, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, NOW())
+                 cover_fee, takeaway_fee, admin_id, station_name, is_staff, tracking_token_hash, status, total_amount, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, NOW())
         ");
         $orderStmt->execute([
             $dailyNumber, $customerName, $tableNumber ?: null,
             $isTakeaway ? 1 : 0, $covers,
             $appliedCoverFee, $appliedTakeawayFee,
             $adminId, $stationName, $isStaff ? 1 : 0,
+            $trackingToken === null ? null : hash('sha256', $trackingToken),
         ]);
         $orderId = (int) $pdo->lastInsertId();
 
         // Statement riutilizzabili
         $productStmt = $pdo->prepare('SELECT p.id, p.price, p.is_active, p.product_kind, c.name AS category_name, c.department FROM pos_products p JOIN pos_categories c ON c.id = p.category_id WHERE p.id = ? LIMIT 1');
-        $couponStmt  = $pdo->prepare('SELECT id, product_type_restriction, discount_type, discount_value, is_used FROM pos_coupons WHERE id = ? LIMIT 1');
+        $couponStmt  = $pdo->prepare('SELECT id, product_type_restriction, discount_type, discount_value, is_used FROM pos_coupons WHERE code = ? LIMIT 1');
         $couponMarkStmt = $pdo->prepare('UPDATE pos_coupons SET is_used = 1, used_at = NOW() WHERE id = ? AND is_used = 0');
 
         $itemStmt = $pdo->prepare("
@@ -78,9 +81,14 @@ function pos_create_order(PDO $pdo, array $input, int $adminId, ?string $station
                 throw new RuntimeException('Quantità non valida (1–255).');
             }
             $itemNote  = isset($item['item_note']) ? substr(trim((string) $item['item_note']), 0, 255) : null;
-            $couponId  = isset($item['coupon_id']) && $item['coupon_id'] !== null
-                ? (int) $item['coupon_id']
-                : null;
+            if (isset($item['coupon_id'])) {
+                throw new InvalidArgumentException('Presenta il codice del coupon.');
+            }
+            $couponCode = $item['coupon_code'] ?? null;
+            if ($couponCode !== null && (!is_string($couponCode) || trim($couponCode) === '')) {
+                throw new InvalidArgumentException('Codice coupon non valido.');
+            }
+            $couponId = null;
 
             // Verifica prodotto
             $productStmt->execute([$productId]);
@@ -119,14 +127,11 @@ function pos_create_order(PDO $pdo, array $input, int $adminId, ?string $station
             }
 
             // Applica coupon (fixed o percent)
-            if ($couponId !== null) {
+            if ($couponCode !== null) {
                 if ($isStaff) {
                     throw new InvalidArgumentException('Gli ordini staff non possono utilizzare coupon.');
                 }
-                if (in_array($couponId, $usedCouponIds, true)) {
-                    throw new RuntimeException('Coupon già applicato in questo ordine.');
-                }
-                $couponStmt->execute([$couponId]);
+                $couponStmt->execute([trim($couponCode)]);
                 $coupon = $couponStmt->fetch();
                 if (!$coupon || (int) $coupon['is_used'] === 1) {
                     throw new RuntimeException('Coupon non valido o già utilizzato.');
@@ -135,6 +140,10 @@ function pos_create_order(PDO $pdo, array $input, int $adminId, ?string $station
                     throw new RuntimeException('Coupon non valido per questo prodotto.');
                 }
 
+                $couponId = (int) $coupon['id'];
+                if (in_array($couponId, $usedCouponIds, true)) {
+                    throw new RuntimeException('Coupon gia applicato in questo ordine.');
+                }
                 $discountValue = (float) $coupon['discount_value'];
                 if ($coupon['discount_type'] === 'percent') {
                     // Percentuale sul prezzo unitario (senza extra)
@@ -151,28 +160,40 @@ function pos_create_order(PDO $pdo, array $input, int $adminId, ?string $station
                 $usedCouponIds[] = $couponId;
             }
 
-            $lineCost    = ($unitPrice + $lineExtra) * $quantity - ($discount * $quantity);
+            $lineCost    = ($unitPrice + $lineExtra) * $quantity - $discount;
             $orderTotal += $lineCost;
 
-            $itemStmt->execute([$orderId, $productId, $quantity, $itemNote ?: null, $unitPrice, $discount, $couponId]);
-            $orderItemId = (int) $pdo->lastInsertId();
+            $lines = $couponId !== null && $quantity > 1
+                ? [[1, $discount, $couponId], [$quantity - 1, 0.0, null]]
+                : [[$quantity, $discount, $couponId]];
 
             // Modifiche ingredienti
-            foreach ($validatedMods as [$ingredientId, $action, $extraPrice]) {
-                $modStmt->execute([$orderItemId, $ingredientId, $action, $extraPrice]);
+            foreach ($lines as [$lineQuantity, $lineDiscount, $lineCoupon]) {
+                $itemStmt->execute([$orderId, $productId, $lineQuantity, $itemNote ?: null, $unitPrice, $lineDiscount, $lineCoupon]);
+                $orderItemId = (int) $pdo->lastInsertId();
+                foreach ($validatedMods as [$ingredientId, $action, $extraPrice]) {
+                    $modStmt->execute([$orderItemId, $ingredientId, $action, $extraPrice]);
+                }
             }
         }
 
+        $orderTotalBeforeStaff = $orderTotal;
         $orderTotal = $isStaff ? 0.0 : $orderTotal;
         // Aggiorna totale ordine
         $pdo->prepare('UPDATE pos_orders SET total_amount = ? WHERE id = ?')
             ->execute([round($orderTotal, 2), $orderId]);
 
+        if ($isStaff) {
+            record_operation_audit($pdo, $adminId, 'pos', 'ordine_staff_creato', [
+                'order_id' => $orderId, 'reason' => $staffReason, 'previous_total' => round($orderTotalBeforeStaff, 2), 'new_total' => 0,
+            ]);
+        }
         $pdo->commit();
 
         return [
             'order_id'     => $orderId,
             'daily_number' => $dailyNumber,
+            'tracking_token' => $trackingToken,
             'total'        => round($orderTotal, 2),
         ];
 

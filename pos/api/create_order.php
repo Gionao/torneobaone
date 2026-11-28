@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 $input = json_decode(file_get_contents('php://input') ?: '', true);
 if (!is_array($input)) pos_json(false, null, 'Payload ordine non valido.');
+if (!empty($input['is_staff'])) {
+    require_role(['admin']);
+}
 $station = staff_is_super_admin() ? null : staff_station('pos');
 try {
     $result = pos_create_order($pdo, $input, staff_id(), $station !== null ? substr($station, 0, 80) : null);

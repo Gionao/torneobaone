@@ -6,6 +6,7 @@ if (PHP_SAPI !== 'cli') exit(2);
 require_once dirname(__DIR__, 2) . '/pos/includes/db.php';
 require_once dirname(__DIR__, 2) . '/pos/includes/staff_orders.php';
 require_once dirname(__DIR__, 2) . '/pos/includes/order_creation.php';
+require_once dirname(__DIR__, 2) . '/pos/includes/department_orders.php';
 
 $checks = 0;
 function check(bool $ok, string $message): void
@@ -27,7 +28,7 @@ rejects(fn() => pos_order_details(['customer_name' => ''], 1.5, 1), 'Ordine norm
 rejects(fn() => pos_order_details(['customer_name' => 'Mario', 'covers' => 0], 1.5, 1), 'Ordine normale: coperti validi');
 rejects(fn() => pos_order_details(['customer_name' => 'Mario', 'covers' => 1], 1.5, 1), 'Ordine normale: tavolo o asporto obbligatori');
 
-foreach (['pos_orders', 'pos_order_items', 'pos_order_item_modifications', 'pos_products', 'pos_coupons', 'pos_settings', 'pos_categories', 'pos_ingredients', 'pos_product_ingredients'] as $table) {
+foreach (['staff_audit_log', 'pos_orders', 'pos_order_items', 'pos_order_item_modifications', 'pos_products', 'pos_coupons', 'pos_settings', 'pos_categories', 'pos_ingredients', 'pos_product_ingredients'] as $table) {
     $pdo->exec("CREATE TEMPORARY TABLE test_$table LIKE $table");
     $pdo->exec("ALTER TABLE test_$table RENAME TO $table");
 }
@@ -35,21 +36,28 @@ foreach (['pos_orders', 'pos_order_items', 'pos_order_item_modifications', 'pos_
 if (!$pdo->query("SHOW COLUMNS FROM pos_orders LIKE 'is_staff'")->fetch()) {
     $pdo->exec(file_get_contents(dirname(__DIR__, 2) . '/database/migrations/20261123_pos_staff_orders.sql'));
 }
+if (!$pdo->query("SHOW COLUMNS FROM pos_orders LIKE 'tracking_token_hash'")->fetch()) {
+    $pdo->exec(file_get_contents(dirname(__DIR__, 2) . '/database/migrations/20261128_pos_tracking_token.sql'));
+}
 $pdo->exec("INSERT INTO pos_settings (`key`, `value`) VALUES ('cover_fee', '1.50'), ('takeaway_fee', '1.00')");
 $pdo->exec("INSERT INTO pos_products (id, category_id, name, price) VALUES (1, 1, 'Panino', 999), (2, 1, 'Acqua', 999)");
 $pdo->exec("INSERT INTO pos_coupons (id, code, is_used, used_at) VALUES (1, 'TEST', 1, NOW())");
 $pdo->exec("INSERT INTO pos_orders (id, daily_number, customer_name, admin_id, status, total_amount, created_at) VALUES
-    (1, 1, 'Mario', 1, 'delivered', 13, NOW()),
+    (1, 1, 'Mario', 1, 'ready', 13, NOW()),
+    (4, 4, 'Consegnato', 1, 'delivered', 5, NOW()),
     (2, 2, 'Ieri', 1, 'pending', 5, DATE_SUB(NOW(), INTERVAL 1 DAY)),
     (3, 3, 'Annullato', 1, 'cancelled', 5, NOW())");
 $pdo->exec("INSERT INTO pos_order_items (id, order_id, product_id, quantity, unit_price, discount_applied, coupon_id, status) VALUES
     (1, 1, 1, 2, 5, 1, 1, 'delivered'), (2, 1, 2, 1, 2, 0, NULL, 'delivered')");
 $pdo->exec("INSERT INTO pos_order_item_modifications (order_item_id, ingredient_id, action, extra_price) VALUES (1, 1, 'added', 1.50), (1, 2, 'added', .50), (1, 3, 'removed', 100)");
 
-$converted = pos_convert_order($pdo, 1, ['is_staff' => true]);
-check($converted['total'] === 0.0, 'Ordine completato di oggi trasformato in staff a zero');
+rejects(fn() => pos_convert_order($pdo, 4, ['is_staff' => true]), 'Ordine normale consegnato non trasformabile in staff');
+$pdo->exec("UPDATE pos_orders SET created_at = DATE_SUB(NOW(), INTERVAL 1 DAY) WHERE id = 4");
+$converted = pos_convert_order($pdo, 1, ['is_staff' => true, 'staff_reason' => 'Consumo volontari'], 1);
+check((int) $pdo->query("SELECT COUNT(*) FROM staff_audit_log WHERE actor_id = 1 AND azione = 'ordine_convertito'")->fetchColumn() === 1, 'La conversione ha una traccia di audit');
+check($converted['total'] === 0.0, 'Ordine di oggi trasformato in staff a zero');
 $order = $pdo->query('SELECT * FROM pos_orders WHERE id = 1')->fetch();
-check($order['customer_name'] === 'Staff' && (int) $order['covers'] === 0 && $order['status'] === 'delivered', 'Trasformazione mantiene stato e azzera coperti');
+check($order['customer_name'] === 'Staff' && (int) $order['covers'] === 0 && $order['status'] === 'ready', 'Trasformazione mantiene stato e azzera coperti');
 check((int) $pdo->query('SELECT is_used FROM pos_coupons WHERE id = 1')->fetchColumn() === 0, 'Coupon nuovamente disponibile');
 $item = $pdo->query('SELECT * FROM pos_order_items WHERE id = 1')->fetch();
 check($item['coupon_id'] === null && (float) $item['discount_applied'] === 0.0 && (float) $item['unit_price'] === 5.0, 'Coupon scollegato, sconto rimosso e prezzo storico conservato');
@@ -84,7 +92,7 @@ if ($pdo->query("SHOW COLUMNS FROM pos_product_ingredients LIKE 'is_removable'")
 } else {
     $pdo->exec("INSERT INTO pos_product_ingredients (product_id, ingredient_id) VALUES (1, 1)");
 }
-$payload = ['is_staff' => true, 'items' => [['product_id' => 1, 'quantity' => 2, 'modifications' => [['ingredient_id' => 1, 'action' => 'added', 'extra_price' => 999]]]]];
+$payload = ['is_staff' => true, 'staff_reason' => 'Turno cucina', 'items' => [['product_id' => 1, 'quantity' => 2, 'modifications' => [['ingredient_id' => 1, 'action' => 'added', 'extra_price' => 999]]]]];
 $created = pos_create_order($pdo, $payload, 1, 'Cassa test');
 check($created['total'] === 0.0, 'Creazione staff senza nome/tavolo: totale zero');
 $createdId = (int) $created['order_id'];
@@ -103,6 +111,27 @@ $before = (int) $pdo->query('SELECT COUNT(*) FROM pos_orders')->fetchColumn();
 $payload['items'][0]['coupon_id'] = 1;
 rejects(fn() => pos_create_order($pdo, $payload, 1, null), 'Creazione staff con coupon rifiutata');
 check((int) $pdo->query('SELECT COUNT(*) FROM pos_orders')->fetchColumn() === $before && !$pdo->inTransaction(), 'Creazione rifiutata non lascia ordini parziali');
+check(is_string($createdNormal['tracking_token']) && strlen($createdNormal['tracking_token']) === 32, 'Il nuovo ordine normale ha un codice di tracciamento');
+$normalId = (int) $createdNormal['order_id'];
+check($pdo->query("SELECT tracking_token_hash FROM pos_orders WHERE id = $normalId")->fetchColumn() === hash('sha256', $createdNormal['tracking_token']), 'Il database conserva solo il digest del codice');
+$pdo->exec("UPDATE pos_coupons SET discount_type = 'fixed', discount_value = 2, is_used = 0 WHERE id = 1");
+$normalPayload['items'][0]['coupon_code'] = 'TEST';
+$discounted = pos_create_order($pdo, $normalPayload, 1, null);
+check($discounted['total'] === 14.0, 'Un coupon monouso sconta una sola unita');
+$discountedId = (int) $discounted['order_id'];
+check((int) $pdo->query("SELECT quantity FROM pos_order_items WHERE order_id = $discountedId AND coupon_id IS NOT NULL")->fetchColumn() === 1, 'La riga scontata contiene una sola unita');
+$pdo->exec("INSERT INTO pos_categories (id, name, department) VALUES (2, 'Bibite', 'bar')");
+$pdo->exec('UPDATE pos_products SET category_id = 2 WHERE id = 2');
+$pdo->exec("INSERT INTO pos_order_items (order_id, product_id, quantity, unit_price, status) VALUES ($normalId, 2, 1, 2, 'ready')");
+$kitchenItemId = (int) $pdo->query("SELECT id FROM pos_order_items WHERE order_id = $normalId AND product_id = 1")->fetchColumn();
+pos_update_department_items($pdo, 'kitchen', 'item', $kitchenItemId, 'ready');
+pos_update_department_items($pdo, 'bar', 'order', $normalId, 'delivered');
+check($pdo->query("SELECT status FROM pos_orders WHERE id = $normalId")->fetchColumn() === 'ready', 'Il servizio di un reparto lascia pronto il resto dell ordine');
+pos_update_department_items($pdo, 'kitchen', 'order', $normalId, 'delivered');
+check($pdo->query("SELECT status FROM pos_orders WHERE id = $normalId")->fetchColumn() === 'delivered', 'Lo stato globale segue la consegna di tutti i reparti');
+pos_update_department_items($pdo, 'bar', 'order', $normalId, 'preparing');
+check($pdo->query("SELECT status FROM pos_order_items WHERE id = $kitchenItemId")->fetchColumn() === 'delivered', 'La riapertura del bar lascia intatta la consegna cucina');
+rejects(fn() => pos_convert_order($pdo, $normalId, ['is_staff' => true]), 'La riapertura non rimuove il blocco per gli ordini gia consegnati');
 $pdo->exec('UPDATE pos_orders SET is_staff = 1 WHERE id = 2');
 rejects(fn() => pos_cancel_order($pdo, 2), 'Annullamento staff di ieri rifiutato');
 check($pdo->query('SELECT status FROM pos_orders WHERE id = 2')->fetchColumn() === 'pending', 'Annullamento rifiutato mantiene stato');

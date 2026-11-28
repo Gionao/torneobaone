@@ -1,16 +1,22 @@
 # Unified staff authentication schema and migration
 
+## POS: tracciamento privato (28 novembre 2026)
+
+Per i database esistenti eseguire una sola volta [20261128_pos_tracking_token.sql](20261128_pos_tracking_token.sql) prima di distribuire il codice. Per le nuove installazioni lo schema completo include le colonne e il relativo indice. La migrazione conserva il blocco di conversione per gli ordini gia consegnati.
+
+Il codice di tracciamento viene mostrato alla cassa per i nuovi ordini normali e scade dopo 24 ore. Gli ordini creati prima della migrazione non hanno un codice. Gli ordini staff e i pagamenti manuali usano la tabella di audit gia presente nello schema unificato.
+
 ## POS: consumi staff (23 novembre 2026)
 
 `20261123_pos_staff_orders.sql` aggiunge `pos_orders.is_staff` con valore predefinito 0: gli ordini esistenti restano normali. Eseguire una sola volta prima del codice POS aggiornato; verificare con `SHOW COLUMNS FROM pos_orders LIKE 'is_staff'` prima di ripeterla. Lo schema completo include già la colonna per le nuove installazioni.
 
-La cassa permette ordini staff gratuiti; i prezzi originali di prodotti ed extra restano nelle righe. Lo storico usa `total_amount` per il totale dovuto. Le statistiche vendite escludono gli ordini staff e mostrano separatamente quantità e valore consumato per intervallo di date. Le trasformazioni, anche su ordini consegnati, sono ammesse solo per ordini della giornata corrente; un ordine annullato non è trasformabile. Nel passaggio a staff i coupon sono scollegati e restituiti nella stessa transazione. Gli annullamenti staff sono consentiti solo nella giornata corrente da cassa/storico.
+La cassa permette ordini staff gratuiti; i prezzi originali di prodotti ed extra restano nelle righe. Lo storico usa `total_amount` per il totale dovuto. Le statistiche vendite escludono gli ordini staff e mostrano separatamente quantità e valore consumato per intervallo di date. Le trasformazioni sono riservate agli amministratori POS e agli ordini della giornata corrente. Un ordine annullato non e trasformabile. Un ordine normale gia consegnato non puo diventare gratuito. Nel passaggio a staff i coupon sono scollegati e restituiti nella stessa transazione. Gli annullamenti staff sono consentiti solo nella giornata corrente da cassa/storico.
 
 Verifica locale: `php tests/pos/staff_orders_test.php`. Il test usa esclusivamente tabelle temporanee MySQL, senza modificare i dati applicativi.
 
 ## Registration workflow extension (not yet production-ready)
 
-`20261105_registration_workflow.sql` is the next one-time migration after `20261104_unified_staff_auth.sql`. It adds registration fields and append-only consent, parent authorization, paper authorization and registration audit tables. It contains DDL and a backfill of `giocatori.id_torneo`; it has **not** been executed or validated against a disposable MySQL/MariaDB instance in this change. Review `docs/registration-audit/08_IMPLEMENTATION_REPORT.md` before use.
+`20261105_registration_workflow.sql` is the next one-time migration after `20261104_unified_staff_auth.sql`. It adds registration fields and append-only consent, parent authorization, paper authorization and registration audit tables. It contains DDL and a backfill of `giocatori.id_torneo`. The migration ran successfully on MySQL 8.0.30 against a disposable database initialized from the previous complete schema with no application data. Review `docs/registration-audit/08_IMPLEMENTATION_REPORT.md` before use.
 
 Before execution, restore a protected backup into a disposable database, inspect the exact schema/version and every `ALTER TABLE` target, run the duplicate preflight queries and resolve collisions manually. MySQL DDL auto-commits: the migration is not transactionally rollbackable. Recovery is restore from verified backup or a separately reviewed forward fix; do not apply to production on the basis of this file alone. The unique active tax-code key is limited to rows whose `id_torneo` is populated; orphan/legacy rows with NULL edition are not deduplicated by that index.
 
@@ -31,7 +37,8 @@ One row per `(id_admin, area)` enforces at most one role per sector. Composite F
 
 ## Artifacts
 
-- `database/schema_complete.sql`: new-database schema, adapted from `assets/sql/database_schema_completo.sql`; adds `admin.must_change_password` and a serialized guard for last-active-Super-Admin protection. It retains all business schemas and captain tables. It creates no staff account and inserts no default password. It is **not** an upgrade script.
+- `database/schema_complete.sql` is the canonical schema for new databases. `assets/sql/database_schema_completo.sql` is an identical copy. Both include the structural changes through `20261128_pos_tracking_token.sql` and create no staff accounts or default passwords. Keep both files synchronized when updating the schema.
+- Existing databases use the migration files in date order, starting with the first pending migration. The complete schemas also retain the existing fresh-install foreign key `fk_giocatori_sostituisce`, which sets `giocatori.sostituisce_id` to NULL when the referenced player is deleted.
 - `database/migrations/20261104_unified_staff_auth.sql`: additive migration. Existing `admin` IDs/password hashes/legacy `role` and `station_name` columns and all business data/FKs remain. New columns and normalized assignment tables are added only if absent. The role catalog and assignments use duplicate-safe inserts.
 - `database/bootstrap_super_admin.php`: local CLI-only, one-time bootstrap to promote an existing active account when no active Super Admin exists. It locks a singleton guard row and makes no default credentials.
 
@@ -46,7 +53,7 @@ The old shared `admin.role` values found in repository SQL/PHP conventions inclu
 - `uploader`, `editor` -> matching `archivio` role (unambiguous)
 - `admin` -> **ambiguous**. It may represent tournament, POS, or archive administration depending on deployment and its account-management history. Migration does not assign it and never infers `is_super_admin`.
 
-The historic SQL `assets/sql/database_schema_torneo.sql` declares enum values `admin`, `operatore`, `bar`, `cucina`, `telecronista`; it also contains an unsafe default admin account/password and must not be used for this migration or production bootstrap. Runtime media code additionally recognizes `uploader` and `editor`. Any other observed value is reported as unmapped. The migration outputs a frequency report and a per-account report for values requiring review. Export these reports and resolve each account using trusted pre-import records before cutover. Do not invent mappings or translate generic `admin` to every sector.
+The historic SQL `assets/sql/database_schema_torneo.sql` declares enum values `admin`, `operatore`, `bar`, `cucina`, `telecronista`; it is unsuitable for this migration or production bootstrap. Runtime media code additionally recognizes `uploader` and `editor`. Any other observed value is reported as unmapped. The migration outputs a frequency report and a per-account report for values requiring review. Export these reports and resolve each account using trusted pre-import records before cutover. Do not invent mappings or translate generic `admin` to every sector.
 
 The Phase 01 development DB has no `admin.role` or `admin.station_name`, so there is no reliable local legacy-role dataset to migrate. On such a database, the migration makes no assignments from guesses and reports that manual reconciliation from a trusted account source is required. This is expected, not evidence that the accounts have no historical roles.
 

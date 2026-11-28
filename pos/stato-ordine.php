@@ -68,7 +68,7 @@ $siteNavConfig = [
       gap: .75rem;
       margin-bottom: .5rem;
     }
-    .track-input-row input[type="number"] {
+    .track-input-row input[type="text"] {
       flex: 1;
       font-size: 1.5rem;
       text-align: center;
@@ -96,10 +96,6 @@ $siteNavConfig = [
       font-weight: 800;
       color: var(--gold);
     }
-    .order-track-meta {
-      font-size: .9rem;
-      color: var(--muted);
-    }
     .order-track-status {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 1.1rem;
@@ -116,22 +112,6 @@ $siteNavConfig = [
     .order-track-status.ready     { background:#0d2a1c;color:#4caf82; }
     .order-track-status.delivered { background:#1a2d1a;color:#a5d6a7; }
     .order-track-status.cancelled { background:#2d1a1a;color:#ef9a9a; }
-    .order-track-items li {
-      padding: .4rem 0;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      font-size: .92rem;
-    }
-    .order-track-items li:last-child { border-bottom: none; }
-    .item-dept-badge {
-      font-size: .72rem;
-      background: rgba(201,168,76,.1);
-      color: var(--gold);
-      border-radius: 3px;
-      padding: .1rem .4rem;
-      margin-left: .5rem;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
     .track-refresh-hint {
       text-align: center;
       font-size: .8rem;
@@ -201,13 +181,13 @@ $siteNavConfig = [
     <h1>Traccia il tuo ordine</h1>
 
     <div class="track-input-row">
-      <input type="number" id="orderNumber" min="1" max="9999"
-             placeholder="N° ordine" autofocus>
+      <input type="text" id="orderNumber" maxlength="32" autocomplete="off"
+             aria-label="Codice di tracciamento" placeholder="Codice di tracciamento" autofocus>
       <button type="button" class="btn btn-gold" id="btnTrack">Cerca</button>
     </div>
 
     <div style="text-align:center;font-size:.8rem;color:var(--muted);">
-      Il numero è stampato sullo scontrino o comunicato alla cassa.
+      Usa il codice o il link di tracciamento fornito alla cassa.
     </div>
 
     <div id="trackResult" class="track-result"></div>
@@ -251,16 +231,15 @@ $siteNavConfig = [
   }
 
   async function track() {
-    const num = parseInt(numInp.value, 10);
-    if (!num || num < 1) {
-      result.innerHTML = '<div class="alert alert-error">Inserisci un numero ordine valido.</div>';
+    const token = numInp.value.trim().toLowerCase();
+    if (!/^[0-9a-f]{32}$/.test(token)) {
+      result.innerHTML = '<div class="alert alert-error">Inserisci un codice di tracciamento valido.</div>';
       return;
     }
     result.innerHTML = '<p class="empty-msg" style="text-align:center;margin-top:1rem;">Ricerca in corso…</p>';
 
     try {
-      const today = new Date().toISOString().slice(0, 10);
-      const res   = await fetch('api/track_order.php?number=' + num + '&date=' + today);
+      const res = await fetch('api/track_order.php', { method: 'POST', body: new URLSearchParams({ token }) });
       const json  = await res.json();
 
       if (!json.success) {
@@ -270,36 +249,15 @@ $siteNavConfig = [
       }
 
       const o = json.data;
-      const where = o.is_takeaway
-        ? '<span style="color:var(--gold)">ASPORTO</span>'
-        : (o.table_number ? 'Tavolo <strong>' + escapeHtml(o.table_number) + '</strong>' : '—');
-      const time = new Date(o.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-
-      const itemsHtml = o.items.map(i => {
-        const noteHtml = i.item_note
-          ? '<span style="color:var(--muted);font-size:.82rem"> — ' + escapeHtml(i.item_note) + '</span>' : '';
-        const deptBadge = '<span class="item-dept-badge">' + escapeHtml(i.department) + '</span>';
-        return '<li>' + i.quantity + '× <strong>' + escapeHtml(i.product_name) + '</strong>' +
-          deptBadge + noteHtml + '</li>';
-      }).join('');
-
       result.innerHTML =
         '<div class="order-track-card">' +
           '<div class="order-track-header">' +
             '<div class="order-track-num">#' + o.daily_number + '</div>' +
-            '<div class="order-track-meta">' +
-              '<div>' + escapeHtml(o.customer_name) + '</div>' +
-              '<div>' + where + ' · ' + time + '</div>' +
-            '</div>' +
           '</div>' +
 
           renderSteps(o.status) +
 
           '<div class="order-track-status ' + o.status + '">' + escapeHtml(o.status_label) + '</div>' +
-
-          '<ul class="order-track-items" style="list-style:none;padding:0;margin:0;">' +
-            itemsHtml +
-          '</ul>' +
 
           (o.status !== 'delivered' && o.status !== 'cancelled'
             ? '<div class="track-refresh-hint">Aggiornamento automatico ogni 10 secondi</div>'
@@ -320,8 +278,7 @@ $siteNavConfig = [
   btn.addEventListener('click', track);
   numInp.addEventListener('keydown', e => { if (e.key === 'Enter') track(); });
 
-  // Se c'è un parametro ?n= nell'URL, carica subito
-  const urlNum = new URLSearchParams(window.location.search).get('n');
+  const urlNum = new URLSearchParams(window.location.hash.slice(1)).get('token');
   if (urlNum) {
     numInp.value = urlNum;
     track();

@@ -85,6 +85,9 @@ CREATE TABLE IF NOT EXISTS `pos_orders` (
   `total_amount`  DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  `tracking_token_hash` CHAR(64) NULL,
+  `was_delivered` TINYINT(1) NOT NULL DEFAULT 0,
+  UNIQUE KEY `uq_pos_orders_tracking_token` (`tracking_token_hash`),
   KEY `idx_pos_orders_date` (`created_at`),
   KEY `idx_pos_orders_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

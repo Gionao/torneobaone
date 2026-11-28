@@ -7,6 +7,7 @@ define('POS_API', true);
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/role_check.php';
+require_once __DIR__ . '/../includes/department_orders.php';
 require_role(['admin', 'bar', 'cucina']);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -25,15 +26,14 @@ try {
     $departmentScope = match (pos_current_role()) {
         'bar' => 'bar',
         'cucina' => 'kitchen',
+        'admin' => in_array($input['department'] ?? null, ['bar', 'kitchen'], true) ? $input['department'] : null,
         default => null,
     };
     if ($departmentScope !== null) {
-        $scope = $pdo->prepare('SELECT COUNT(*) FROM pos_order_items oi INNER JOIN pos_products p ON p.id=oi.product_id INNER JOIN pos_categories c ON c.id=p.category_id WHERE oi.order_id=? AND c.department=?');
-        $scope->execute([$orderId, $departmentScope]);
-        if ((int) $scope->fetchColumn() === 0) {
-            pos_json(false, null, 'Ordine non autorizzato per questo dipartimento.');
-        }
+        pos_update_department_items($pdo, $departmentScope, 'order', $orderId, 'preparing');
+        pos_json(true, ['reopened' => true]);
     }
+
     // Solo ordini delivered possono essere riaperti (non cancelled)
     $stmt = $pdo->prepare("
         UPDATE pos_orders SET status = 'preparing'
@@ -53,6 +53,9 @@ try {
 
     pos_json(true, ['reopened' => true]);
 
+} catch (InvalidArgumentException $e) {
+    http_response_code(403);
+    pos_json(false, null, $e->getMessage());
 } catch (Throwable $e) {
     if (DEBUG_MODE) {
         pos_json(false, null, $e->getMessage());

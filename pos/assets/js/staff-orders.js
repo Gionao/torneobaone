@@ -16,6 +16,7 @@
         <div class="form-group"><label><input type="checkbox" name="is_takeaway"> Asporto</label></div>
         <div class="form-group" data-table><label>Numero tavolo<input name="table_number" maxlength="20" required></label></div>
         <div class="form-group" data-covers><label>Coperti<input type="number" name="covers" min="1" max="255" value="1" required></label></div>` : ''}
+      ${cancel ? '' : '<div class="form-group"><label>Motivazione<input name="staff_reason" maxlength="250" required></label></div>'}
       <p role="alert" data-error></p>
       <div class="pos-modal-actions"><button type="submit" class="btn btn-gold">Conferma</button>
         <button type="button" class="btn btn-outline" data-close>Chiudi</button></div>
@@ -35,6 +36,7 @@
       submit.disabled = true;
       try {
         const payload = {order_id: Number(cancel ? button.dataset.cancelStaffOrder : button.dataset.convertOrder), is_staff: toStaff};
+        if (!cancel) payload.staff_reason = form.elements.staff_reason.value.trim();
         if (takeaway) Object.assign(payload, {
           customer_name: form.elements.customer_name.value.trim(),
           is_takeaway: takeaway.checked,
